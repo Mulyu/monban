@@ -8,47 +8,107 @@
 
 エージェントはコードを書くのが得意ですが、プロジェクト全体の構造的な一貫性や、ドキュメントとコードの整合性を自律的に保つのは苦手です。monban はその「番人」として機能します。
 
+言語非依存・AST 不要。どの言語のプロジェクトでも動作します。
+
 ---
 
 ## チェック項目
 
-### 1. アーキテクチャチェック (`monban arch`)
+| コマンド | 対象 | 概要 |
+|---------|------|------|
+| `monban path` | パス構造 | ファイル・ディレクトリの存在、命名、深度、数 |
+| `monban content` | ファイル内容 | 正規表現による禁止・必須パターン |
+| `monban comment` | コメント | コメント率・コメントの存在 |
+| `monban size` | ファイルサイズ | 行数の上限 |
+| `monban doc` | ドキュメント整合性 | コードとドキュメントのハッシュ一致 |
+
+---
+
+### パスチェック (`monban path`)
 
 ファイル・ディレクトリの配置が、プロジェクトで定めた構造ルールに従っているかを検証します。
 
-- 特定のディレクトリに置くべきファイルが正しい場所にあるか
-- 禁止されたディレクトリ構造が存在していないか
-- 必須ファイル（例: `README.md`, `index.ts`）が存在するか
+| ルール | 概要 |
+|--------|------|
+| `forbidden` | 存在してはならないパスを検出する |
+| `required` | 存在しなければならないファイルの欠落を検出する |
+| `naming` | ファイル・ディレクトリの命名規則違反を検出する |
+| `depth` | ディレクトリのネスト深度の超過を検出する |
+| `count` | ディレクトリ内のファイル数の超過を検出する |
 
 ```yaml
-# monban.yml の例
-arch:
-  rules:
-    - path: "src/domain/**"
-      must_not_contain: "infrastructure"
+path:
+  forbidden:
+    - path: "**/utils/**"
+      message: "utils/ は使用禁止。適切なモジュールに配置してください。"
+    - path: "src/**/*.js"
+      message: "src/ 内に .js は配置できません。"
+
+  required:
     - path: "src/handlers/*"
-      required_files:
-        - "index.ts"
+      files: ["index.ts", "schema.ts"]
+    - path: "src/components/**/*.tsx"
+      exclude: ["**/*.test.tsx"]
+      companions: ["{stem}.test.tsx"]
+
+  naming:
+    - path: "src/components/**/*.tsx"
+      style: PascalCase
+    - path: "src/**/"
+      target: directory
+      style: kebab-case
+
+  depth:
+    - path: "src"
+      max: 4
+
+  count:
+    - path: "src/handlers"
+      max: 20
 ```
 
-### 2. コメントチェック (`monban comment`)
+詳細: [docs/path.md](docs/path.md)
+
+### コンテンツチェック (`monban content`)
+
+ファイル内容に対して正規表現マッチを行い、禁止パターン・必須パターンを検証します。
+
+| ルール | 概要 |
+|--------|------|
+| `forbidden` | ファイル内の禁止テキストパターンを検出する |
+| `required` | ファイル内の必須テキストパターンの欠落を検出する |
+
+```yaml
+content:
+  forbidden:
+    - path: "src/domain/**"
+      pattern: "process\\.env"
+      message: "domain 層で環境変数に直接アクセスしないでください。"
+
+  required:
+    - path: "src/**/*.ts"
+      pattern: "^// Copyright \\d{4}"
+      scope: first_line
+      message: "すべてのファイルにコピーライトヘッダーが必要です。"
+```
+
+詳細: [docs/content.md](docs/content.md)
+
+### コメントチェック (`monban comment`)
 
 コメントが適切に書かれているかを検証します。
 
-- 関数・クラス・モジュールにコメントが存在するか
-- コメント率が設定した閾値を下回っていないか
-
 ```yaml
 comment:
-  min_ratio: 0.05        # コメント行 / 総行数の最低比率
+  min_ratio: 0.05
   require_on:
     - exported_functions
     - exported_classes
 ```
 
-### 3. ファイルサイズチェック (`monban size`)
+### ファイルサイズチェック (`monban size`)
 
-ファイルの行数が大きくなりすぎていないかを検証します。肥大化したファイルはエージェントのコンテキスト消費を増大させ、可読性を低下させます。
+ファイルの行数が大きくなりすぎていないかを検証します。
 
 ```yaml
 size:
@@ -59,11 +119,9 @@ size:
     - "**/migrations/**"
 ```
 
-### 4. ドキュメント整合性チェック (`monban doc`)
+### ドキュメント整合性チェック (`monban doc`)
 
-ドキュメント（Markdown等）内に記載されたファイルパスと、そのファイルの実際のハッシュが一致するかを検証します。
-
-エージェントがコードを変更したとき、ドキュメントの参照が古くなっていないかを検出します。
+ドキュメント内に記載されたファイルパスと、そのファイルの実際のハッシュが一致するかを検証します。
 
 ```markdown
 <!-- monban:file src/handlers/invoice.ts sha256:a3f1c2... -->
@@ -95,16 +153,24 @@ npx monban
 monban check
 
 # チェックを個別に実行
-monban arch
+monban path
+monban content
 monban comment
 monban size
 monban doc
+
+# 特定ルールのみ実行
+monban path --rule forbidden
+monban content --rule required
 
 # ハッシュを最新の状態に更新
 monban doc --update
 
 # CI向け（違反があれば exit code 1）
 monban check --ci
+
+# JSON 出力
+monban path --json
 ```
 
 ---
@@ -115,8 +181,16 @@ monban check --ci
 
 ```yaml
 # monban.yml
-arch:
-  rules: []
+path:
+  forbidden: [...]
+  required: [...]
+  naming: [...]
+  depth: [...]
+  count: [...]
+
+content:
+  forbidden: [...]
+  required: [...]
 
 comment:
   min_ratio: 0.05
@@ -160,7 +234,7 @@ doc:
 |---|---|
 | ESLint / Biome | コードの文法・スタイル |
 | markdownlint | Markdownの記述スタイル |
-| **monban** | **プロジェクト構造・ドキュメントとコードの整合性** |
+| **monban** | **プロジェクト構造・ファイル内容・ドキュメント整合性** |
 
 特にコーディングエージェントは局所的な変更を大量に行うため、全体の一貫性が崩れやすいという特性があります。monban はその「崩れ」を検出することに集中します。
 
