@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { loadConfig } from "./config/loader.js";
-import { hasErrors, reportResults } from "./reporter.js";
-import { checkArch } from "./rules/arch.js";
+import { hasErrors, reportPathResults } from "./reporter.js";
+import { RULE_NAMES, runPathRules } from "./rules/path/index.js";
 
 export function createCli(): Command {
 	const program = new Command();
@@ -12,21 +12,23 @@ export function createCli(): Command {
 		.version("0.1.0");
 
 	program
-		.command("arch")
+		.command("path")
 		.description(
-			"アーキテクチャチェック: ファイル配置がルールに従っているか検証",
+			"パスチェック: ファイル・ディレクトリの存在、命名、深度、数を検証",
 		)
-		.action(async () => {
+		.option("--rule <name>", `特定ルールのみ実行 (${RULE_NAMES.join(", ")})`)
+		.option("--json", "JSON 出力")
+		.action(async (opts: { rule?: string; json?: boolean }) => {
 			const cwd = process.cwd();
 			const config = await loadConfig(cwd);
 
-			if (!config.arch) {
-				console.log("No arch rules defined in monban.yml");
+			if (!config.path) {
+				console.log("No path rules defined in monban.yml");
 				return;
 			}
 
-			const results = await checkArch(config.arch, cwd);
-			reportResults(results);
+			const results = await runPathRules(config.path, cwd, opts.rule);
+			reportPathResults(results, opts.json ?? false);
 
 			if (hasErrors(results)) {
 				process.exit(1);

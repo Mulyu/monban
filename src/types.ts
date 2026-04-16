@@ -7,16 +7,60 @@ export interface RuleResult {
 	severity: Severity;
 }
 
-export interface ArchRule {
+// --- Path config types ---
+
+export interface ForbiddenRule {
 	path: string;
-	must_not_contain?: string;
-	required_files?: string[];
+	message?: string;
+	severity?: Severity;
 }
 
-export interface ArchConfig {
-	rules: ArchRule[];
+export interface CompanionDef {
+	pattern: string;
+	required: boolean;
+}
+
+export interface RequiredRule {
+	path: string;
+	exclude?: string[];
+	files?: string[];
+	companions?: CompanionDef[];
+}
+
+export type NamingStyle =
+	| "PascalCase"
+	| "camelCase"
+	| "kebab-case"
+	| "snake_case"
+	| "SCREAMING_SNAKE_CASE";
+
+export interface NamingRule {
+	path: string;
+	target?: "file" | "directory";
+	style: NamingStyle;
+	prefix?: string;
+	suffix?: string;
+}
+
+export interface DepthRule {
+	path: string;
+	max: number;
+}
+
+export interface CountRule {
+	path: string;
+	max: number;
+	exclude?: string[];
+}
+
+export interface PathConfig {
+	forbidden?: ForbiddenRule[];
+	required?: RequiredRule[];
+	naming?: NamingRule[];
+	depth?: DepthRule[];
+	count?: CountRule[];
 }
 
 export interface MonbanConfig {
-	arch?: ArchConfig;
+	path?: PathConfig;
 }
