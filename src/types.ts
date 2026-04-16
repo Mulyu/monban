@@ -57,5 +57,6 @@ export interface PathConfig {
 }
 
 export interface MonbanConfig {
+	exclude?: string[];
 	path?: PathConfig;
 }

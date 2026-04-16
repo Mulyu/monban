@@ -12,6 +12,7 @@ const STYLE_VALIDATORS: Record<NamingStyle, (name: string) => boolean> = {
 export async function checkNaming(
 	rules: NamingRule[],
 	cwd: string,
+	globalExclude: string[],
 ): Promise<RuleResult[]> {
 	const results: RuleResult[] = [];
 
@@ -23,6 +24,7 @@ export async function checkNaming(
 			dot: false,
 			onlyFiles: target === "file",
 			onlyDirectories: target === "directory",
+			ignore: globalExclude,
 		});
 
 		for (const entry of entries) {

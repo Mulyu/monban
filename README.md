@@ -181,6 +181,11 @@ monban path --json
 
 ```yaml
 # monban.yml
+exclude:
+  - "**/node_modules/**"
+  - "**/vendor/**"
+  - "**/dist/**"
+
 path:
   forbidden: [...]
   required: [...]

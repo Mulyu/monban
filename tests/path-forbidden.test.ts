@@ -6,7 +6,7 @@ const cwd = resolve(import.meta.dirname, "fixtures/project");
 
 describe("path/forbidden", () => {
 	it("detects files matching forbidden glob", async () => {
-		const results = await checkForbidden([{ path: "**/utils/**" }], cwd);
+		const results = await checkForbidden([{ path: "**/utils/**" }], cwd, []);
 		expect(results.length).toBeGreaterThan(0);
 		expect(results[0].rule).toBe("forbidden");
 		expect(results[0].severity).toBe("error");
@@ -17,6 +17,7 @@ describe("path/forbidden", () => {
 		const results = await checkForbidden(
 			[{ path: "src/**/*.js", message: "No .js files in src/" }],
 			cwd,
+			[],
 		);
 		expect(results).toHaveLength(1);
 		expect(results[0].path).toContain("legacy.js");
@@ -24,7 +25,11 @@ describe("path/forbidden", () => {
 	});
 
 	it("returns empty when no matches", async () => {
-		const results = await checkForbidden([{ path: "**/nonexistent/**" }], cwd);
+		const results = await checkForbidden(
+			[{ path: "**/nonexistent/**" }],
+			cwd,
+			[],
+		);
 		expect(results).toHaveLength(0);
 	});
 
@@ -32,6 +37,7 @@ describe("path/forbidden", () => {
 		const results = await checkForbidden(
 			[{ path: "src/**/*.js", severity: "warn" }],
 			cwd,
+			[],
 		);
 		expect(results[0].severity).toBe("warn");
 	});

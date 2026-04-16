@@ -9,6 +9,7 @@ describe("path/required - files mode", () => {
 		const results = await checkRequired(
 			[{ path: "src/handlers/invoice", files: ["index.ts"] }],
 			cwd,
+			[],
 		);
 		expect(results).toHaveLength(0);
 	});
@@ -17,6 +18,7 @@ describe("path/required - files mode", () => {
 		const results = await checkRequired(
 			[{ path: "src/handlers/invoice", files: ["index.ts", "schema.ts"] }],
 			cwd,
+			[],
 		);
 		expect(results).toHaveLength(1);
 		expect(results[0].rule).toBe("required");
@@ -36,6 +38,7 @@ describe("path/required - companions mode", () => {
 				},
 			],
 			cwd,
+			[],
 		);
 		// UserProfile.tsx has UserProfile.test.tsx -> pass
 		// user_card.tsx has no user_card.test.tsx -> fail
@@ -54,6 +57,7 @@ describe("path/required - companions mode", () => {
 				},
 			],
 			cwd,
+			[],
 		);
 		expect(results.length).toBeGreaterThan(0);
 		for (const r of results) {

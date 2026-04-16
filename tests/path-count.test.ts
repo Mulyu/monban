@@ -21,17 +21,29 @@ describe("path/count", () => {
 	});
 
 	it("passes when within limit", async () => {
-		const results = await checkCount([{ path: "handlers", max: 10 }], tempDir);
+		const results = await checkCount(
+			[{ path: "handlers", max: 10 }],
+			tempDir,
+			[],
+		);
 		expect(results).toHaveLength(0);
 	});
 
 	it("passes when exactly at limit", async () => {
-		const results = await checkCount([{ path: "handlers", max: 5 }], tempDir);
+		const results = await checkCount(
+			[{ path: "handlers", max: 5 }],
+			tempDir,
+			[],
+		);
 		expect(results).toHaveLength(0);
 	});
 
 	it("detects count exceeding max", async () => {
-		const results = await checkCount([{ path: "handlers", max: 3 }], tempDir);
+		const results = await checkCount(
+			[{ path: "handlers", max: 3 }],
+			tempDir,
+			[],
+		);
 		expect(results).toHaveLength(1);
 		expect(results[0].severity).toBe("error");
 		expect(results[0].message).toContain("5");
@@ -44,6 +56,7 @@ describe("path/count", () => {
 		const results = await checkCount(
 			[{ path: "handlers", max: 5, exclude: ["index.ts"] }],
 			tempDir,
+			[],
 		);
 		expect(results).toHaveLength(0);
 	});

@@ -27,7 +27,12 @@ export function createCli(): Command {
 				return;
 			}
 
-			const results = await runPathRules(config.path, cwd, opts.rule);
+			const results = await runPathRules(
+				config.path,
+				cwd,
+				config.exclude ?? [],
+				opts.rule,
+			);
 			reportPathResults(results, opts.json ?? false);
 
 			if (hasErrors(results)) {

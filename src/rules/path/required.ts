@@ -6,15 +6,16 @@ import type { RequiredRule, RuleResult } from "../../types.js";
 export async function checkRequired(
 	rules: RequiredRule[],
 	cwd: string,
+	globalExclude: string[],
 ): Promise<RuleResult[]> {
 	const results: RuleResult[] = [];
 
 	for (const rule of rules) {
 		if (rule.files) {
-			results.push(...(await checkFiles(rule, cwd)));
+			results.push(...(await checkFiles(rule, cwd, globalExclude)));
 		}
 		if (rule.companions) {
-			results.push(...(await checkCompanions(rule, cwd)));
+			results.push(...(await checkCompanions(rule, cwd, globalExclude)));
 		}
 	}
 
@@ -24,12 +25,14 @@ export async function checkRequired(
 async function checkFiles(
 	rule: RequiredRule,
 	cwd: string,
+	globalExclude: string[],
 ): Promise<RuleResult[]> {
 	const results: RuleResult[] = [];
 	const dirs = await fg(rule.path, {
 		cwd,
 		onlyDirectories: true,
 		dot: false,
+		ignore: globalExclude,
 	});
 
 	const files = rule.files ?? [];
@@ -57,13 +60,14 @@ async function checkFiles(
 async function checkCompanions(
 	rule: RequiredRule,
 	cwd: string,
+	globalExclude: string[],
 ): Promise<RuleResult[]> {
 	const results: RuleResult[] = [];
 	const files = await fg(rule.path, {
 		cwd,
 		onlyFiles: true,
 		dot: false,
-		ignore: rule.exclude,
+		ignore: [...globalExclude, ...(rule.exclude ?? [])],
 	});
 
 	for (const file of files) {

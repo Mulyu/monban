@@ -4,20 +4,20 @@ import type { CountRule, RuleResult } from "../../types.js";
 export async function checkCount(
 	rules: CountRule[],
 	cwd: string,
+	globalExclude: string[],
 ): Promise<RuleResult[]> {
 	const results: RuleResult[] = [];
 
 	for (const rule of rules) {
 		const base = rule.path.replace(/\/$/, "");
 		const pattern = `${base}/*`;
-		const ignore = rule.exclude?.map((e) =>
-			e.includes("/") ? e : `${base}/${e}`,
-		);
+		const ruleIgnore =
+			rule.exclude?.map((e) => (e.includes("/") ? e : `${base}/${e}`)) ?? [];
 		const files = await fg(pattern, {
 			cwd,
 			onlyFiles: true,
 			dot: false,
-			ignore,
+			ignore: [...globalExclude, ...ruleIgnore],
 		});
 
 		const count = files.length;
