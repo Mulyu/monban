@@ -10,7 +10,6 @@
 monban path                    # 全ルール実行
 monban path --rule forbidden   # 特定ルールのみ
 monban path --json             # JSON 出力
-monban path --fix              # 自動修正（naming のリネーム）
 ```
 
 ---
@@ -255,11 +254,11 @@ path:
 ```
 ERROR [naming] src/components/user_profile.tsx
   PascalCase が期待されています。
-  現在: user_profile.tsx → 修正候補: UserProfile.tsx
+  現在: user_profile.tsx
 
 ERROR [naming] src/hooks/auth.ts
   prefix "use" が期待されています。
-  現在: auth.ts → 修正候補: useAuth.ts
+  現在: auth.ts
 ```
 
 ---
