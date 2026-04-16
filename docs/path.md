@@ -46,10 +46,10 @@ path:
 
   naming:
     - path: "src/components/**/*.tsx"
-      style: PascalCase
+      style: pascal
     - path: "src/**/"
       target: directory
-      style: kebab-case
+      style: kebab
 
   depth:
     - path: "src"
@@ -224,14 +224,14 @@ path:
       style: kebab-case
 
     - path: "app/models/**/*.rb"
-      style: snake_case
+      style: snake
 
     - path: "src/hooks/**/*.ts"
-      style: camelCase
+      style: camel
       prefix: "use"
 
     - path: "src/domain/**/entities/**/*.ts"
-      style: PascalCase
+      style: pascal
       suffix: ".entity"
 ```
 
@@ -247,13 +247,13 @@ path:
 
 **NamingStyle:**
 
-`PascalCase` / `camelCase` / `kebab-case` / `snake_case` / `SCREAMING_SNAKE_CASE`
+`pascal` / `camel` / `kebab` / `snake`
 
 ### 出力例
 
 ```
 ERROR [naming] src/components/user_profile.tsx
-  PascalCase が期待されています。
+  pascal が期待されています。
   現在: user_profile.tsx
 
 ERROR [naming] src/hooks/auth.ts
@@ -319,27 +319,21 @@ path:
     - path: "src/components"
       max: 30
       exclude: ["index.ts"]
-
-    warn_ratio: 0.8
 ```
 
 ### フィールド
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
-|-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ディレクトリ |
-| `max` | number | Yes | — | 最大ファイル数 |
-| `exclude` | string[] | No | — | カウント除外パターン |
-| `warn_ratio` | number | No | `0.8` | 上限に対する warn 閾値（ルールセット全体で共有） |
+| フィールド | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| `path` | string | Yes | 対象ディレクトリ |
+| `max` | number | Yes | 最大ファイル数 |
+| `exclude` | string[] | No | カウント除外パターン |
 
 ### 出力例
 
 ```
 ERROR [count] src/handlers/
   ファイル数 24 が上限 20 を超えています。
-
-WARN  [count] src/components/
-  ファイル数 25 / 上限 30（83%）
 ```
 
 ---
@@ -355,10 +349,10 @@ monban path — パスチェック
   ✓ required
   ✗ naming        1 violation
   ✓ depth
-  ✗ count         1 violation (warn)
+  ✗ count         1 violation
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  4 violations (3 errors, 1 warning)
+  4 violations
   3/5 rules passed
 ```

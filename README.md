@@ -53,10 +53,10 @@ path:
 
   naming:
     - path: "src/components/**/*.tsx"
-      style: PascalCase
+      style: pascal
     - path: "src/**/"
       target: directory
-      style: kebab-case
+      style: kebab
 
   depth:
     - path: "src"
