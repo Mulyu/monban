@@ -20,7 +20,7 @@ describe("path command integration", () => {
 					files: ["index.ts", "schema.ts"],
 				},
 			],
-			naming: [{ path: "src/components/**/*.tsx", style: "PascalCase" }],
+			naming: [{ path: "src/components/**/*.tsx", style: "pascal" }],
 			depth: [{ path: "src", max: 3 }],
 		};
 
@@ -46,7 +46,7 @@ describe("path command integration", () => {
 	it("filters by specific rule", async () => {
 		const config: PathConfig = {
 			forbidden: [{ path: "**/utils/**" }],
-			naming: [{ path: "src/components/**/*.tsx", style: "PascalCase" }],
+			naming: [{ path: "src/components/**/*.tsx", style: "pascal" }],
 		};
 
 		const results = await runPathRules(config, cwd, "forbidden");

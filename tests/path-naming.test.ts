@@ -7,7 +7,7 @@ const cwd = resolve(import.meta.dirname, "fixtures/project");
 describe("path/naming", () => {
 	it("passes PascalCase files", async () => {
 		const results = await checkNaming(
-			[{ path: "src/components/UserProfile.tsx", style: "PascalCase" }],
+			[{ path: "src/components/UserProfile.tsx", style: "pascal" }],
 			cwd,
 		);
 		expect(results).toHaveLength(0);
@@ -15,18 +15,18 @@ describe("path/naming", () => {
 
 	it("detects non-PascalCase files", async () => {
 		const results = await checkNaming(
-			[{ path: "src/components/**/*.tsx", style: "PascalCase" }],
+			[{ path: "src/components/**/*.tsx", style: "pascal" }],
 			cwd,
 		);
 		// user_card.tsx violates PascalCase
 		const violations = results.filter((r) => r.path.includes("user_card"));
 		expect(violations).toHaveLength(1);
-		expect(violations[0].message).toContain("PascalCase");
+		expect(violations[0].message).toContain("pascal");
 	});
 
 	it("checks prefix requirement", async () => {
 		const results = await checkNaming(
-			[{ path: "src/hooks/**/*.ts", style: "camelCase", prefix: "use" }],
+			[{ path: "src/hooks/**/*.ts", style: "camel", prefix: "use" }],
 			cwd,
 		);
 		// useAuth.ts -> pass (has prefix, "Auth" after removing "use" may or may not be camelCase,
@@ -42,7 +42,7 @@ describe("path/naming", () => {
 			[
 				{
 					path: "src/handlers/invoice/index.ts",
-					style: "camelCase",
+					style: "camel",
 					suffix: ".handler",
 				},
 			],
@@ -55,7 +55,7 @@ describe("path/naming", () => {
 
 	it("checks directory naming", async () => {
 		const results = await checkNaming(
-			[{ path: "src/*/", target: "directory", style: "kebab-case" }],
+			[{ path: "src/*/", target: "directory", style: "kebab" }],
 			cwd,
 		);
 		// handlers, components, hooks, domain, utils -> all lowercase, no hyphens needed for single words

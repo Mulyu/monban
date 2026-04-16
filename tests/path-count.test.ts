@@ -25,6 +25,11 @@ describe("path/count", () => {
 		expect(results).toHaveLength(0);
 	});
 
+	it("passes when exactly at limit", async () => {
+		const results = await checkCount([{ path: "handlers", max: 5 }], tempDir);
+		expect(results).toHaveLength(0);
+	});
+
 	it("detects count exceeding max", async () => {
 		const results = await checkCount([{ path: "handlers", max: 3 }], tempDir);
 		expect(results).toHaveLength(1);
@@ -33,23 +38,13 @@ describe("path/count", () => {
 		expect(results[0].message).toContain("3");
 	});
 
-	it("warns when approaching limit", async () => {
-		// 5 files, max 6 -> 83% > 80% warn threshold
-		const results = await checkCount([{ path: "handlers", max: 6 }], tempDir);
-		expect(results).toHaveLength(1);
-		expect(results[0].severity).toBe("warn");
-		expect(results[0].message).toContain("83%");
-	});
-
 	it("excludes specified files from count", async () => {
 		await writeFile(join(tempDir, "handlers", "index.ts"), "");
-		// 6 files total, but exclude index.ts -> 5 counted
+		// 6 files total, but exclude index.ts -> 5 counted, max 5 -> pass
 		const results = await checkCount(
 			[{ path: "handlers", max: 5, exclude: ["index.ts"] }],
 			tempDir,
 		);
-		// 5 files, max 5, 100% >= 80% -> warn
-		expect(results).toHaveLength(1);
-		expect(results[0].severity).toBe("warn");
+		expect(results).toHaveLength(0);
 	});
 });

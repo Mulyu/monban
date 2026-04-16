@@ -27,12 +27,7 @@ export interface RequiredRule {
 	companions?: CompanionDef[];
 }
 
-export type NamingStyle =
-	| "PascalCase"
-	| "camelCase"
-	| "kebab-case"
-	| "snake_case"
-	| "SCREAMING_SNAKE_CASE";
+export type NamingStyle = "pascal" | "camel" | "kebab" | "snake";
 
 export interface NamingRule {
 	path: string;

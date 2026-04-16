@@ -3,11 +3,10 @@ import fg from "fast-glob";
 import type { NamingRule, NamingStyle, RuleResult } from "../../types.js";
 
 const STYLE_VALIDATORS: Record<NamingStyle, (name: string) => boolean> = {
-	PascalCase: (name) => /^[A-Z][a-zA-Z0-9]*$/.test(name),
-	camelCase: (name) => /^[a-z][a-zA-Z0-9]*$/.test(name),
-	"kebab-case": (name) => /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(name),
-	snake_case: (name) => /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/.test(name),
-	SCREAMING_SNAKE_CASE: (name) => /^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$/.test(name),
+	pascal: (name) => /^[A-Z][a-zA-Z0-9]*$/.test(name),
+	camel: (name) => /^[a-z][a-zA-Z0-9]*$/.test(name),
+	kebab: (name) => /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(name),
+	snake: (name) => /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/.test(name),
 };
 
 export async function checkNaming(

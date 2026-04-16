@@ -11,13 +11,7 @@ import type {
 	Severity,
 } from "../types.js";
 
-const NAMING_STYLES: NamingStyle[] = [
-	"PascalCase",
-	"camelCase",
-	"kebab-case",
-	"snake_case",
-	"SCREAMING_SNAKE_CASE",
-];
+const NAMING_STYLES: NamingStyle[] = ["pascal", "camel", "kebab", "snake"];
 
 const SEVERITIES: Severity[] = ["error", "warn"];
 
