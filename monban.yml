@@ -1,0 +1,32 @@
+exclude:
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/fixtures/**"
+
+path:
+  forbidden:
+    - path: "**/utils/**"
+      message: "utils/ は使用禁止。適切なモジュールに配置してください。"
+    - path: "**/helpers/**"
+      message: "helpers/ は使用禁止。"
+    - path: "src/**/*.js"
+      message: "src/ 内に .js は配置できません。TypeScript を使用してください。"
+
+  required:
+    - path: "src/rules/*"
+      files: ["index.ts"]
+
+  naming:
+    - path: "src/**/*.ts"
+      style: camel
+    - path: "src/*/"
+      target: directory
+      style: kebab
+
+  depth:
+    - path: "src"
+      max: 4
+
+  count:
+    - path: "src/rules/path"
+      max: 10
