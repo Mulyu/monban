@@ -1,0 +1,45 @@
+{
+  "name": "monban",
+  "version": "0.1.0",
+  "description": "コーディングエージェントのための番所。プロジェクト構造の一貫性を検証するCLI。",
+  "type": "module",
+  "bin": {
+    "monban": "./dist/bin.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "biome check .",
+    "check:fix": "biome check --fix ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mulyu/monban"
+  },
+  "keywords": [
+    "cli",
+    "architecture",
+    "linter",
+    "coding-agent"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.12",
+    "@types/picomatch": "^4.0.3",
+    "tsdown": "^0.21.9",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "fast-glob": "^3.3.3",
+    "picomatch": "^4.0.4",
+    "yaml": "^2.8.3"
+  }
+}
