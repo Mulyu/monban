@@ -26,6 +26,8 @@ export function validateConfig(raw: unknown): MonbanConfig {
 	const obj = raw as Record<string, unknown>;
 	const config: MonbanConfig = {};
 
+	config.exclude = optionalStringArray(obj, "exclude", "monban.yml") ?? [];
+
 	if (obj.path !== undefined) {
 		config.path = validatePathConfig(obj.path);
 	}

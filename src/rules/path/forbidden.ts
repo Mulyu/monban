@@ -4,6 +4,7 @@ import type { ForbiddenRule, RuleResult } from "../../types.js";
 export async function checkForbidden(
 	rules: ForbiddenRule[],
 	cwd: string,
+	globalExclude: string[],
 ): Promise<RuleResult[]> {
 	const results: RuleResult[] = [];
 
@@ -13,7 +14,7 @@ export async function checkForbidden(
 			dot: false,
 			onlyFiles: false,
 			markDirectories: true,
-			ignore: ["**/node_modules/**"],
+			ignore: globalExclude,
 		});
 
 		for (const match of matches) {

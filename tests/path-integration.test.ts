@@ -24,7 +24,7 @@ describe("path command integration", () => {
 			depth: [{ path: "src", max: 3 }],
 		};
 
-		const results = await runPathRules(config, cwd);
+		const results = await runPathRules(config, cwd, []);
 		expect(results).toHaveLength(5); // 5 rule categories (count has no config)
 
 		const forbidden = results.find((r) => r.name === "forbidden");
@@ -49,7 +49,7 @@ describe("path command integration", () => {
 			naming: [{ path: "src/components/**/*.tsx", style: "pascal" }],
 		};
 
-		const results = await runPathRules(config, cwd, "forbidden");
+		const results = await runPathRules(config, cwd, [], "forbidden");
 		expect(results).toHaveLength(1);
 		expect(results[0].name).toBe("forbidden");
 	});
@@ -59,7 +59,7 @@ describe("path command integration", () => {
 			forbidden: [{ path: "**/nonexistent/**" }],
 		};
 
-		const results = await runPathRules(config, cwd);
+		const results = await runPathRules(config, cwd, []);
 		const allViolations = results.flatMap((r) => r.results);
 		expect(allViolations).toHaveLength(0);
 	});

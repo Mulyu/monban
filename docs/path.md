@@ -28,8 +28,14 @@ monban path --json             # JSON 出力
 
 ## 設定
 
+すべてのルールは、トップレベルの `exclude` で指定されたパターンを自動的に除外する。
+
 ```yaml
 # monban.yml
+exclude:
+  - "**/node_modules/**"
+  - "**/vendor/**"
+
 path:
   forbidden:
     - path: "**/utils/**"

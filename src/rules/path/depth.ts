@@ -5,6 +5,7 @@ import type { DepthRule, RuleResult } from "../../types.js";
 export async function checkDepth(
 	rules: DepthRule[],
 	cwd: string,
+	globalExclude: string[],
 ): Promise<RuleResult[]> {
 	const results: RuleResult[] = [];
 
@@ -15,7 +16,7 @@ export async function checkDepth(
 			cwd,
 			dot: false,
 			onlyFiles: true,
-			ignore: ["**/node_modules/**"],
+			ignore: globalExclude,
 		});
 
 		for (const entry of entries) {

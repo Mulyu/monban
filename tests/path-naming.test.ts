@@ -9,6 +9,7 @@ describe("path/naming", () => {
 		const results = await checkNaming(
 			[{ path: "src/components/UserProfile.tsx", style: "pascal" }],
 			cwd,
+			[],
 		);
 		expect(results).toHaveLength(0);
 	});
@@ -17,6 +18,7 @@ describe("path/naming", () => {
 		const results = await checkNaming(
 			[{ path: "src/components/**/*.tsx", style: "pascal" }],
 			cwd,
+			[],
 		);
 		// user_card.tsx violates PascalCase
 		const violations = results.filter((r) => r.path.includes("user_card"));
@@ -28,6 +30,7 @@ describe("path/naming", () => {
 		const results = await checkNaming(
 			[{ path: "src/hooks/**/*.ts", style: "camel", prefix: "use" }],
 			cwd,
+			[],
 		);
 		// useAuth.ts -> pass (has prefix, "Auth" after removing "use" may or may not be camelCase,
 		// but actually the full name "useAuth" is checked... let me reconsider)
@@ -47,6 +50,7 @@ describe("path/naming", () => {
 				},
 			],
 			cwd,
+			[],
 		);
 		// index.ts doesn't end with .handler
 		expect(results).toHaveLength(1);
@@ -57,6 +61,7 @@ describe("path/naming", () => {
 		const results = await checkNaming(
 			[{ path: "src/*/", target: "directory", style: "kebab" }],
 			cwd,
+			[],
 		);
 		// handlers, components, hooks, domain, utils -> all lowercase, no hyphens needed for single words
 		expect(results).toHaveLength(0);

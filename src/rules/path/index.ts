@@ -12,13 +12,17 @@ export interface PathRuleResult {
 
 const RULE_RUNNERS: Record<
 	string,
-	(config: PathConfig, cwd: string) => Promise<RuleResult[]>
+	(
+		config: PathConfig,
+		cwd: string,
+		globalExclude: string[],
+	) => Promise<RuleResult[]>
 > = {
-	forbidden: (c, cwd) => checkForbidden(c.forbidden ?? [], cwd),
-	required: (c, cwd) => checkRequired(c.required ?? [], cwd),
-	naming: (c, cwd) => checkNaming(c.naming ?? [], cwd),
-	depth: (c, cwd) => checkDepth(c.depth ?? [], cwd),
-	count: (c, cwd) => checkCount(c.count ?? [], cwd),
+	forbidden: (c, cwd, ex) => checkForbidden(c.forbidden ?? [], cwd, ex),
+	required: (c, cwd, ex) => checkRequired(c.required ?? [], cwd, ex),
+	naming: (c, cwd, ex) => checkNaming(c.naming ?? [], cwd, ex),
+	depth: (c, cwd, ex) => checkDepth(c.depth ?? [], cwd, ex),
+	count: (c, cwd, ex) => checkCount(c.count ?? [], cwd, ex),
 };
 
 export const RULE_NAMES = Object.keys(RULE_RUNNERS);
@@ -26,6 +30,7 @@ export const RULE_NAMES = Object.keys(RULE_RUNNERS);
 export async function runPathRules(
 	config: PathConfig,
 	cwd: string,
+	globalExclude: string[],
 	ruleFilter?: string,
 ): Promise<PathRuleResult[]> {
 	const names = ruleFilter ? [ruleFilter] : RULE_NAMES;
@@ -36,7 +41,7 @@ export async function runPathRules(
 		if (!runner) {
 			throw new Error(`Unknown path rule: ${name}`);
 		}
-		const ruleResults = await runner(config, cwd);
+		const ruleResults = await runner(config, cwd, globalExclude);
 		results.push({ name, results: ruleResults });
 	}
 
