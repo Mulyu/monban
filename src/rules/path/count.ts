@@ -17,7 +17,7 @@ export async function checkCount(
 			cwd,
 			onlyFiles: true,
 			dot: false,
-			ignore,
+			ignore: ["**/node_modules/**", ...(ignore ?? [])],
 		});
 
 		const count = files.length;

@@ -15,6 +15,7 @@ export async function checkDepth(
 			cwd,
 			dot: false,
 			onlyFiles: true,
+			ignore: ["**/node_modules/**"],
 		});
 
 		for (const entry of entries) {

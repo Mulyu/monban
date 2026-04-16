@@ -23,6 +23,7 @@ export async function checkNaming(
 			dot: false,
 			onlyFiles: target === "file",
 			onlyDirectories: target === "directory",
+			ignore: ["**/node_modules/**"],
 		});
 
 		for (const entry of entries) {

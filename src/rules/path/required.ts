@@ -30,6 +30,7 @@ async function checkFiles(
 		cwd,
 		onlyDirectories: true,
 		dot: false,
+		ignore: ["**/node_modules/**"],
 	});
 
 	const files = rule.files ?? [];
@@ -63,7 +64,7 @@ async function checkCompanions(
 		cwd,
 		onlyFiles: true,
 		dot: false,
-		ignore: rule.exclude,
+		ignore: ["**/node_modules/**", ...(rule.exclude ?? [])],
 	});
 
 	for (const file of files) {

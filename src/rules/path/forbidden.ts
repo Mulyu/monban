@@ -13,6 +13,7 @@ export async function checkForbidden(
 			dot: false,
 			onlyFiles: false,
 			markDirectories: true,
+			ignore: ["**/node_modules/**"],
 		});
 
 		for (const match of matches) {
