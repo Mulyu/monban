@@ -18,7 +18,7 @@ monban content --json              # JSON 出力
 
 | # | ルール | 概要 |
 |---|--------|------|
-| 1 | `forbidden` | ファイル内の禁止テキストパターンを検出する |
+| 1 | `forbidden` | ファイル内の禁止テキストパターン・BOM・不可視文字を検出する |
 | 2 | `required` | ファイル内の必須テキストパターンの欠落を検出する |
 
 ---
@@ -32,32 +32,38 @@ content:
     - path: "src/domain/**"
       pattern: "process\\.env"
       message: "domain 層で環境変数に直接アクセスしないでください。"
-    - path: "**/*.go"
-      pattern: "fmt\\.Println"
-      severity: warn
-      message: "本番コードに fmt.Println を残さないでください。"
+
+    - path: "src/**"
+      bom: true
+      message: "BOM を含めないでください。"
+
+    - path: "src/**"
+      invisible: true
+      message: "不可視の Unicode 文字が含まれています。"
 
   required:
     - path: "src/**/*.ts"
       pattern: "^// Copyright \\d{4}"
       scope: first_line
-      message: "すべてのファイルにコピーライトヘッダーが必要です。"
+      message: "コピーライトヘッダーが必要です。"
 ```
 
 ---
 
 ## 1. forbidden
 
-ファイル内に含まれてはならないテキストパターンを定義する。
+ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字の 3 種類を同じルールで扱う。
 
-AIエージェントはデバッグ出力、環境変数への直接アクセス、本番に不適切なコードを残しがち。言語固有の構文解析は行わず、正規表現で行単位にマッチする。
+`pattern`、`bom`、`invisible` のいずれか 1 つ以上を指定する。
 
 ### 設定
 
 ```yaml
 content:
   forbidden:
-    # domain 層の制限
+    # --- テキストパターン ---
+
+    # レイヤー制約
     - path: "src/domain/**"
       pattern: "process\\.env"
       message: "domain 層で環境変数に直接アクセスしないでください。"
@@ -65,23 +71,32 @@ content:
       pattern: "console\\.(log|error|warn)"
       message: "domain 層に console 出力を置かないでください。"
 
-    # デバッグコードの残存
+    # デバッグコード
     - path: "src/**"
       pattern: "debugger"
-      message: "debugger 文を残さないでください。"
+    - path: "**/*.py"
+      pattern: "^import pdb|pdb\\.set_trace"
     - path: "**/*.go"
       pattern: "fmt\\.Println"
       severity: warn
-      message: "本番コードに fmt.Println を残さないでください。"
-    - path: "**/*.py"
-      pattern: "^import pdb|pdb\\.set_trace"
-      message: "pdb を残さないでください。"
 
     # セキュリティ
     - path: "**"
       pattern: "(password|secret|api_key)\\s*=\\s*[\"'][^\"']{8,}"
       severity: warn
       message: "ハードコードされたシークレットの可能性があります。"
+
+    # --- BOM ---
+
+    - path: "src/**"
+      bom: true
+      message: "BOM を含めないでください。"
+
+    # --- 不可視 Unicode 文字 ---
+
+    - path: "src/**"
+      invisible: true
+      message: "不可視の Unicode 文字が含まれています。"
 ```
 
 ### フィールド
@@ -89,9 +104,41 @@ content:
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | 対象ファイルの glob パターン |
-| `pattern` | string | Yes | — | 禁止する正規表現パターン |
+| `pattern` | string | No* | — | 禁止する正規表現パターン（行単位マッチ） |
+| `bom` | boolean | No* | — | `true` で BOM の存在を禁止する |
+| `invisible` | boolean | No* | — | `true` で不可視 Unicode 文字の存在を禁止する |
 | `message` | string | No | — | エラーメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+\* `pattern`、`bom`、`invisible` のいずれか 1 つ以上が必須。
+
+### pattern の判定
+
+1. 対象ファイルを行単位で読み込み
+2. 各行に対して `new RegExp(pattern)` でマッチ
+3. マッチした行を違反として報告（行番号付き）
+
+### bom の判定
+
+1. ファイルの先頭 3 バイトを読み込み
+2. UTF-8 BOM（`0xEF 0xBB 0xBF`）が存在すれば違反
+
+### invisible の判定
+
+以下のカテゴリの文字が存在すれば違反として報告する:
+
+| 文字 | コードポイント | 名前 |
+|------|--------------|------|
+| ​ | `U+200B` | Zero Width Space |
+| ‌ | `U+200C` | Zero Width Non-Joiner |
+| ‍ | `U+200D` | Zero Width Joiner |
+| ⁠ | `U+2060` | Word Joiner |
+| ­ | `U+00AD` | Soft Hyphen |
+| ﻿ | `U+FEFF` | Zero Width No-Break Space（行中） |
+| ⁡ | `U+2061` | Function Application |
+| ⁢ | `U+2062` | Invisible Times |
+| ⁣ | `U+2063` | Invisible Separator |
+| ⁤ | `U+2064` | Invisible Plus |
 
 ### 出力例
 
@@ -100,9 +147,13 @@ ERROR [forbidden] src/domain/order/service.ts:15
   禁止パターン検出: process.env
   domain 層で環境変数に直接アクセスしないでください。
 
-WARN  [forbidden] internal/handler/user.go:42
-  禁止パターン検出: fmt.Println
-  本番コードに fmt.Println を残さないでください。
+ERROR [forbidden] src/config/defaults.ts
+  BOM (Byte Order Mark) が検出されました。
+  BOM を含めないでください。
+
+ERROR [forbidden] src/handlers/payment.ts:42
+  不可視の Unicode 文字が検出されました: U+200B (Zero Width Space)
+  不可視の Unicode 文字が含まれています。
 ```
 
 ---
@@ -118,23 +169,18 @@ WARN  [forbidden] internal/handler/user.go:42
 ```yaml
 content:
   required:
-    # コピーライトヘッダー
     - path: "src/**/*.ts"
       pattern: "^// Copyright \\d{4}"
       scope: first_line
-      message: "すべてのファイルにコピーライトヘッダーが必要です。"
+      message: "コピーライトヘッダーが必要です。"
 
-    # ライセンス表記
-    - path: "packages/*/src/**/*.ts"
-      pattern: "@license MIT"
-      scope: file
-      message: "ライセンス表記が必要です。"
-
-    # frozen_string_literal（Ruby）
     - path: "**/*.rb"
       pattern: "^# frozen_string_literal: true"
       scope: first_line
-      message: "frozen_string_literal コメントが必要です。"
+
+    - path: "packages/*/src/**/*.ts"
+      pattern: "@license MIT"
+      scope: file
 ```
 
 ### フィールド
@@ -150,12 +196,8 @@ content:
 
 ```
 ERROR [required] src/billing/invoice.ts
-  必須パターンが見つかりません: ^// Copyright \d{4} (先頭行)
-  すべてのファイルにコピーライトヘッダーが必要です。
-
-ERROR [required] app/models/user.rb
-  必須パターンが見つかりません: ^# frozen_string_literal: true (先頭行)
-  frozen_string_literal コメントが必要です。
+  必須パターンが見つかりません: ^// Copyright \d{4} (first_line)
+  コピーライトヘッダーが必要です。
 ```
 
 ---
@@ -167,11 +209,11 @@ $ monban content
 
 monban content — コンテンツチェック
 
-  ✗ forbidden     3 violations
+  ✗ forbidden     5 violations
   ✗ required      1 violation
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  4 violations (3 errors, 1 warning)
+  6 violations (5 errors, 1 warning)
   0/2 rules passed
 ```
