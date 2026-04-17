@@ -1,0 +1,11 @@
+extends:
+  - type: local
+    path: "./base.yml"
+
+exclude:
+  - "**/dist/**"
+
+path:
+  forbidden:
+    - path: "**/helpers/**"
+      message: "helpers/ is forbidden"

@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { parse } from "yaml";
 import type { MonbanConfig } from "../types.js";
-import { validateConfig } from "./schema.js";
+import { resolveExtends } from "./extends/index.js";
+import { validateConfig, validateExtends } from "./schema.js";
 
 const CONFIG_FILENAMES = ["monban.yml", "monban.yaml"];
 
@@ -12,7 +13,9 @@ export async function loadConfig(cwd: string): Promise<MonbanConfig> {
 		try {
 			const content = await readFile(filepath, "utf-8");
 			const raw = parse(content);
-			return validateConfig(raw);
+			validateExtends(raw);
+			const merged = await resolveExtends(raw, dirname(filepath));
+			return validateConfig(merged);
 		} catch (err) {
 			if ((err as NodeJS.ErrnoException).code === "ENOENT") {
 				continue;
