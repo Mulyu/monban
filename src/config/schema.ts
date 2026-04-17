@@ -1,4 +1,8 @@
 import type {
+	ActionsConfig,
+	ActionsForbiddenRule,
+	ActionsPinnedRule,
+	ActionsRequiredRule,
 	CompanionDef,
 	ContentConfig,
 	ContentForbiddenRule,
@@ -51,6 +55,10 @@ export function validateConfig(raw: unknown): MonbanConfig {
 
 	if (obj.doc !== undefined) {
 		config.doc = validateDocConfig(obj.doc);
+	}
+
+	if (obj.actions !== undefined) {
+		config.actions = validateActionsConfig(obj.actions);
 	}
 
 	return config;
@@ -439,4 +447,94 @@ function validateDocLinkRule(
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
 	return { path: requireString(raw, "path", label) };
+}
+
+// --- Actions config validation ---
+
+function validateActionsConfig(raw: unknown): ActionsConfig {
+	if (typeof raw !== "object" || raw === null) {
+		throw new Error("actions must be an object");
+	}
+
+	const obj = raw as Record<string, unknown>;
+	const config: ActionsConfig = {};
+
+	if (obj.pinned !== undefined) {
+		config.pinned = validateArray(
+			obj.pinned,
+			"actions.pinned",
+			validateActionsPinnedRule,
+		);
+	}
+	if (obj.required !== undefined) {
+		config.required = validateArray(
+			obj.required,
+			"actions.required",
+			validateActionsRequiredRule,
+		);
+	}
+	if (obj.forbidden !== undefined) {
+		config.forbidden = validateArray(
+			obj.forbidden,
+			"actions.forbidden",
+			validateActionsForbiddenRule,
+		);
+	}
+
+	return config;
+}
+
+function validateActionsPinnedRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): ActionsPinnedRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+	return { path: requireString(raw, "path", label) };
+}
+
+function validateActionsRequiredRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): ActionsRequiredRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: ActionsRequiredRule = {};
+	rule.file = optionalString(raw, "file", label);
+	rule.path = optionalString(raw, "path", label);
+	rule.steps = optionalStringArray(raw, "steps", label);
+
+	if (!rule.file && !(rule.path && rule.steps)) {
+		throw new Error(`${label} must have either "file" or "path" with "steps"`);
+	}
+
+	return rule;
+}
+
+function validateActionsForbiddenRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): ActionsForbiddenRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: ActionsForbiddenRule = {
+		path: requireString(raw, "path", label),
+		uses: requireString(raw, "uses", label),
+	};
+	rule.message = optionalString(raw, "message", label);
+
+	const severity = optionalString(raw, "severity", label);
+	if (severity !== undefined) {
+		if (!SEVERITIES.includes(severity as Severity)) {
+			throw new Error(`${label}.severity must be "error" or "warn"`);
+		}
+		rule.severity = severity as Severity;
+	}
+
+	return rule;
 }

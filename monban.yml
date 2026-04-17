@@ -34,6 +34,8 @@ path:
       max: 10
     - path: "src/rules/doc"
       max: 10
+    - path: "src/rules/actions"
+      max: 10
 
 content:
   forbidden:
@@ -46,6 +48,14 @@ content:
     - path: "src/**/*.ts"
       secret: true
       message: "シークレットらしき文字列が検出されました。"
+
+actions:
+  pinned:
+    - path: ".github/workflows/**/*.yml"
+  required:
+    - file: ".github/workflows/test.yml"
+    - path: ".github/workflows/test.yml"
+      steps: ["actions/checkout", "actions/setup-node"]
 
 doc:
   link:

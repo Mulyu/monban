@@ -18,7 +18,8 @@
 |---------|------|------|
 | `monban path` | パス構造 | ファイル・ディレクトリの存在、命名、深度、数 |
 | `monban content` | ファイル内容 | 正規表現による禁止・必須パターン |
-| `monban doc` | ドキュメント整合性 | コードとドキュメントのハッシュ一致 |
+| `monban doc` | ドキュメント整合性 | 参照ハッシュの一致・リンク切れ |
+| `monban actions` | GitHub Actions | アクションのピン留め・必須ワークフロー・禁止アクション |
 
 ---
 
@@ -92,20 +93,51 @@ content:
 
 詳細: [docs/content.md](docs/content.md)
 
-### ドキュメント整合性チェック (`monban doc`)
+### ドキュメントチェック (`monban doc`)
 
-ドキュメント内に記載されたファイルパスと、そのファイルの実際のハッシュが一致するかを検証します。
+ドキュメントの参照整合性とリンク切れを検証します。
 
-```markdown
-<!-- monban:file src/handlers/invoice.ts sha256:a3f1c2... -->
-```
+| ルール | 概要 |
+|--------|------|
+| `ref` | `monban:ref` マーカーで参照したファイルのハッシュ一致を検証する |
+| `link` | Markdown 内の相対リンク切れを検出する |
 
 ```yaml
 doc:
-  targets:
-    - "docs/**/*.md"
-    - "ARCHITECTURE.md"
+  ref:
+    - path: "docs/**/*.md"
+  link:
+    - path: "docs/**/*.md"
+    - path: "*.md"
 ```
+
+詳細: [docs/doc.md](docs/doc.md)
+
+### GitHub Actions チェック (`monban actions`)
+
+GitHub Actions ワークフローのセキュリティと構成を検証します。
+
+| ルール | 概要 |
+|--------|------|
+| `pinned` | `uses` のアクション指定がコミットハッシュで固定されているか |
+| `required` | 必須ワークフロー・必須ステップの存在を検証する |
+| `forbidden` | 禁止アクションの使用を検出する |
+
+```yaml
+actions:
+  pinned:
+    - path: ".github/workflows/**/*.yml"
+  required:
+    - file: ".github/workflows/test.yml"
+    - path: ".github/workflows/test.yml"
+      steps: ["actions/checkout", "actions/setup-node"]
+  forbidden:
+    - path: ".github/workflows/**/*.yml"
+      uses: "actions/create-release"
+      message: "release-please を使ってください。"
+```
+
+詳細: [docs/actions.md](docs/actions.md)
 
 ---
 
@@ -129,13 +161,12 @@ monban all
 monban path
 monban content
 monban doc
+monban actions
 
 # 特定ルールのみ実行
 monban path --rule forbidden
 monban content --rule required
-
-# ハッシュを最新の状態に更新
-monban doc --update
+monban actions --rule pinned
 
 # JSON 出力
 monban all --json
@@ -167,8 +198,13 @@ content:
   required: [...]
 
 doc:
-  targets:
-    - "**/*.md"
+  ref: [...]
+  link: [...]
+
+actions:
+  pinned: [...]
+  required: [...]
+  forbidden: [...]
 ```
 
 ---
