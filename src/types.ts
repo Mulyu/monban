@@ -122,7 +122,24 @@ export interface ActionsConfig {
 	forbidden?: ActionsForbiddenRule[];
 }
 
+// --- Extends types ---
+
+export interface ExtendsLocal {
+	type: "local";
+	path: string;
+}
+
+export interface ExtendsGitHub {
+	type: "github";
+	repo: string;
+	ref?: string;
+	path: string;
+}
+
+export type ExtendsSource = ExtendsLocal | ExtendsGitHub;
+
 export interface MonbanConfig {
+	extends?: ExtendsSource[];
 	exclude?: string[];
 	path?: PathConfig;
 	content?: ContentConfig;

@@ -13,6 +13,9 @@ import type {
 	DocConfig,
 	DocLinkRule,
 	DocRefRule,
+	ExtendsGitHub,
+	ExtendsLocal,
+	ExtendsSource,
 	ForbiddenRule,
 	MonbanConfig,
 	NamingRule,
@@ -32,6 +35,13 @@ const CONTENT_REQUIRED_SCOPES: ContentRequiredScope[] = [
 	"last_line",
 ];
 
+export function validateExtends(raw: unknown): ExtendsSource[] {
+	if (typeof raw !== "object" || raw === null) return [];
+	const obj = raw as Record<string, unknown>;
+	if (obj.extends === undefined) return [];
+	return validateArray(obj.extends, "extends", validateExtendsSource);
+}
+
 export function validateConfig(raw: unknown): MonbanConfig {
 	if (raw === null || raw === undefined) {
 		return {};
@@ -42,6 +52,14 @@ export function validateConfig(raw: unknown): MonbanConfig {
 
 	const obj = raw as Record<string, unknown>;
 	const config: MonbanConfig = {};
+
+	if (obj.extends !== undefined) {
+		config.extends = validateArray(
+			obj.extends,
+			"extends",
+			validateExtendsSource,
+		);
+	}
 
 	config.exclude = optionalStringArray(obj, "exclude", "monban.yml") ?? [];
 
@@ -537,4 +555,34 @@ function validateActionsForbiddenRule(
 	}
 
 	return rule;
+}
+
+// --- Extends validation ---
+
+function validateExtendsSource(
+	raw: unknown,
+	index: number,
+	field: string,
+): ExtendsSource {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const type = requireString(raw, "type", label);
+	if (type === "local") {
+		const rule: ExtendsLocal = {
+			type: "local",
+			path: requireString(raw, "path", label),
+		};
+		return rule;
+	}
+	if (type === "github") {
+		const rule: ExtendsGitHub = {
+			type: "github",
+			repo: requireString(raw, "repo", label),
+			path: requireString(raw, "path", label),
+		};
+		rule.ref = optionalString(raw, "ref", label);
+		return rule;
+	}
+	throw new Error(`${label}.type must be "local" or "github"`);
 }
