@@ -181,6 +181,14 @@ monban path --json
 
 ```yaml
 # monban.yml
+extends:
+  - type: local
+    path: "./shared/base.yml"
+  - type: github
+    repo: "myorg/monban-standards"
+    ref: "main"
+    path: "base.yml"
+
 exclude:
   - "**/node_modules/**"
   - "**/vendor/**"
@@ -206,6 +214,17 @@ actions:
   required: [...]
   forbidden: [...]
 ```
+
+### 設定の継承（extends）
+
+`extends` で他の YAML 設定を継承できます。ローカルファイルや GitHub リポジトリから取得可能で、組織共通のベースルールを再利用するのに便利です。
+
+- **local**: ローカルファイルから取得
+- **github**: GitHub リポジトリから git clone で取得（プライベートリポジトリも既存の Git 認証で対応）
+
+継承先のルール配列は、現在の設定のルール配列に**連結**されます。
+
+詳細: [docs/extends.md](docs/extends.md)
 
 ---
 
