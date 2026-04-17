@@ -52,6 +52,8 @@ content:
 
 ## 1. forbidden
 
+<!-- monban:ref ../src/rules/content/forbidden.ts sha256:0031427d85aa8dd006592a2ed2b513186533a15d646bb17ef80c039c06c47b59 -->
+
 ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字、シークレットの 4 種類を同じルールで扱う。
 
 `pattern`、`bom`、`invisible`、`secret` のいずれか 1 つ以上を指定する。
@@ -184,6 +186,8 @@ ERROR [forbidden] src/handlers/webhook.ts:8
 ---
 
 ## 2. required
+
+<!-- monban:ref ../src/rules/content/required.ts sha256:5570d1a213a7fe15bfad3887c415245a407c9a3799217b9b08dc64741168f840 -->
 
 ファイル内に含まれるべきテキストパターンを定義する。
 
