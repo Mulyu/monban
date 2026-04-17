@@ -1,7 +1,8 @@
 import type { ContentRuleResult } from "./rules/content/index.js";
+import type { DocRuleResult } from "./rules/doc/index.js";
 import type { PathRuleResult } from "./rules/path/index.js";
 
-type CategoryRuleResult = PathRuleResult | ContentRuleResult;
+type CategoryRuleResult = PathRuleResult | ContentRuleResult | DocRuleResult;
 
 export interface CategoryGroup {
 	category: string;
@@ -20,6 +21,13 @@ export function reportContentResults(
 	json: boolean,
 ): void {
 	reportResults("monban content — コンテンツチェック", ruleResults, json);
+}
+
+export function reportDocResults(
+	ruleResults: DocRuleResult[],
+	json: boolean,
+): void {
+	reportResults("monban doc — ドキュメントチェック", ruleResults, json);
 }
 
 export function reportAllResults(groups: CategoryGroup[], json: boolean): void {
