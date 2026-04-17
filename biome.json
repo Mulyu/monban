@@ -3,6 +3,14 @@
 	"files": {
 		"includes": ["src/**", "tests/**", "*.ts"]
 	},
+	"overrides": [
+		{
+			"includes": ["tests/fixtures/**"],
+			"linter": {
+				"enabled": false
+			}
+		}
+	],
 	"formatter": {
 		"indentStyle": "tab"
 	},

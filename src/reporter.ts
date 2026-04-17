@@ -1,17 +1,35 @@
+import type { ContentRuleResult } from "./rules/content/index.js";
 import type { PathRuleResult } from "./rules/path/index.js";
+
+type CategoryRuleResult = PathRuleResult | ContentRuleResult;
 
 export function reportPathResults(
 	ruleResults: PathRuleResult[],
+	json: boolean,
+): void {
+	reportResults("monban path — パスチェック", ruleResults, json);
+}
+
+export function reportContentResults(
+	ruleResults: ContentRuleResult[],
+	json: boolean,
+): void {
+	reportResults("monban content — コンテンツチェック", ruleResults, json);
+}
+
+function reportResults(
+	title: string,
+	ruleResults: CategoryRuleResult[],
 	json: boolean,
 ): void {
 	if (json) {
 		reportJson(ruleResults);
 		return;
 	}
-	reportText(ruleResults);
+	reportText(title, ruleResults);
 }
 
-function reportJson(ruleResults: PathRuleResult[]): void {
+function reportJson(ruleResults: CategoryRuleResult[]): void {
 	const output = ruleResults.map((r) => ({
 		rule: r.name,
 		violations: r.results.map((v) => ({
@@ -23,14 +41,14 @@ function reportJson(ruleResults: PathRuleResult[]): void {
 	console.log(JSON.stringify(output, null, 2));
 }
 
-function reportText(ruleResults: PathRuleResult[]): void {
+function reportText(title: string, ruleResults: CategoryRuleResult[]): void {
 	const allResults = ruleResults.flatMap((r) => r.results);
 	const totalErrors = allResults.filter((r) => r.severity === "error").length;
 	const totalWarns = allResults.filter((r) => r.severity === "warn").length;
 	const totalViolations = totalErrors + totalWarns;
 	const passedCount = ruleResults.filter((r) => r.results.length === 0).length;
 
-	console.log("\nmonban path — パスチェック\n");
+	console.log(`\n${title}\n`);
 
 	for (const rule of ruleResults) {
 		const count = rule.results.length;
@@ -77,6 +95,6 @@ function reportText(ruleResults: PathRuleResult[]): void {
 	console.log("");
 }
 
-export function hasErrors(ruleResults: PathRuleResult[]): boolean {
+export function hasErrors(ruleResults: CategoryRuleResult[]): boolean {
 	return ruleResults.some((r) => r.results.some((v) => v.severity === "error"));
 }

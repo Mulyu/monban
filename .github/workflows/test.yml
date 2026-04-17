@@ -24,3 +24,9 @@ jobs:
       - run: npm run build
 
       - run: npm test
+
+      - name: monban path
+        run: node dist/bin.mjs path
+
+      - name: monban content
+        run: node dist/bin.mjs content

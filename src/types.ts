@@ -56,7 +56,33 @@ export interface PathConfig {
 	count?: CountRule[];
 }
 
+// --- Content config types ---
+
+export interface ContentForbiddenRule {
+	path: string;
+	pattern?: string;
+	bom?: boolean;
+	invisible?: boolean;
+	message?: string;
+	severity?: Severity;
+}
+
+export type ContentRequiredScope = "file" | "first_line" | "last_line";
+
+export interface ContentRequiredRule {
+	path: string;
+	pattern: string;
+	scope?: ContentRequiredScope;
+	message?: string;
+}
+
+export interface ContentConfig {
+	forbidden?: ContentForbiddenRule[];
+	required?: ContentRequiredRule[];
+}
+
 export interface MonbanConfig {
 	exclude?: string[];
 	path?: PathConfig;
+	content?: ContentConfig;
 }
