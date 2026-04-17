@@ -25,10 +25,17 @@ export async function checkDocLink(
 			const abs = join(cwd, file);
 			const content = await readFile(abs, "utf-8");
 			const lines = content.split("\n");
+			let inCodeBlock = false;
 
 			for (let i = 0; i < lines.length; i++) {
 				const line = lines[i];
 				const lineNum = i + 1;
+
+				if (line.trimStart().startsWith("```")) {
+					inCodeBlock = !inCodeBlock;
+					continue;
+				}
+				if (inCodeBlock) continue;
 
 				for (const match of line.matchAll(MD_LINK)) {
 					const href = match[1];

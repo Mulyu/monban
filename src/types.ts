@@ -97,9 +97,35 @@ export interface DocConfig {
 	link?: DocLinkRule[];
 }
 
+// --- Actions config types ---
+
+export interface ActionsPinnedRule {
+	path: string;
+}
+
+export interface ActionsRequiredRule {
+	file?: string;
+	path?: string;
+	steps?: string[];
+}
+
+export interface ActionsForbiddenRule {
+	path: string;
+	uses: string;
+	message?: string;
+	severity?: Severity;
+}
+
+export interface ActionsConfig {
+	pinned?: ActionsPinnedRule[];
+	required?: ActionsRequiredRule[];
+	forbidden?: ActionsForbiddenRule[];
+}
+
 export interface MonbanConfig {
 	exclude?: string[];
 	path?: PathConfig;
 	content?: ContentConfig;
 	doc?: DocConfig;
+	actions?: ActionsConfig;
 }
