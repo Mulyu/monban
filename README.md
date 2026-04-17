@@ -123,7 +123,7 @@ npx monban
 
 ```bash
 # すべてのチェックを実行
-monban check
+monban all
 
 # チェックを個別に実行
 monban path
@@ -137,10 +137,8 @@ monban content --rule required
 # ハッシュを最新の状態に更新
 monban doc --update
 
-# CI向け（違反があれば exit code 1）
-monban check --ci
-
 # JSON 出力
+monban all --json
 monban path --json
 ```
 
@@ -184,14 +182,14 @@ doc:
 ```markdown
 ## 変更後の確認
 
-コードを変更したあとは必ず `npx monban check` を実行し、すべてのチェックがパスすることを確認すること。
+コードを変更したあとは必ず `npx monban all` を実行し、すべてのチェックがパスすることを確認すること。
 ```
 
 ### GitHub Actions
 
 ```yaml
-- name: monban check
-  run: npx monban check --ci
+- name: monban
+  run: npx monban all
 ```
 
 ---
