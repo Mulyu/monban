@@ -104,6 +104,84 @@ describe("content/forbidden", () => {
 		});
 	});
 
+	describe("secret", () => {
+		it("detects AWS access key", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "has-secret.ts", secret: true }],
+				cwd,
+				[],
+			);
+			const aws = results.find((r) => r.message.includes("AWS Access Key"));
+			expect(aws).toBeDefined();
+			expect(aws?.path).toMatch(/has-secret\.ts:\d+/);
+		});
+
+		it("detects GitHub token", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "has-secret.ts", secret: true }],
+				cwd,
+				[],
+			);
+			const gh = results.find((r) => r.message.includes("GitHub"));
+			expect(gh).toBeDefined();
+		});
+
+		it("detects Google API key", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "has-secret.ts", secret: true }],
+				cwd,
+				[],
+			);
+			const google = results.find((r) => r.message.includes("Google API Key"));
+			expect(google).toBeDefined();
+		});
+
+		it("detects Slack token", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "has-secret.ts", secret: true }],
+				cwd,
+				[],
+			);
+			const slack = results.find((r) => r.message.includes("Slack"));
+			expect(slack).toBeDefined();
+		});
+
+		it("detects JWT", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "has-secret.ts", secret: true }],
+				cwd,
+				[],
+			);
+			const jwt = results.find((r) => r.message.includes("JWT"));
+			expect(jwt).toBeDefined();
+		});
+
+		it("does not flag non-secret strings", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "no-secret.ts", secret: true }],
+				cwd,
+				[],
+			);
+			expect(results).toHaveLength(0);
+		});
+
+		it("uses custom message", async () => {
+			const results = await checkContentForbidden(
+				[
+					{
+						path: "has-secret.ts",
+						secret: true,
+						message: "シークレット禁止",
+					},
+				],
+				cwd,
+				[],
+			);
+			expect(results.length).toBeGreaterThan(0);
+			expect(results[0].message).toBe("シークレット禁止");
+		});
+	});
+
 	describe("globalExclude", () => {
 		it("respects global exclude patterns", async () => {
 			const results = await checkContentForbidden(

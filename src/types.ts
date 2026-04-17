@@ -63,6 +63,7 @@ export interface ContentForbiddenRule {
 	pattern?: string;
 	bom?: boolean;
 	invisible?: boolean;
+	secret?: boolean;
 	message?: string;
 	severity?: Severity;
 }
