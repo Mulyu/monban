@@ -1,6 +1,6 @@
 # monban content
 
-ファイル内容のチェック。言語非依存の正規表現マッチで、禁止パターン・必須パターン・エンコーディングを検証する。
+ファイル内容のチェック。言語非依存の正規表現マッチで、禁止パターン・必須パターンを検証する。
 
 - 言語非依存・AST 不要
 - プレーンテキストの正規表現スキャンのみで完結
@@ -18,9 +18,8 @@ monban content --json              # JSON 出力
 
 | # | ルール | 概要 |
 |---|--------|------|
-| 1 | `forbidden` | ファイル内の禁止テキストパターンを検出する |
+| 1 | `forbidden` | ファイル内の禁止テキストパターン・BOM・不可視文字を検出する |
 | 2 | `required` | ファイル内の必須テキストパターンの欠落を検出する |
-| 3 | `encoding` | ファイルのエンコーディングが不正でないか検出する |
 
 ---
 
@@ -33,35 +32,37 @@ content:
     - path: "src/domain/**"
       pattern: "process\\.env"
       message: "domain 層で環境変数に直接アクセスしないでください。"
-    - path: "**/*.go"
-      pattern: "fmt\\.Println"
-      severity: warn
+
+    - path: "src/**"
+      bom: true
+      message: "BOM を含めないでください。"
+
+    - path: "src/**"
+      invisible: true
+      message: "不可視の Unicode 文字が含まれています。"
 
   required:
     - path: "src/**/*.ts"
       pattern: "^// Copyright \\d{4}"
       scope: first_line
       message: "コピーライトヘッダーが必要です。"
-
-  encoding:
-    - path: "src/**"
-      allow: utf-8
-      bom: false
 ```
 
 ---
 
 ## 1. forbidden
 
-ファイル内に含まれてはならないテキストパターンを定義する。
+ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字の 3 種類を同じルールで扱う。
 
-AIエージェントはデバッグ出力、環境変数への直接アクセス、本番に不適切なコードを残しがち。正規表現で行単位にマッチする。
+`pattern`、`bom`、`invisible` のいずれか 1 つ以上を指定する。
 
 ### 設定
 
 ```yaml
 content:
   forbidden:
+    # --- テキストパターン ---
+
     # レイヤー制約
     - path: "src/domain/**"
       pattern: "process\\.env"
@@ -84,6 +85,18 @@ content:
       pattern: "(password|secret|api_key)\\s*=\\s*[\"'][^\"']{8,}"
       severity: warn
       message: "ハードコードされたシークレットの可能性があります。"
+
+    # --- BOM ---
+
+    - path: "src/**"
+      bom: true
+      message: "BOM を含めないでください。"
+
+    # --- 不可視 Unicode 文字 ---
+
+    - path: "src/**"
+      invisible: true
+      message: "不可視の Unicode 文字が含まれています。"
 ```
 
 ### フィールド
@@ -91,9 +104,41 @@ content:
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | 対象ファイルの glob パターン |
-| `pattern` | string | Yes | — | 禁止する正規表現パターン |
+| `pattern` | string | No* | — | 禁止する正規表現パターン（行単位マッチ） |
+| `bom` | boolean | No* | — | `true` で BOM の存在を禁止する |
+| `invisible` | boolean | No* | — | `true` で不可視 Unicode 文字の存在を禁止する |
 | `message` | string | No | — | エラーメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+\* `pattern`、`bom`、`invisible` のいずれか 1 つ以上が必須。
+
+### pattern の判定
+
+1. 対象ファイルを行単位で読み込み
+2. 各行に対して `new RegExp(pattern)` でマッチ
+3. マッチした行を違反として報告（行番号付き）
+
+### bom の判定
+
+1. ファイルの先頭 3 バイトを読み込み
+2. UTF-8 BOM（`0xEF 0xBB 0xBF`）が存在すれば違反
+
+### invisible の判定
+
+以下のカテゴリの文字が存在すれば違反として報告する:
+
+| 文字 | コードポイント | 名前 |
+|------|--------------|------|
+| ​ | `U+200B` | Zero Width Space |
+| ‌ | `U+200C` | Zero Width Non-Joiner |
+| ‍ | `U+200D` | Zero Width Joiner |
+| ⁠ | `U+2060` | Word Joiner |
+| ­ | `U+00AD` | Soft Hyphen |
+| ﻿ | `U+FEFF` | Zero Width No-Break Space（行中） |
+| ⁡ | `U+2061` | Function Application |
+| ⁢ | `U+2062` | Invisible Times |
+| ⁣ | `U+2063` | Invisible Separator |
+| ⁤ | `U+2064` | Invisible Plus |
 
 ### 出力例
 
@@ -101,6 +146,14 @@ content:
 ERROR [forbidden] src/domain/order/service.ts:15
   禁止パターン検出: process.env
   domain 層で環境変数に直接アクセスしないでください。
+
+ERROR [forbidden] src/config/defaults.ts
+  BOM (Byte Order Mark) が検出されました。
+  BOM を含めないでください。
+
+ERROR [forbidden] src/handlers/payment.ts:42
+  不可視の Unicode 文字が検出されました: U+200B (Zero Width Space)
+  不可視の Unicode 文字が含まれています。
 ```
 
 ---
@@ -149,55 +202,6 @@ ERROR [required] src/billing/invoice.ts
 
 ---
 
-## 3. encoding
-
-ファイルのエンコーディングを検証する。
-
-AIエージェントがバイナリファイルやBOM付きファイルをソースディレクトリに配置することを防ぐ。
-
-### 設定
-
-```yaml
-content:
-  encoding:
-    - path: "src/**"
-      allow: utf-8
-      bom: false
-
-    - path: "**/*.csv"
-      allow: utf-8
-      bom: true    # CSV は BOM 付き UTF-8 を許可
-```
-
-### フィールド
-
-| フィールド | 型 | 必須 | デフォルト | 説明 |
-|-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob パターン |
-| `allow` | `"utf-8"` | Yes | — | 許可するエンコーディング |
-| `bom` | boolean | No | `false` | BOM の許可 |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
-| `message` | string | No | — | エラーメッセージ |
-
-### 判定ロジック
-
-1. ファイルの先頭バイトで BOM（`0xEF 0xBB 0xBF`）の有無を確認
-2. `bom: false` なのに BOM が存在すれば違反
-3. `bom: true` なのに BOM が不在なら違反（BOM を要求する場合）
-4. バイナリ検出: NUL バイト（`0x00`）が含まれていればバイナリとして報告
-
-### 出力例
-
-```
-ERROR [encoding] src/config/defaults.ts
-  BOM (Byte Order Mark) が検出されました。BOM なし UTF-8 を使用してください。
-
-ERROR [encoding] src/data/sample.bin
-  バイナリファイルが検出されました。ソースディレクトリにバイナリを配置しないでください。
-```
-
----
-
 ## 共通出力
 
 ```
@@ -205,12 +209,11 @@ $ monban content
 
 monban content — コンテンツチェック
 
-  ✗ forbidden     3 violations
+  ✗ forbidden     5 violations
   ✗ required      1 violation
-  ✓ encoding
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  4 violations (3 errors, 1 warning)
-  1/3 rules passed
+  6 violations (5 errors, 1 warning)
+  0/2 rules passed
 ```
