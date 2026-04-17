@@ -18,8 +18,6 @@
 |---------|------|------|
 | `monban path` | パス構造 | ファイル・ディレクトリの存在、命名、深度、数 |
 | `monban content` | ファイル内容 | 正規表現による禁止・必須パターン |
-| `monban comment` | コメント | コメント率・コメントの存在 |
-| `monban size` | ファイルサイズ | 行数の上限 |
 | `monban doc` | ドキュメント整合性 | コードとドキュメントのハッシュ一致 |
 
 ---
@@ -94,31 +92,6 @@ content:
 
 詳細: [docs/content.md](docs/content.md)
 
-### コメントチェック (`monban comment`)
-
-コメントが適切に書かれているかを検証します。
-
-```yaml
-comment:
-  min_ratio: 0.05
-  require_on:
-    - exported_functions
-    - exported_classes
-```
-
-### ファイルサイズチェック (`monban size`)
-
-ファイルの行数が大きくなりすぎていないかを検証します。
-
-```yaml
-size:
-  max_lines: 300
-  warn_lines: 200
-  exclude:
-    - "**/*.generated.ts"
-    - "**/migrations/**"
-```
-
 ### ドキュメント整合性チェック (`monban doc`)
 
 ドキュメント内に記載されたファイルパスと、そのファイルの実際のハッシュが一致するかを検証します。
@@ -155,8 +128,6 @@ monban check
 # チェックを個別に実行
 monban path
 monban content
-monban comment
-monban size
 monban doc
 
 # 特定ルールのみ実行
@@ -196,12 +167,6 @@ path:
 content:
   forbidden: [...]
   required: [...]
-
-comment:
-  min_ratio: 0.05
-
-size:
-  max_lines: 300
 
 doc:
   targets:
