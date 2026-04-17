@@ -58,6 +58,8 @@ actions:
       steps: ["actions/checkout", "actions/setup-node"]
 
 doc:
+  ref:
+    - path: "docs/**/*.md"
   link:
     - path: "docs/**/*.md"
     - path: "*.md"

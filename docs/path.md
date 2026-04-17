@@ -70,6 +70,8 @@ path:
 
 ## 1. forbidden
 
+<!-- monban:ref ../src/rules/path/forbidden.ts sha256:bdd98c6a5adaf42b7f267b7d890b7cccd5239c0432295571315e2804b8204401 -->
+
 存在してはならないファイル・ディレクトリを定義する。
 
 AIエージェントは `utils/`、`helpers/` のような曖昧なディレクトリを安易に作る。拡張子の制限やトップレベル構造の制御にも使える。
@@ -123,6 +125,8 @@ WARN  [forbidden] tmp/draft.temp.md
 ---
 
 ## 2. required
+
+<!-- monban:ref ../src/rules/path/required.ts sha256:2e10a29681c1397b5cdd743858e9ae9dd6a5cfa928df5f4e5174319b22288056 -->
 
 特定のディレクトリやファイルに対し、存在すべきファイルを定義する。2つのモードがある。
 
@@ -213,6 +217,8 @@ WARN  [required] src/components/UserProfile.tsx
 
 ## 3. naming
 
+<!-- monban:ref ../src/rules/path/naming.ts sha256:9a4e74475934325636616e42cecc118e3ff91ee16cb74ec0db3314c882bd7915 -->
+
 ファイル名・ディレクトリ名の命名スタイルを強制する。場所を起点として、そこにあるファイル/ディレクトリの名前をチェックする。
 
 AIエージェントは既存の命名規則を把握せずにファイルを作成し、PascalCase と kebab-case が混在するなどの不一致を起こす。
@@ -271,6 +277,8 @@ ERROR [naming] src/hooks/auth.ts
 
 ## 4. depth
 
+<!-- monban:ref ../src/rules/path/depth.ts sha256:812074426cac3eed081d94078682b47f22a8df4e9bb74bd504b3804a9e9115a3 -->
+
 ディレクトリのネスト深度に上限を設ける。
 
 AIエージェントは機械的にサブディレクトリを掘り、不必要に深い構造を作ることがある。
@@ -309,6 +317,8 @@ ERROR [depth] src/domain/user/profile/settings/theme.ts
 ---
 
 ## 5. count
+
+<!-- monban:ref ../src/rules/path/count.ts sha256:9aabef7b9d37ab0b5d6ec473ccb5651c0866fd4a802db86dd04d3dc62bb95747 -->
 
 1ディレクトリに置けるファイル数に上限を設ける。
 
