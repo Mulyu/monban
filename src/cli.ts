@@ -1,7 +1,10 @@
 import { Command } from "commander";
 import { loadConfig } from "./config/loader.js";
+import type { CategoryGroup } from "./reporter.js";
 import {
 	hasErrors,
+	hasErrorsInGroups,
+	reportAllResults,
 	reportContentResults,
 	reportPathResults,
 } from "./reporter.js";
@@ -15,6 +18,42 @@ export function createCli(): Command {
 		.name("monban")
 		.description("コーディングエージェントのための番所")
 		.version("0.1.0");
+
+	program
+		.command("all")
+		.description("全チェック: すべてのチェックを一括実行")
+		.option("--json", "JSON 出力")
+		.action(async (opts: { json?: boolean }) => {
+			const cwd = process.cwd();
+			const config = await loadConfig(cwd);
+			const globalExclude = config.exclude ?? [];
+			const groups: CategoryGroup[] = [];
+
+			if (config.path) {
+				const results = await runPathRules(config.path, cwd, globalExclude);
+				groups.push({ category: "path", results });
+			}
+
+			if (config.content) {
+				const results = await runContentRules(
+					config.content,
+					cwd,
+					globalExclude,
+				);
+				groups.push({ category: "content", results });
+			}
+
+			if (groups.length === 0) {
+				console.log("No rules defined in monban.yml");
+				return;
+			}
+
+			reportAllResults(groups, opts.json ?? false);
+
+			if (hasErrorsInGroups(groups)) {
+				process.exit(1);
+			}
+		});
 
 	program
 		.command("path")
