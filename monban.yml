@@ -18,7 +18,7 @@ path:
 
   naming:
     - path: "src/**/*.ts"
-      style: camel
+      style: kebab
     - path: "src/*/"
       target: directory
       style: kebab
@@ -37,7 +37,7 @@ content:
   forbidden:
     - path: "src/**/*.ts"
       bom: true
-      message: "BOM を含めないでください。"
+      message: "BOM を含めない���ください。"
     - path: "src/**/*.ts"
       invisible: true
       message: "不可視の Unicode 文字が含まれています。"
