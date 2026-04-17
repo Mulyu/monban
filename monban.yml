@@ -32,6 +32,8 @@ path:
       max: 10
     - path: "src/rules/content"
       max: 10
+    - path: "src/rules/doc"
+      max: 10
 
 content:
   forbidden:
@@ -44,3 +46,8 @@ content:
     - path: "src/**/*.ts"
       secret: true
       message: "シークレットらしき文字列が検出されました。"
+
+doc:
+  link:
+    - path: "docs/**/*.md"
+    - path: "*.md"

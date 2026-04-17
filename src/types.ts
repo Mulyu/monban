@@ -82,8 +82,24 @@ export interface ContentConfig {
 	required?: ContentRequiredRule[];
 }
 
+// --- Doc config types ---
+
+export interface DocRefRule {
+	path: string;
+}
+
+export interface DocLinkRule {
+	path: string;
+}
+
+export interface DocConfig {
+	ref?: DocRefRule[];
+	link?: DocLinkRule[];
+}
+
 export interface MonbanConfig {
 	exclude?: string[];
 	path?: PathConfig;
 	content?: ContentConfig;
+	doc?: DocConfig;
 }

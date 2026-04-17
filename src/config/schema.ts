@@ -6,6 +6,9 @@ import type {
 	ContentRequiredScope,
 	CountRule,
 	DepthRule,
+	DocConfig,
+	DocLinkRule,
+	DocRefRule,
 	ForbiddenRule,
 	MonbanConfig,
 	NamingRule,
@@ -44,6 +47,10 @@ export function validateConfig(raw: unknown): MonbanConfig {
 
 	if (obj.content !== undefined) {
 		config.content = validateContentConfig(obj.content);
+	}
+
+	if (obj.doc !== undefined) {
+		config.doc = validateDocConfig(obj.doc);
 	}
 
 	return config;
@@ -392,4 +399,44 @@ function validateContentRequiredRule(
 	rule.message = optionalString(raw, "message", label);
 
 	return rule;
+}
+
+// --- Doc config validation ---
+
+function validateDocConfig(raw: unknown): DocConfig {
+	if (typeof raw !== "object" || raw === null) {
+		throw new Error("doc must be an object");
+	}
+
+	const obj = raw as Record<string, unknown>;
+	const config: DocConfig = {};
+
+	if (obj.ref !== undefined) {
+		config.ref = validateArray(obj.ref, "doc.ref", validateDocRefRule);
+	}
+	if (obj.link !== undefined) {
+		config.link = validateArray(obj.link, "doc.link", validateDocLinkRule);
+	}
+
+	return config;
+}
+
+function validateDocRefRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DocRefRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+	return { path: requireString(raw, "path", label) };
+}
+
+function validateDocLinkRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DocLinkRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+	return { path: requireString(raw, "path", label) };
 }
