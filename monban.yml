@@ -37,7 +37,10 @@ content:
   forbidden:
     - path: "src/**/*.ts"
       bom: true
-      message: "BOM を含めない���ください。"
+      message: "BOM を含めないでください。"
     - path: "src/**/*.ts"
       invisible: true
       message: "不可視の Unicode 文字が含まれています。"
+    - path: "src/**/*.ts"
+      secret: true
+      message: "シークレットらしき文字列が検出されました。"

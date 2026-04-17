@@ -340,9 +340,16 @@ function validateContentForbiddenRule(
 		rule.invisible = raw.invisible;
 	}
 
-	if (!rule.pattern && !rule.bom && !rule.invisible) {
+	if (raw.secret !== undefined) {
+		if (typeof raw.secret !== "boolean") {
+			throw new Error(`${label}.secret must be a boolean`);
+		}
+		rule.secret = raw.secret;
+	}
+
+	if (!rule.pattern && !rule.bom && !rule.invisible && !rule.secret) {
 		throw new Error(
-			`${label} must have at least one of: pattern, bom, invisible`,
+			`${label} must have at least one of: pattern, bom, invisible, secret`,
 		);
 	}
 

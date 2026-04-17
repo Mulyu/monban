@@ -21,6 +21,29 @@ const INVISIBLE_REGEX = new RegExp(
 	"g",
 );
 
+const SECRET_DETECTORS: { name: string; pattern: RegExp }[] = [
+	{ name: "AWS Access Key ID", pattern: /\bAKIA[0-9A-Z]{16}\b/ },
+	{ name: "GitHub Personal Access Token", pattern: /\bghp_[0-9A-Za-z]{36}\b/ },
+	{ name: "GitHub OAuth Token", pattern: /\bgho_[0-9A-Za-z]{36}\b/ },
+	{ name: "GitHub App Token", pattern: /\b(?:ghu|ghs)_[0-9A-Za-z]{36}\b/ },
+	{ name: "GitHub Refresh Token", pattern: /\bghr_[0-9A-Za-z]{36}\b/ },
+	{ name: "Google API Key", pattern: /\bAIza[0-9A-Za-z\-_]{35}\b/ },
+	{ name: "Slack Token", pattern: /\bxox[baprs]-[0-9A-Za-z-]{10,}\b/ },
+	{
+		name: "Stripe Live Key",
+		pattern: /\b(?:sk|pk|rk)_live_[0-9A-Za-z]{24,}\b/,
+	},
+	{ name: "NPM Token", pattern: /\bnpm_[0-9A-Za-z]{36}\b/ },
+	{
+		name: "JWT",
+		pattern: /\beyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_\-+/=]{10,}\b/,
+	},
+	{
+		name: "Private Key Block",
+		pattern: /-----BEGIN (?:RSA|OPENSSH|DSA|EC|PGP) PRIVATE KEY-----/,
+	},
+];
+
 export async function checkContentForbidden(
 	rules: ContentForbiddenRule[],
 	cwd: string,
@@ -55,7 +78,7 @@ export async function checkContentForbidden(
 				}
 			}
 
-			if (rule.pattern || rule.invisible) {
+			if (rule.pattern || rule.invisible || rule.secret) {
 				const content = await readFile(abs, "utf-8");
 				const lines = content.split("\n");
 
@@ -89,6 +112,19 @@ export async function checkContentForbidden(
 									message:
 										rule.message ??
 										`不可視の Unicode 文字が検出されました: U+${hex} (${name})`,
+									severity: rule.severity ?? "error",
+								});
+							}
+						}
+					}
+
+					if (rule.secret) {
+						for (const detector of SECRET_DETECTORS) {
+							if (detector.pattern.test(line)) {
+								results.push({
+									rule: "forbidden",
+									path: `${file}:${lineNum}`,
+									message: rule.message ?? `シークレット検出: ${detector.name}`,
 									severity: rule.severity ?? "error",
 								});
 							}

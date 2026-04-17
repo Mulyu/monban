@@ -18,7 +18,7 @@ monban content --json              # JSON 出力
 
 | # | ルール | 概要 |
 |---|--------|------|
-| 1 | `forbidden` | ファイル内の禁止テキストパターン・BOM・不可視文字を検出する |
+| 1 | `forbidden` | ファイル内の禁止テキストパターン・BOM・不可視文字・シークレットを検出する |
 | 2 | `required` | ファイル内の必須テキストパターンの欠落を検出する |
 
 ---
@@ -52,9 +52,9 @@ content:
 
 ## 1. forbidden
 
-ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字の 3 種類を同じルールで扱う。
+ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字、シークレットの 4 種類を同じルールで扱う。
 
-`pattern`、`bom`、`invisible` のいずれか 1 つ以上を指定する。
+`pattern`、`bom`、`invisible`、`secret` のいずれか 1 つ以上を指定する。
 
 ### 設定
 
@@ -80,12 +80,6 @@ content:
       pattern: "fmt\\.Println"
       severity: warn
 
-    # セキュリティ
-    - path: "**"
-      pattern: "(password|secret|api_key)\\s*=\\s*[\"'][^\"']{8,}"
-      severity: warn
-      message: "ハードコードされたシークレットの可能性があります。"
-
     # --- BOM ---
 
     - path: "src/**"
@@ -97,6 +91,12 @@ content:
     - path: "src/**"
       invisible: true
       message: "不可視の Unicode 文字が含まれています。"
+
+    # --- シークレット ---
+
+    - path: "src/**"
+      secret: true
+      message: "シークレットらしき文字列が検出されました。"
 ```
 
 ### フィールド
@@ -107,10 +107,11 @@ content:
 | `pattern` | string | No* | — | 禁止する正規表現パターン（行単位マッチ） |
 | `bom` | boolean | No* | — | `true` で BOM の存在を禁止する |
 | `invisible` | boolean | No* | — | `true` で不可視 Unicode 文字の存在を禁止する |
+| `secret` | boolean | No* | — | `true` で既知シークレット形式の存在を禁止する |
 | `message` | string | No | — | エラーメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
 
-\* `pattern`、`bom`、`invisible` のいずれか 1 つ以上が必須。
+\* `pattern`、`bom`、`invisible`、`secret` のいずれか 1 つ以上が必須。
 
 ### pattern の判定
 
@@ -140,6 +141,26 @@ content:
 | ⁣ | `U+2063` | Invisible Separator |
 | ⁤ | `U+2064` | Invisible Plus |
 
+### secret の判定
+
+既知のシークレット形式を行単位で正規表現マッチする。組み込みのデテクタは以下:
+
+| 検出器 | 対象 |
+|--------|------|
+| AWS Access Key ID | `AKIA` で始まる 20 文字の英数字 |
+| GitHub Personal Access Token | `ghp_` + 36 文字 |
+| GitHub OAuth Token | `gho_` + 36 文字 |
+| GitHub App Token | `ghu_` / `ghs_` + 36 文字 |
+| GitHub Refresh Token | `ghr_` + 36 文字 |
+| Google API Key | `AIza` + 35 文字 |
+| Slack Token | `xoxb-` / `xoxa-` / `xoxp-` / `xoxr-` / `xoxs-` |
+| Stripe Live Key | `sk_live_` / `pk_live_` / `rk_live_` + 24 文字以上 |
+| NPM Token | `npm_` + 36 文字 |
+| JWT | `eyJ...eyJ...<signature>` 形式の 3 セクション構造 |
+| Private Key Block | `-----BEGIN (RSA\|OPENSSH\|DSA\|EC\|PGP) PRIVATE KEY-----` |
+
+誤検出を避けるため、エントロピー解析ではなく既知形式のみを対象とする。
+
 ### 出力例
 
 ```
@@ -154,6 +175,10 @@ ERROR [forbidden] src/config/defaults.ts
 ERROR [forbidden] src/handlers/payment.ts:42
   不可視の Unicode 文字が検出されました: U+200B (Zero Width Space)
   不可視の Unicode 文字が含まれています。
+
+ERROR [forbidden] src/handlers/webhook.ts:8
+  シークレット検出: AWS Access Key ID
+  シークレットらしき文字列が検出されました。
 ```
 
 ---
