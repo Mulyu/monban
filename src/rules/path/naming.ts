@@ -9,7 +9,7 @@ const STYLE_VALIDATORS: Record<NamingStyle, (name: string) => boolean> = {
 	snake: (name) => /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/.test(name),
 };
 
-export async function checkNaming(
+export async function checkPathNaming(
 	rules: NamingRule[],
 	cwd: string,
 	globalExclude: string[],

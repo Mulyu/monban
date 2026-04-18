@@ -1,7 +1,7 @@
 import fg from "fast-glob";
 import type { CountRule, RuleResult } from "../../types.js";
 
-export async function checkCount(
+export async function checkPathCount(
 	rules: CountRule[],
 	cwd: string,
 	globalExclude: string[],

@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { checkCount } from "../src/rules/path/count.js";
+import { checkPathCount } from "../src/rules/path/count.js";
 
 describe("path/count", () => {
 	let tempDir: string;
@@ -21,7 +21,7 @@ describe("path/count", () => {
 	});
 
 	it("passes when within limit", async () => {
-		const results = await checkCount(
+		const results = await checkPathCount(
 			[{ path: "handlers", max: 10 }],
 			tempDir,
 			[],
@@ -30,7 +30,7 @@ describe("path/count", () => {
 	});
 
 	it("passes when exactly at limit", async () => {
-		const results = await checkCount(
+		const results = await checkPathCount(
 			[{ path: "handlers", max: 5 }],
 			tempDir,
 			[],
@@ -39,7 +39,7 @@ describe("path/count", () => {
 	});
 
 	it("detects count exceeding max", async () => {
-		const results = await checkCount(
+		const results = await checkPathCount(
 			[{ path: "handlers", max: 3 }],
 			tempDir,
 			[],
@@ -53,7 +53,7 @@ describe("path/count", () => {
 	it("excludes specified files from count", async () => {
 		await writeFile(join(tempDir, "handlers", "index.ts"), "");
 		// 6 files total, but exclude index.ts -> 5 counted, max 5 -> pass
-		const results = await checkCount(
+		const results = await checkPathCount(
 			[{ path: "handlers", max: 5, exclude: ["index.ts"] }],
 			tempDir,
 			[],

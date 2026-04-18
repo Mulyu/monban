@@ -1,7 +1,7 @@
 import fg from "fast-glob";
 import type { ForbiddenRule, RuleResult } from "../../types.js";
 
-export async function checkForbidden(
+export async function checkPathForbidden(
 	rules: ForbiddenRule[],
 	cwd: string,
 	globalExclude: string[],

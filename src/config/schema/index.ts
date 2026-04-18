@@ -1,11 +1,11 @@
-import type { MonbanConfig } from "../types.js";
-import { optionalStringArray } from "./schema/common.js";
-import { validateContentConfig } from "./schema/content.js";
-import { validateDepsConfig } from "./schema/deps.js";
-import { validateDocConfig } from "./schema/doc.js";
-import { validateExtends } from "./schema/extends.js";
-import { validateGithubConfig } from "./schema/github.js";
-import { validatePathConfig } from "./schema/path.js";
+import type { MonbanConfig } from "../../types.js";
+import { optionalStringArray } from "./common.js";
+import { validateContentConfig } from "./content.js";
+import { validateDepsConfig } from "./deps.js";
+import { validateDocConfig } from "./doc.js";
+import { validateExtends } from "./extends.js";
+import { validateGithubConfig } from "./github.js";
+import { validatePathConfig } from "./path.js";
 
 export { validateExtends };
 

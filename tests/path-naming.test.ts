@@ -1,12 +1,12 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { checkNaming } from "../src/rules/path/naming.js";
+import { checkPathNaming } from "../src/rules/path/naming.js";
 
 const cwd = resolve(import.meta.dirname, "fixtures/project");
 
 describe("path/naming", () => {
 	it("passes PascalCase files", async () => {
-		const results = await checkNaming(
+		const results = await checkPathNaming(
 			[{ path: "src/components/UserProfile.tsx", style: "pascal" }],
 			cwd,
 			[],
@@ -15,7 +15,7 @@ describe("path/naming", () => {
 	});
 
 	it("detects non-PascalCase files", async () => {
-		const results = await checkNaming(
+		const results = await checkPathNaming(
 			[{ path: "src/components/**/*.tsx", style: "pascal" }],
 			cwd,
 			[],
@@ -27,7 +27,7 @@ describe("path/naming", () => {
 	});
 
 	it("checks prefix requirement", async () => {
-		const results = await checkNaming(
+		const results = await checkPathNaming(
 			[{ path: "src/hooks/**/*.ts", style: "camel", prefix: "use" }],
 			cwd,
 			[],
@@ -41,7 +41,7 @@ describe("path/naming", () => {
 	});
 
 	it("checks suffix requirement", async () => {
-		const results = await checkNaming(
+		const results = await checkPathNaming(
 			[
 				{
 					path: "src/handlers/invoice/index.ts",
@@ -58,7 +58,7 @@ describe("path/naming", () => {
 	});
 
 	it("checks directory naming", async () => {
-		const results = await checkNaming(
+		const results = await checkPathNaming(
 			[{ path: "src/*/", target: "directory", style: "kebab" }],
 			cwd,
 			[],

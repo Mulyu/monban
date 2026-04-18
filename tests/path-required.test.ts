@@ -1,12 +1,12 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { checkRequired } from "../src/rules/path/required.js";
+import { checkPathRequired } from "../src/rules/path/required.js";
 
 const cwd = resolve(import.meta.dirname, "fixtures/project");
 
 describe("path/required - files mode", () => {
 	it("passes when required files exist", async () => {
-		const results = await checkRequired(
+		const results = await checkPathRequired(
 			[{ path: "src/handlers/invoice", files: ["index.ts"] }],
 			cwd,
 			[],
@@ -15,7 +15,7 @@ describe("path/required - files mode", () => {
 	});
 
 	it("detects missing required files", async () => {
-		const results = await checkRequired(
+		const results = await checkPathRequired(
 			[{ path: "src/handlers/invoice", files: ["index.ts", "schema.ts"] }],
 			cwd,
 			[],
@@ -29,7 +29,7 @@ describe("path/required - files mode", () => {
 
 describe("path/required - companions mode", () => {
 	it("detects missing companion files", async () => {
-		const results = await checkRequired(
+		const results = await checkPathRequired(
 			[
 				{
 					path: "src/components/**/*.tsx",
@@ -48,7 +48,7 @@ describe("path/required - companions mode", () => {
 	});
 
 	it("uses warn severity for non-required companions", async () => {
-		const results = await checkRequired(
+		const results = await checkPathRequired(
 			[
 				{
 					path: "src/components/**/*.tsx",

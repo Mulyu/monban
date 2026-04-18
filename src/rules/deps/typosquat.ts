@@ -3,7 +3,8 @@ import type {
 	DepsTyposquatRule,
 	RuleResult,
 } from "../../types.js";
-import { formatLocation, levenshtein, loadManifests } from "./utils.js";
+import { levenshtein } from "./levenshtein.js";
+import { formatLocation, loadManifests } from "./manifest-loader.js";
 
 const DEFAULT_MAX_DISTANCE = 2;
 

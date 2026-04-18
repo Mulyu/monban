@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { parse } from "yaml";
 import type { MonbanConfig } from "../types.js";
 import { resolveExtends } from "./extends/index.js";
-import { validateConfig, validateExtends } from "./schema.js";
+import { validateConfig, validateExtends } from "./schema/index.js";
 
 const CONFIG_FILENAMES = ["monban.yml", "monban.yaml"];
 

@@ -2,7 +2,7 @@ import {
 	EcosystemeClient,
 	OfflineRegistryClient,
 	type RegistryClient,
-} from "../../registry/client.js";
+} from "../../registry/index.js";
 import type { DepsConfig, RuleResult } from "../../types.js";
 import { checkDepsAllowed } from "./allowed.js";
 import { checkDepsCrossEcosystem } from "./cross-ecosystem.js";
