@@ -23,11 +23,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mulyu/monban.git"
+    "url": "git+https://github.com/Mulyu/monban.git"
   },
-  "homepage": "https://github.com/mulyu/monban#readme",
+  "homepage": "https://github.com/Mulyu/monban#readme",
   "bugs": {
-    "url": "https://github.com/mulyu/monban/issues"
+    "url": "https://github.com/Mulyu/monban/issues"
   },
   "keywords": [
     "cli",
