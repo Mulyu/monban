@@ -46,6 +46,7 @@ doc:
 - ファイル内容: [content.md](content.md)
 - ドキュメント: [doc.md](doc.md)
 - GitHub: [github.md](github.md)
+- Git メタデータ: [git.md](git.md)
 
 ## 3. 実行する
 

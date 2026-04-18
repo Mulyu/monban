@@ -1,6 +1,6 @@
 # --diff フラグ
 
-`monban all` / `monban path` / `monban content` / `monban doc` / `monban github` / `monban deps` すべてに共通する、スコープフィルタ用の CLI フラグ。
+`monban all` / `monban path` / `monban content` / `monban doc` / `monban github` / `monban deps` / `monban git` すべてに共通する、スコープフィルタ用の CLI フラグ。
 
 PR レビューで、**今回の変更によって新規に混入した違反だけ** を報告するための機能。既存コードに昔からある TODO やレイアウト違反を毎回蒸し返さない。
 
@@ -76,6 +76,7 @@ CI 以外では `git merge-base origin/main HEAD` を試し、次に `main HEAD`
 | `doc` | 変更された Markdown のみ検査 | 追加行中のリンク / `monban:ref` のみ検査 |
 | `github` | 変更された workflows のみ検査 | 追加行のみ検査（ただし YAML 構造解析は変更箇所を含む job / step 単位に拡張） |
 | `deps` | 変更されたマニフェストから **追加された依存** を検査（既存依存は除外） | `file` と同一 |
+| `git` | `--diff` で指定したコミット範囲を検査（`diff.ignored` は新規追加ファイルに限定） | `file` と同一 |
 
 `path.required`（欠落検出）など、検査対象が「ファイルの存在しない状態」そのものであるルールは、`--diff` 指定時でも関連ディレクトリが diff に含まれればフル検査に格上げされる。
 
@@ -112,6 +113,7 @@ monban content  — 追加行のみ対象、既存 TODO は除外
 monban doc      — 変更された Markdown 内の参照のみ検査
 monban github   — .github/workflows 変更箇所のみ検査
 monban deps     — package.json の新規追加依存 3 件のみ検査
+monban git      — main...HEAD のコミット範囲を検査
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
