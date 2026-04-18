@@ -1,0 +1,7 @@
+name: Reusable
+on: push
+jobs:
+  call:
+    uses: owner/repo/.github/workflows/shared.yml@34e114876b0b11c390a56381ad16ebd13914f8d5
+  call-unpinned:
+    uses: owner/repo/.github/workflows/shared.yml@v1

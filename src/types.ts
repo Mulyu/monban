@@ -97,29 +97,82 @@ export interface DocConfig {
 	link?: DocLinkRule[];
 }
 
-// --- Actions config types ---
+// --- GitHub config types ---
 
-export interface ActionsPinnedRule {
+export type GithubPinnedTarget = "action" | "reusable" | "docker";
+
+export interface GithubPinnedRule {
 	path: string;
+	targets?: GithubPinnedTarget[];
 }
 
-export interface ActionsRequiredRule {
+export interface GithubRequiredRule {
 	file?: string;
 	path?: string;
 	steps?: string[];
 }
 
-export interface ActionsForbiddenRule {
+export interface GithubForbiddenRule {
 	path: string;
 	uses: string;
 	message?: string;
 	severity?: Severity;
 }
 
-export interface ActionsConfig {
-	pinned?: ActionsPinnedRule[];
-	required?: ActionsRequiredRule[];
-	forbidden?: ActionsForbiddenRule[];
+export interface GithubPermissionsRule {
+	path: string;
+	required?: boolean;
+	forbid?: string[];
+}
+
+export interface GithubTriggersRule {
+	path: string;
+	allowed?: string[];
+	forbidden?: string[];
+}
+
+export interface GithubRunnerRule {
+	path: string;
+	allowed: string[];
+}
+
+export interface GithubTimeoutRule {
+	path: string;
+	max: number;
+}
+
+export interface GithubConcurrencyRule {
+	path: string;
+}
+
+export interface GithubConsistencyRule {
+	path: string;
+	actions: string[];
+}
+
+export interface GithubSecretsRule {
+	path: string;
+	allowed: string[];
+}
+
+export interface GithubCodeownersRule {
+	path: string;
+	owners: string[];
+	message?: string;
+}
+
+export interface GithubConfig {
+	pinned?: GithubPinnedRule[];
+	required?: GithubRequiredRule[];
+	forbidden?: GithubForbiddenRule[];
+	permissions?: GithubPermissionsRule[];
+	triggers?: GithubTriggersRule[];
+	runner?: GithubRunnerRule[];
+	timeout?: GithubTimeoutRule[];
+	concurrency?: GithubConcurrencyRule[];
+	consistency?: GithubConsistencyRule[];
+	secrets?: GithubSecretsRule[];
+	codeowners?: GithubCodeownersRule[];
 }
 
 // --- Extends types ---
@@ -144,5 +197,5 @@ export interface MonbanConfig {
 	path?: PathConfig;
 	content?: ContentConfig;
 	doc?: DocConfig;
-	actions?: ActionsConfig;
+	github?: GithubConfig;
 }

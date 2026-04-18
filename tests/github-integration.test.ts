@@ -1,12 +1,12 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { runActionsRules } from "../src/rules/actions/index.js";
+import { runGithubRules } from "../src/rules/github/index.js";
 
-const cwd = resolve(import.meta.dirname, "fixtures/actions");
+const cwd = resolve(import.meta.dirname, "fixtures/github");
 
-describe("actions integration", () => {
-	it("runs all rules and returns results", async () => {
-		const results = await runActionsRules(
+describe("github integration", () => {
+	it("runs all configured rules", async () => {
+		const results = await runGithubRules(
 			{
 				pinned: [{ path: ".github/workflows/unpinned.yml" }],
 				required: [{ file: ".github/workflows/lint.yml" }],
@@ -16,22 +16,21 @@ describe("actions integration", () => {
 						uses: "actions/create-release",
 					},
 				],
+				concurrency: [{ path: ".github/workflows/concurrency-missing.yml" }],
 			},
 			cwd,
 			[],
 		);
 
-		expect(results).toHaveLength(3);
-		expect(results[0].name).toBe("pinned");
-		expect(results[1].name).toBe("required");
-		expect(results[2].name).toBe("forbidden");
-		expect(results[0].results.length).toBeGreaterThan(0);
-		expect(results[1].results.length).toBeGreaterThan(0);
-		expect(results[2].results.length).toBeGreaterThan(0);
+		const byName = Object.fromEntries(results.map((r) => [r.name, r.results]));
+		expect(byName.pinned.length).toBeGreaterThan(0);
+		expect(byName.required.length).toBeGreaterThan(0);
+		expect(byName.forbidden.length).toBeGreaterThan(0);
+		expect(byName.concurrency.length).toBeGreaterThan(0);
 	});
 
 	it("filters by rule name", async () => {
-		const results = await runActionsRules(
+		const results = await runGithubRules(
 			{
 				pinned: [{ path: ".github/workflows/unpinned.yml" }],
 				forbidden: [
@@ -51,8 +50,8 @@ describe("actions integration", () => {
 	});
 
 	it("throws on unknown rule name", async () => {
-		await expect(runActionsRules({}, cwd, [], "nonexistent")).rejects.toThrow(
-			"Unknown actions rule: nonexistent",
+		await expect(runGithubRules({}, cwd, [], "nonexistent")).rejects.toThrow(
+			"Unknown github rule: nonexistent",
 		);
 	});
 });
