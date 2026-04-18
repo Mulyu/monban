@@ -1,0 +1,12 @@
+name: TimeoutMissing
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hello
+  huge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - run: echo slow

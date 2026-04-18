@@ -1,13 +1,13 @@
-import type { ActionsRuleResult } from "./rules/actions/index.js";
 import type { ContentRuleResult } from "./rules/content/index.js";
 import type { DocRuleResult } from "./rules/doc/index.js";
+import type { GithubRuleResult } from "./rules/github/index.js";
 import type { PathRuleResult } from "./rules/path/index.js";
 
 type CategoryRuleResult =
 	| PathRuleResult
 	| ContentRuleResult
 	| DocRuleResult
-	| ActionsRuleResult;
+	| GithubRuleResult;
 
 export interface CategoryGroup {
 	category: string;
@@ -35,11 +35,11 @@ export function reportDocResults(
 	reportResults("monban doc — ドキュメントチェック", ruleResults, json);
 }
 
-export function reportActionsResults(
-	ruleResults: ActionsRuleResult[],
+export function reportGithubResults(
+	ruleResults: GithubRuleResult[],
 	json: boolean,
 ): void {
-	reportResults("monban actions — GitHub Actions チェック", ruleResults, json);
+	reportResults("monban github — GitHub チェック", ruleResults, json);
 }
 
 export function reportAllResults(groups: CategoryGroup[], json: boolean): void {

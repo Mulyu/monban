@@ -14,7 +14,7 @@ monban のユーザー向けドキュメント索引。
 | [path.md](path.md) | パス構造（`forbidden` / `required` / `naming` / `depth` / `count`） |
 | [content.md](content.md) | ファイル内容（`forbidden` / `required`、BOM・不可視文字・シークレット） |
 | [doc.md](doc.md) | ドキュメント整合性（`ref` / `link`） |
-| [actions.md](actions.md) | GitHub Actions（`pinned` / `required` / `forbidden`） |
+| [github.md](github.md) | GitHub（workflows + CODEOWNERS、11 ルール） |
 
 ## 設定
 

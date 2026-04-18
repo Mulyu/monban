@@ -1,0 +1,12 @@
+name: PermOk
+on: push
+permissions:
+  contents: read
+concurrency:
+  group: perm-ok-${{ github.ref }}
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo hello

@@ -17,7 +17,7 @@
 | `monban path` | ファイル・ディレクトリの存在、命名、深度、数 | [docs/path.md](docs/path.md) |
 | `monban content` | 正規表現による禁止・必須パターン、BOM、不可視文字、シークレット | [docs/content.md](docs/content.md) |
 | `monban doc` | ドキュメントの参照ハッシュ・リンク切れ | [docs/doc.md](docs/doc.md) |
-| `monban actions` | GitHub Actions のピン留め・必須/禁止アクション | [docs/actions.md](docs/actions.md) |
+| `monban github` | GitHub ワークフロー（ピン留め・権限・トリガー等）と CODEOWNERS | [docs/github.md](docs/github.md) |
 
 組織共通ルールの再利用は [docs/extends.md](docs/extends.md) を参照してください。
 
@@ -49,7 +49,7 @@ monban all
 monban path
 monban content
 monban doc
-monban actions
+monban github
 
 # 特定ルールのみ実行
 monban path --rule forbidden
@@ -74,10 +74,10 @@ exclude:
   - "**/node_modules/**"
   - "**/dist/**"
 
-path:     { ... }   # docs/path.md
-content:  { ... }   # docs/content.md
-doc:      { ... }   # docs/doc.md
-actions:  { ... }   # docs/actions.md
+path:    { ... }   # docs/path.md
+content: { ... }   # docs/content.md
+doc:     { ... }   # docs/doc.md
+github:  { ... }   # docs/github.md
 ```
 
 ---

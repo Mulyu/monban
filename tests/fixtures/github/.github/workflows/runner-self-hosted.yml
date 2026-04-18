@@ -1,0 +1,8 @@
+name: SelfHosted
+on: push
+jobs:
+  test:
+    runs-on: self-hosted
+    timeout-minutes: 10
+    steps:
+      - run: echo hello

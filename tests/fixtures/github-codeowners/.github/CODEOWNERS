@@ -1,0 +1,8 @@
+# Default owner
+* @myorg/core
+
+# Payments requires payments team
+/src/payments/ @myorg/core @myorg/payments-team
+
+# SQL files require DBA
+*.sql @myorg/dba

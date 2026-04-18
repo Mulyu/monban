@@ -4,15 +4,15 @@ import type { CategoryGroup } from "./reporter.js";
 import {
 	hasErrors,
 	hasErrorsInGroups,
-	reportActionsResults,
 	reportAllResults,
 	reportContentResults,
 	reportDocResults,
+	reportGithubResults,
 	reportPathResults,
 } from "./reporter.js";
-import { ACTIONS_RULE_NAMES, runActionsRules } from "./rules/actions/index.js";
 import { CONTENT_RULE_NAMES, runContentRules } from "./rules/content/index.js";
 import { DOC_RULE_NAMES, runDocRules } from "./rules/doc/index.js";
+import { GITHUB_RULE_NAMES, runGithubRules } from "./rules/github/index.js";
 import { RULE_NAMES, runPathRules } from "./rules/path/index.js";
 
 export function createCli(): Command {
@@ -52,13 +52,9 @@ export function createCli(): Command {
 				groups.push({ category: "doc", results });
 			}
 
-			if (config.actions) {
-				const results = await runActionsRules(
-					config.actions,
-					cwd,
-					globalExclude,
-				);
-				groups.push({ category: "actions", results });
+			if (config.github) {
+				const results = await runGithubRules(config.github, cwd, globalExclude);
+				groups.push({ category: "github", results });
 			}
 
 			if (groups.length === 0) {
@@ -163,31 +159,29 @@ export function createCli(): Command {
 		});
 
 	program
-		.command("actions")
-		.description(
-			"GitHub Actions チェック: ピン留め・必須ワークフロー・禁止アクションを検証",
-		)
+		.command("github")
+		.description("GitHub チェック: workflows と CODEOWNERS の構造を検証")
 		.option(
 			"--rule <name>",
-			`特定ルールのみ実行 (${ACTIONS_RULE_NAMES.join(", ")})`,
+			`特定ルールのみ実行 (${GITHUB_RULE_NAMES.join(", ")})`,
 		)
 		.option("--json", "JSON 出力")
 		.action(async (opts: { rule?: string; json?: boolean }) => {
 			const cwd = process.cwd();
 			const config = await loadConfig(cwd);
 
-			if (!config.actions) {
-				console.log("No actions rules defined in monban.yml");
+			if (!config.github) {
+				console.log("No github rules defined in monban.yml");
 				return;
 			}
 
-			const results = await runActionsRules(
-				config.actions,
+			const results = await runGithubRules(
+				config.github,
 				cwd,
 				config.exclude ?? [],
 				opts.rule,
 			);
-			reportActionsResults(results, opts.json ?? false);
+			reportGithubResults(results, opts.json ?? false);
 
 			if (hasErrors(results)) {
 				process.exit(1);

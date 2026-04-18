@@ -45,7 +45,7 @@ doc:
 - パス構造: [path.md](path.md)
 - ファイル内容: [content.md](content.md)
 - ドキュメント: [doc.md](doc.md)
-- GitHub Actions: [actions.md](actions.md)
+- GitHub: [github.md](github.md)
 
 ## 3. 実行する
 

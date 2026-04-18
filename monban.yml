@@ -34,8 +34,8 @@ path:
       max: 10
     - path: "src/rules/doc"
       max: 10
-    - path: "src/rules/actions"
-      max: 10
+    - path: "src/rules/github"
+      max: 15
 
 content:
   forbidden:
@@ -49,7 +49,7 @@ content:
       secret: true
       message: "シークレットらしき文字列が検出されました。"
 
-actions:
+github:
   pinned:
     - path: ".github/workflows/**/*.yml"
   required:

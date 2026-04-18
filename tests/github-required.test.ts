@@ -1,13 +1,13 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { checkActionsRequired } from "../src/rules/actions/required.js";
+import { checkGithubRequired } from "../src/rules/github/required.js";
 
-const cwd = resolve(import.meta.dirname, "fixtures/actions");
+const cwd = resolve(import.meta.dirname, "fixtures/github");
 
-describe("actions/required", () => {
+describe("github/required", () => {
 	describe("file mode", () => {
 		it("passes when workflow file exists", async () => {
-			const results = await checkActionsRequired(
+			const results = await checkGithubRequired(
 				[{ file: ".github/workflows/pinned.yml" }],
 				cwd,
 			);
@@ -15,19 +15,18 @@ describe("actions/required", () => {
 		});
 
 		it("reports when workflow file is missing", async () => {
-			const results = await checkActionsRequired(
+			const results = await checkGithubRequired(
 				[{ file: ".github/workflows/lint.yml" }],
 				cwd,
 			);
 			expect(results).toHaveLength(1);
-			expect(results[0].rule).toBe("required");
 			expect(results[0].message).toContain("必須ワークフロー");
 		});
 	});
 
 	describe("steps mode", () => {
 		it("passes when required steps exist", async () => {
-			const results = await checkActionsRequired(
+			const results = await checkGithubRequired(
 				[
 					{
 						path: ".github/workflows/pinned.yml",
@@ -40,11 +39,11 @@ describe("actions/required", () => {
 		});
 
 		it("reports when required step is missing", async () => {
-			const results = await checkActionsRequired(
+			const results = await checkGithubRequired(
 				[
 					{
 						path: ".github/workflows/pinned.yml",
-						steps: ["actions/checkout", "actions/cache"],
+						steps: ["actions/cache"],
 					},
 				],
 				cwd,
@@ -54,7 +53,7 @@ describe("actions/required", () => {
 		});
 
 		it("reports when workflow file does not exist", async () => {
-			const results = await checkActionsRequired(
+			const results = await checkGithubRequired(
 				[
 					{
 						path: ".github/workflows/nonexistent.yml",

@@ -2,11 +2,11 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parse } from "yaml";
-import type { ActionsRequiredRule, RuleResult } from "../../types.js";
-import { extractUses } from "./utils.js";
+import type { GithubRequiredRule, RuleResult } from "../../types.js";
+import { extractStepUses } from "./utils.js";
 
-export async function checkActionsRequired(
-	rules: ActionsRequiredRule[],
+export async function checkGithubRequired(
+	rules: GithubRequiredRule[],
 	cwd: string,
 ): Promise<RuleResult[]> {
 	const results: RuleResult[] = [];
@@ -46,8 +46,7 @@ export async function checkActionsRequired(
 				continue;
 			}
 
-			const usesEntries = extractUses(doc);
-
+			const usesEntries = extractStepUses(doc);
 			for (const requiredStep of rule.steps) {
 				const found = usesEntries.some((u) => u.startsWith(requiredStep));
 				if (!found) {

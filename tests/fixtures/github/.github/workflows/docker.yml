@@ -1,0 +1,9 @@
+name: Docker
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: docker://alpine:3.18
+      - uses: docker://alpine@sha256:c5c5fda71656f28e49ac9c5416b3643eaa6a108a8093151d6d1afc9463be8e33
