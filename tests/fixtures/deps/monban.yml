@@ -1,0 +1,14 @@
+deps:
+  allowed:
+    - path: "package.json"
+      names:
+        - express
+        - eslint
+  denied:
+    - path: "package.json"
+      names:
+        - ai-*
+      message: "hallucinated"
+  typosquat:
+    - path: "package.json"
+      max_distance: 2

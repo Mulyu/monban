@@ -1,0 +1,14 @@
+{
+	"name": "test-pkg",
+	"version": "1.0.0",
+	"dependencies": {
+		"express": "^4.18.0",
+		"ai-json-helper": "^1.0.0",
+		"reqeusts": "^2.31.0",
+		"brand-new-logger": "^0.0.1"
+	},
+	"devDependencies": {
+		"eslint": "^9.0.0",
+		"lodahs": "^1.0.0"
+	}
+}
