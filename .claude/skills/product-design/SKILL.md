@@ -39,6 +39,7 @@ description: monban のプロダクト設計原則。機能追加、ルール設
 | `monban comment` | コメント率 | 行カウント |
 | `monban size` | ファイル行数 | 行カウント |
 | `monban doc` | ドキュメントとコードのハッシュ整合 | SHA256 |
+| `monban github` | GitHub 特有ファイル（workflows / CODEOWNERS） | YAML パース / 独自構文 |
 
 ### monban path のルール
 
@@ -57,11 +58,63 @@ description: monban のプロダクト設計原則。機能追加、ルール設
 | `forbidden` | 禁止テキストパターン |
 | `required` | 必須テキストパターン |
 
+### monban github のルール
+
+| ルール | 対象 | 概要 |
+|--------|------|------|
+| `pinned` | workflows | `uses` のピン留め（action / reusable / docker） |
+| `required` | workflows | 必須ワークフロー・必須ステップ |
+| `forbidden` | workflows | 禁止アクション |
+| `permissions` | workflows | `permissions:` の宣言必須・最小権限 |
+| `triggers` | workflows | `on:` イベントの allow/deny |
+| `runner` | workflows | `runs-on:` の allowlist |
+| `timeout` | workflows | job に `timeout-minutes:` 必須 |
+| `concurrency` | workflows | `concurrency:` 宣言必須 |
+| `consistency` | workflows | 同一アクションのバージョン一貫性 |
+| `secrets` | workflows | `${{ secrets.X }}` の allowlist |
+| `codeowners` | CODEOWNERS | path → owners の一方向整合 |
+
+GitHub 関連でも、構造パースが不要なもの（LICENSE / SECURITY.md の存在、PR テンプレートの必須セクション、`.gitignore` の必須パターン、`continue-on-error: true` 禁止 など）は `path.required` / `content.required` / `content.forbidden` で表現し、`github` に取り込まない。
+
 ## 設定フォーマット
 
 - 全ルールのセレクタは `path`（glob パターン）で統一する
 - `pattern` ではなく `path` を使う（「パターン」ではなく「場所」起点）
 - content ルールのみ、対象ファイル選択に `path`、テキスト検査に `pattern` を使う
+
+## 機能追加の進め方
+
+新機能を検討するときは以下の手順で進める。採否にかかわらず判断の根拠を `decisions.md` に残す。
+
+### 1. ブレスト（広く列挙）
+
+既存コマンドの延長・新規コマンドを問わず候補を出す。徹底的に書き出してから絞る。
+
+### 2. 設計原則で段階的に篩う
+
+以下の順で評価し、早い段階で済ませられるならそこで止める。
+
+1. **既存ルールで表現可能か**（例: `path.required`, `content.forbidden`）
+   → 可能なら独立ルール化せず、docs の設定例として掲載する
+2. **既存ルールのフィールド拡張で表現可能か**
+   → 可能なら既存ルールにフィールドを追加する（`content.forbidden` に `max`、`actions.pinned` に `targets` など）
+3. **既存コマンドに新ルールを追加するのが妥当か**
+   → 対象ファイル群と判定手段が既存コマンドと合致する場合
+4. **新コマンドを立てるのが妥当か**
+   → 判定手段が既存と異なる場合のみ（glob→行カウント、独自構文パースなど）
+
+### 3. 一方向性の確認
+
+「A があれば B があるべき」が片方向に還元できているかを確認する。双方向になるものは不採用。
+
+- 例: `naming` は「場所 → 名前」のみ。「名前 → 場所」はやらない
+- 例: `codeowners` は「path → owners」のみ。「owner → 担当範囲」はやらない
+
+### 4. 判断記録
+
+候補名、採否、理由、既存ルールでの代替方法を `decisions.md` に追記する。不採用にしたものも必ず残す（あとで再検討するときの根拠になる）。
+
+詳細な判断履歴は [`decisions.md`](./decisions.md) を参照。
 
 ## ドキュメント構成
 
