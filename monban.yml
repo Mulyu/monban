@@ -77,6 +77,18 @@ content:
       pattern: '^export (async )?function check(?!Git)[A-Z]'
       message: "src/rules/git/ の check 関数は checkGit* と命名してください。"
 
+    # --- デバッグ残渣 / 型安全 ---
+    - path: "src/**/*.ts"
+      pattern: '\bdebugger\b'
+      message: "debugger を残さないでください。"
+    - path: "src/**/*.ts"
+      exclude: ["src/cli.ts", "src/orchestrator.ts", "src/reporter.ts"]
+      pattern: 'console\.(log|error|warn)'
+      message: "console 出力は CLI/orchestrator/reporter に限定してください。"
+    - path: "src/**/*.ts"
+      pattern: '@ts-(ignore|nocheck)'
+      message: "@ts-ignore / @ts-nocheck は禁止。@ts-expect-error + 理由コメントを使ってください。"
+
 github:
   pinned:
     - path: ".github/workflows/**/*.yml"
@@ -84,6 +96,109 @@ github:
     - file: ".github/workflows/test.yml"
     - path: ".github/workflows/test.yml"
       steps: ["actions/checkout", "actions/setup-node"]
+
+  # GITHUB_TOKEN への過剰権限付与を防ぐ。未宣言はデフォルト広範権限
+  permissions:
+    - path: ".github/workflows/**/*.yml"
+      required: true
+      forbid: ["write-all", "read-all"]
+
+  # 暴走ジョブによるコスト流出を防ぐ
+  timeout:
+    - path: ".github/workflows/**/*.yml"
+      max: 20
+
+  # 冗長ビルド抑制（CI コスト・ランナー枠の節約）
+  concurrency:
+    - path: ".github/workflows/**/*.yml"
+
+  # フォーク PR からのトークン奪取経路になりうるトリガーを禁止
+  triggers:
+    - path: ".github/workflows/**/*.yml"
+      forbidden: ["pull_request_target"]
+
+  # 想定外のランナーへのジョブ投入を防ぐ
+  runner:
+    - path: ".github/workflows/**/*.yml"
+      allowed: ["ubuntu-latest"]
+
+  # シークレット名のタイポや未定義参照を静的検出
+  secrets:
+    - path: ".github/workflows/**/*.yml"
+      allowed: ["GITHUB_TOKEN", "NPM_TOKEN"]
+
+  # actions のバージョン混在を防ぐ
+  consistency:
+    - path: ".github/workflows/**/*.yml"
+      actions: ["actions/checkout", "actions/setup-node"]
+
+  # 廃止・代替のあるアクションを禁止
+  forbidden:
+    - path: ".github/workflows/**/*.yml"
+      uses: "actions/create-release"
+      message: "release-please を使ってください。"
+
+# 依存のサプライチェーン安全性
+# network 系は warn で留め、CI で落とさず気づかせる
+deps:
+  # ハルシネーション / slopsquat 対策（存在しないパッケージ名の検出）
+  existence:
+    - path: "package.json"
+    - path: ".github/workflows/**/*.yml"
+
+  # 人気パッケージに類似した名前（typosquat）の検出
+  typosquat:
+    - path: "package.json"
+      max_distance: 2
+      severity: warn
+
+  # 公開直後の新規パッケージ（攻撃で頻出）を警告
+  freshness:
+    - path: "package.json"
+      max_age_hours: 72
+      severity: warn
+
+  # 低人気パッケージを警告
+  popularity:
+    - path: "package.json"
+      min_downloads: 1000
+      severity: warn
+
+  # エコシステム取り違え（AI エージェントの典型ミス）検出
+  cross_ecosystem:
+    - path: "package.json"
+      severity: warn
+
+  # 既知の compromise 事例を明示的に拒否
+  denied:
+    - path: "package.json"
+      names:
+        - event-stream
+        - flatmap-stream
+      message: "過去に compromise されたパッケージです。"
+
+# コミット品質 / 誤コミット検出
+git:
+  commit:
+    message:
+      preset: conventional
+      subject_max_length: 72
+      forbidden_subjects: ["fix", "update", "wip", "misc", "changes"]
+      ignore_merges: true
+      ignore_reverts: true
+  diff:
+    # 巨大 PR を警告（レビュー可能性の担保）
+    size:
+      max_total_lines: 1500
+      exclude:
+        - "package-lock.json"
+        - "**/__snapshots__/**"
+        - "**/*.lock"
+      severity: warn
+    # .gitignore 対象ファイル（.env 等）の誤追跡を検出
+    ignored:
+      scope: diff
+      severity: warn
 
 doc:
   ref:
