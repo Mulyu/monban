@@ -33,7 +33,7 @@ export async function checkGithubTriggers(
 				for (const event of events) {
 					if (!rule.allowed.includes(event)) {
 						results.push({
-							rule: "triggers",
+							rule: "actions.triggers",
 							path: wf.file,
 							message: `許可されていないトリガー: ${event}`,
 							severity: "error",
@@ -46,7 +46,7 @@ export async function checkGithubTriggers(
 				for (const event of events) {
 					if (rule.forbidden.includes(event)) {
 						results.push({
-							rule: "triggers",
+							rule: "actions.triggers",
 							path: wf.file,
 							message: `禁止されたトリガー: ${event}`,
 							severity: "error",

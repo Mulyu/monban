@@ -21,7 +21,7 @@ describe("github/pinned", () => {
 			[],
 		);
 		expect(results).toHaveLength(2);
-		expect(results[0].rule).toBe("pinned");
+		expect(results[0].rule).toBe("actions.pinned");
 	});
 
 	it("skips reusable workflows by default", async () => {

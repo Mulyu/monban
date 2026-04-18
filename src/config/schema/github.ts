@@ -1,4 +1,6 @@
 import type {
+	GithubActionsConfig,
+	GithubCodeownersConfig,
 	GithubCodeownersRule,
 	GithubConcurrencyRule,
 	GithubConfig,
@@ -31,80 +33,110 @@ export function validateGithubConfig(raw: unknown): GithubConfig {
 	const obj = raw as Record<string, unknown>;
 	const config: GithubConfig = {};
 
+	if (obj.actions !== undefined) {
+		config.actions = validateGithubActionsConfig(obj.actions);
+	}
+	if (obj.codeowners !== undefined) {
+		config.codeowners = validateGithubCodeownersConfig(obj.codeowners);
+	}
+
+	return config;
+}
+
+function validateGithubActionsConfig(raw: unknown): GithubActionsConfig {
+	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+		throw new Error("github.actions must be an object");
+	}
+
+	const obj = raw as Record<string, unknown>;
+	const config: GithubActionsConfig = {};
+
 	if (obj.pinned !== undefined) {
 		config.pinned = validateArray(
 			obj.pinned,
-			"github.pinned",
+			"github.actions.pinned",
 			validateGithubPinnedRule,
 		);
 	}
 	if (obj.required !== undefined) {
 		config.required = validateArray(
 			obj.required,
-			"github.required",
+			"github.actions.required",
 			validateGithubRequiredRule,
 		);
 	}
 	if (obj.forbidden !== undefined) {
 		config.forbidden = validateArray(
 			obj.forbidden,
-			"github.forbidden",
+			"github.actions.forbidden",
 			validateGithubForbiddenRule,
 		);
 	}
 	if (obj.permissions !== undefined) {
 		config.permissions = validateArray(
 			obj.permissions,
-			"github.permissions",
+			"github.actions.permissions",
 			validateGithubPermissionsRule,
 		);
 	}
 	if (obj.triggers !== undefined) {
 		config.triggers = validateArray(
 			obj.triggers,
-			"github.triggers",
+			"github.actions.triggers",
 			validateGithubTriggersRule,
 		);
 	}
 	if (obj.runner !== undefined) {
 		config.runner = validateArray(
 			obj.runner,
-			"github.runner",
+			"github.actions.runner",
 			validateGithubRunnerRule,
 		);
 	}
 	if (obj.timeout !== undefined) {
 		config.timeout = validateArray(
 			obj.timeout,
-			"github.timeout",
+			"github.actions.timeout",
 			validateGithubTimeoutRule,
 		);
 	}
 	if (obj.concurrency !== undefined) {
 		config.concurrency = validateArray(
 			obj.concurrency,
-			"github.concurrency",
+			"github.actions.concurrency",
 			validateGithubConcurrencyRule,
 		);
 	}
 	if (obj.consistency !== undefined) {
 		config.consistency = validateArray(
 			obj.consistency,
-			"github.consistency",
+			"github.actions.consistency",
 			validateGithubConsistencyRule,
 		);
 	}
 	if (obj.secrets !== undefined) {
 		config.secrets = validateArray(
 			obj.secrets,
-			"github.secrets",
+			"github.actions.secrets",
 			validateGithubSecretsRule,
 		);
 	}
-	if (obj.codeowners !== undefined) {
-		config.codeowners = validateArray(
-			obj.codeowners,
-			"github.codeowners",
+
+	return config;
+}
+
+function validateGithubCodeownersConfig(raw: unknown): GithubCodeownersConfig {
+	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+		throw new Error("github.codeowners must be an object");
+	}
+
+	const obj = raw as Record<string, unknown>;
+	const config: GithubCodeownersConfig = {};
+
+	if (obj.ownership !== undefined) {
+		config.ownership = validateArray(
+			obj.ownership,
+			"github.codeowners.ownership",
 			validateGithubCodeownersRule,
 		);
 	}

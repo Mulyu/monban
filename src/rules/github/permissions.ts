@@ -20,7 +20,7 @@ export async function checkGithubPermissions(
 
 			if (required && topLevel === undefined) {
 				results.push({
-					rule: "permissions",
+					rule: "actions.permissions",
 					path: wf.file,
 					message: "permissions: が宣言されていません。",
 					severity: "error",
@@ -29,7 +29,7 @@ export async function checkGithubPermissions(
 
 			if (typeof topLevel === "string" && forbid.includes(topLevel)) {
 				results.push({
-					rule: "permissions",
+					rule: "actions.permissions",
 					path: wf.file,
 					message: `禁止された permissions スカラー: ${topLevel}`,
 					severity: "error",
@@ -40,7 +40,7 @@ export async function checkGithubPermissions(
 				const jobPerm = job.permissions;
 				if (typeof jobPerm === "string" && forbid.includes(jobPerm)) {
 					results.push({
-						rule: "permissions",
+						rule: "actions.permissions",
 						path: wf.file,
 						message: `禁止された permissions スカラー: ${jobPerm} (job: ${jobName})`,
 						severity: "error",

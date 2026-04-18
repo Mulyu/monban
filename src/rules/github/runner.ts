@@ -27,7 +27,7 @@ export async function checkGithubRunner(
 					if (r.includes("${{")) continue;
 					if (!rule.allowed.includes(r)) {
 						results.push({
-							rule: "runner",
+							rule: "actions.runner",
 							path: wf.file,
 							message: `許可されていないランナー: ${r} (job: ${jobName})`,
 							severity: "error",
