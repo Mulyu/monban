@@ -1,3 +1,4 @@
+import { networkWarning } from "../../errors.js";
 import type { RegistryClient } from "../../registry/client.js";
 import { RegistryLookupError } from "../../registry/client.js";
 import type { DepsFreshnessRule, RuleResult } from "../../types.js";
@@ -38,7 +39,17 @@ export async function checkDepsFreshness(
 						});
 					}
 				} catch (err) {
-					if (!(err instanceof RegistryLookupError)) throw err;
+					if (err instanceof RegistryLookupError) {
+						results.push(
+							networkWarning(
+								"freshness",
+								formatLocation(manifest.file, entry.line),
+								`${entry.name}: 鮮度照合に失敗しました (${err.message})。`,
+							),
+						);
+					} else {
+						throw err;
+					}
 				}
 			}
 		}

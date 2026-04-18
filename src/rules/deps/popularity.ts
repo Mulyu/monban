@@ -1,3 +1,4 @@
+import { networkWarning } from "../../errors.js";
 import type { RegistryClient } from "../../registry/client.js";
 import { RegistryLookupError } from "../../registry/client.js";
 import type { DepsPopularityRule, RuleResult } from "../../types.js";
@@ -32,7 +33,17 @@ export async function checkDepsPopularity(
 						});
 					}
 				} catch (err) {
-					if (!(err instanceof RegistryLookupError)) throw err;
+					if (err instanceof RegistryLookupError) {
+						results.push(
+							networkWarning(
+								"popularity",
+								formatLocation(manifest.file, entry.line),
+								`${entry.name}: 人気度照合に失敗しました (${err.message})。`,
+							),
+						);
+					} else {
+						throw err;
+					}
 				}
 			}
 		}

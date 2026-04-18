@@ -1,3 +1,4 @@
+import { networkWarning } from "../../errors.js";
 import type { RegistryClient } from "../../registry/client.js";
 import { RegistryLookupError } from "../../registry/client.js";
 import type { DepsExistenceRule, RuleResult } from "../../types.js";
@@ -31,12 +32,13 @@ export async function checkDepsExistence(
 					}
 				} catch (err) {
 					if (err instanceof RegistryLookupError) {
-						results.push({
-							rule: "existence",
-							path: formatLocation(manifest.file, entry.line),
-							message: `${entry.name}: レジストリ照合に失敗しました (${err.message})。`,
-							severity: "warn",
-						});
+						results.push(
+							networkWarning(
+								"existence",
+								formatLocation(manifest.file, entry.line),
+								`${entry.name}: レジストリ照合に失敗しました (${err.message})。`,
+							),
+						);
 					} else {
 						throw err;
 					}

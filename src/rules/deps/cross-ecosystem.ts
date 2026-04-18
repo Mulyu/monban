@@ -1,3 +1,4 @@
+import { networkWarning } from "../../errors.js";
 import type { RegistryClient } from "../../registry/client.js";
 import { RegistryLookupError } from "../../registry/client.js";
 import type { DepsCrossEcosystemRule, RuleResult } from "../../types.js";
@@ -34,7 +35,17 @@ export async function checkDepsCrossEcosystem(
 						});
 					}
 				} catch (err) {
-					if (!(err instanceof RegistryLookupError)) throw err;
+					if (err instanceof RegistryLookupError) {
+						results.push(
+							networkWarning(
+								"cross_ecosystem",
+								formatLocation(manifest.file, entry.line),
+								`${entry.name}: エコシステム横断照合に失敗しました (${err.message})。`,
+							),
+						);
+					} else {
+						throw err;
+					}
 				}
 			}
 		}
