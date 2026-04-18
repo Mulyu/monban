@@ -17,7 +17,16 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
       - run: npm ci
+
+      - name: npm audit
+        run: npm audit --omit=dev
+
+      - name: npm audit signatures
+        run: npm audit signatures
 
       - run: npm run check
 
