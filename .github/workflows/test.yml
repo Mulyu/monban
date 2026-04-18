@@ -17,9 +17,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Upgrade npm
-        run: npm install -g npm@latest
-
       - run: npm ci
 
       - name: npm audit
