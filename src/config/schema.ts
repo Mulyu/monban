@@ -5,6 +5,14 @@ import type {
 	ContentRequiredRule,
 	ContentRequiredScope,
 	CountRule,
+	DepsAllowedRule,
+	DepsConfig,
+	DepsCrossEcosystemRule,
+	DepsDeniedRule,
+	DepsExistenceRule,
+	DepsFreshnessRule,
+	DepsPopularityRule,
+	DepsTyposquatRule,
 	DepthRule,
 	DocConfig,
 	DocLinkRule,
@@ -86,6 +94,10 @@ export function validateConfig(raw: unknown): MonbanConfig {
 
 	if (obj.github !== undefined) {
 		config.github = validateGithubConfig(obj.github);
+	}
+
+	if (obj.deps !== undefined) {
+		config.deps = validateDepsConfig(obj.deps);
 	}
 
 	return config;
@@ -828,4 +840,241 @@ function validateExtendsSource(
 		return rule;
 	}
 	throw new Error(`${label}.type must be "local" or "github"`);
+}
+
+// --- Deps config validation ---
+
+function validateDepsConfig(raw: unknown): DepsConfig {
+	if (typeof raw !== "object" || raw === null) {
+		throw new Error("deps must be an object");
+	}
+
+	const obj = raw as Record<string, unknown>;
+	const config: DepsConfig = {};
+
+	if (obj.existence !== undefined) {
+		config.existence = validateArray(
+			obj.existence,
+			"deps.existence",
+			validateDepsExistenceRule,
+		);
+	}
+	if (obj.freshness !== undefined) {
+		config.freshness = validateArray(
+			obj.freshness,
+			"deps.freshness",
+			validateDepsFreshnessRule,
+		);
+	}
+	if (obj.popularity !== undefined) {
+		config.popularity = validateArray(
+			obj.popularity,
+			"deps.popularity",
+			validateDepsPopularityRule,
+		);
+	}
+	if (obj.cross_ecosystem !== undefined) {
+		config.cross_ecosystem = validateArray(
+			obj.cross_ecosystem,
+			"deps.cross_ecosystem",
+			validateDepsCrossEcosystemRule,
+		);
+	}
+	if (obj.typosquat !== undefined) {
+		config.typosquat = validateArray(
+			obj.typosquat,
+			"deps.typosquat",
+			validateDepsTyposquatRule,
+		);
+	}
+	if (obj.allowed !== undefined) {
+		config.allowed = validateArray(
+			obj.allowed,
+			"deps.allowed",
+			validateDepsAllowedRule,
+		);
+	}
+	if (obj.denied !== undefined) {
+		config.denied = validateArray(
+			obj.denied,
+			"deps.denied",
+			validateDepsDeniedRule,
+		);
+	}
+
+	return config;
+}
+
+function validateSeverity(
+	raw: Record<string, unknown>,
+	label: string,
+): Severity | undefined {
+	const severity = optionalString(raw, "severity", label);
+	if (severity === undefined) return undefined;
+	if (!SEVERITIES.includes(severity as Severity)) {
+		throw new Error(`${label}.severity must be "error" or "warn"`);
+	}
+	return severity as Severity;
+}
+
+function validatePositiveNumber(
+	raw: Record<string, unknown>,
+	key: string,
+	label: string,
+): number | undefined {
+	if (raw[key] === undefined) return undefined;
+	const value = raw[key];
+	if (typeof value !== "number" || !(value > 0)) {
+		throw new Error(`${label}.${key} must be a positive number`);
+	}
+	return value;
+}
+
+function validatePositiveInteger(
+	raw: Record<string, unknown>,
+	key: string,
+	label: string,
+): number | undefined {
+	if (raw[key] === undefined) return undefined;
+	const value = raw[key];
+	if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
+		throw new Error(`${label}.${key} must be a positive integer`);
+	}
+	return value;
+}
+
+function validateDepsExistenceRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DepsExistenceRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: DepsExistenceRule = {
+		path: requireString(raw, "path", label),
+	};
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	const exclude = optionalStringArray(raw, "exclude", label);
+	if (exclude !== undefined) rule.exclude = exclude;
+	return rule;
+}
+
+function validateDepsFreshnessRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DepsFreshnessRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: DepsFreshnessRule = {
+		path: requireString(raw, "path", label),
+	};
+	const hours = validatePositiveNumber(raw, "max_age_hours", label);
+	if (hours !== undefined) rule.max_age_hours = hours;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateDepsPopularityRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DepsPopularityRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: DepsPopularityRule = {
+		path: requireString(raw, "path", label),
+	};
+	const min = validatePositiveInteger(raw, "min_downloads", label);
+	if (min !== undefined) rule.min_downloads = min;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateDepsCrossEcosystemRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DepsCrossEcosystemRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: DepsCrossEcosystemRule = {
+		path: requireString(raw, "path", label),
+	};
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateDepsTyposquatRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DepsTyposquatRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: DepsTyposquatRule = {
+		path: requireString(raw, "path", label),
+	};
+	const distance = validatePositiveInteger(raw, "max_distance", label);
+	if (distance !== undefined) rule.max_distance = distance;
+	const targets = optionalStringArray(raw, "targets", label);
+	if (targets !== undefined) rule.targets = targets;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateDepsAllowedRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DepsAllowedRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const names = optionalStringArray(raw, "names", label);
+	if (!names || names.length === 0) {
+		throw new Error(`${label}.names must be a non-empty string array`);
+	}
+
+	const rule: DepsAllowedRule = {
+		path: requireString(raw, "path", label),
+		names,
+	};
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateDepsDeniedRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DepsDeniedRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const names = optionalStringArray(raw, "names", label);
+	if (!names || names.length === 0) {
+		throw new Error(`${label}.names must be a non-empty string array`);
+	}
+
+	const rule: DepsDeniedRule = {
+		path: requireString(raw, "path", label),
+		names,
+	};
+	const message = optionalString(raw, "message", label);
+	if (message !== undefined) rule.message = message;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
 }

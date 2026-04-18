@@ -175,6 +175,69 @@ export interface GithubConfig {
 	codeowners?: GithubCodeownersRule[];
 }
 
+// --- Deps config types ---
+
+export type DepsEcosystem =
+	| "npm"
+	| "pypi"
+	| "rubygems"
+	| "cargo"
+	| "go"
+	| "github-actions";
+
+export interface DepsExistenceRule {
+	path: string;
+	severity?: Severity;
+	exclude?: string[];
+}
+
+export interface DepsFreshnessRule {
+	path: string;
+	max_age_hours?: number;
+	severity?: Severity;
+}
+
+export interface DepsPopularityRule {
+	path: string;
+	min_downloads?: number;
+	severity?: Severity;
+}
+
+export interface DepsCrossEcosystemRule {
+	path: string;
+	severity?: Severity;
+}
+
+export interface DepsTyposquatRule {
+	path: string;
+	max_distance?: number;
+	targets?: string[];
+	severity?: Severity;
+}
+
+export interface DepsAllowedRule {
+	path: string;
+	names: string[];
+	severity?: Severity;
+}
+
+export interface DepsDeniedRule {
+	path: string;
+	names: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface DepsConfig {
+	existence?: DepsExistenceRule[];
+	freshness?: DepsFreshnessRule[];
+	popularity?: DepsPopularityRule[];
+	cross_ecosystem?: DepsCrossEcosystemRule[];
+	typosquat?: DepsTyposquatRule[];
+	allowed?: DepsAllowedRule[];
+	denied?: DepsDeniedRule[];
+}
+
 // --- Extends types ---
 
 export interface ExtendsLocal {
@@ -198,4 +261,15 @@ export interface MonbanConfig {
 	content?: ContentConfig;
 	doc?: DocConfig;
 	github?: GithubConfig;
+	deps?: DepsConfig;
+}
+
+// --- Diff scope types ---
+
+export type DiffGranularity = "file" | "line";
+
+export interface DiffScope {
+	files: Set<string>;
+	addedLines: Map<string, Set<number>>;
+	granularity: DiffGranularity;
 }
