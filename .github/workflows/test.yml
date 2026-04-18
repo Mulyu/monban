@@ -19,6 +19,12 @@ jobs:
 
       - run: npm ci
 
+      - name: npm audit
+        run: npm audit --omit=dev
+
+      - name: npm audit signatures
+        run: npm audit signatures
+
       - run: npm run check
 
       - run: npm run build
