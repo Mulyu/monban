@@ -19,6 +19,7 @@
 | `monban doc` | ドキュメントの参照ハッシュ・リンク切れ | [docs/doc.md](docs/doc.md) |
 | `monban github` | GitHub ワークフロー（ピン留め・権限・トリガー等）と CODEOWNERS | [docs/github.md](docs/github.md) |
 | `monban deps` | マニフェストの依存名をレジストリで実在・鮮度・人気度・類似性で検証 | [docs/deps.md](docs/deps.md) |
+| `monban git` | コミットメッセージ・trailer・変更粒度・ignore すり抜けの検査 | [docs/git.md](docs/git.md) |
 
 PR 差分にスコープを絞る `--diff` フラグは全コマンド共通で使えます（[docs/diff.md](docs/diff.md)）。組織共通ルールの再利用は [docs/extends.md](docs/extends.md) を参照してください。
 
@@ -52,6 +53,7 @@ monban content
 monban doc
 monban github
 monban deps
+monban git
 
 # 特定ルールのみ実行
 monban path --rule forbidden
@@ -84,6 +86,7 @@ content: { ... }   # docs/content.md
 doc:     { ... }   # docs/doc.md
 github:  { ... }   # docs/github.md
 deps:    { ... }   # docs/deps.md
+git:     { ... }   # docs/git.md
 ```
 
 ---
