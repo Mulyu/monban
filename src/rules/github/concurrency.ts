@@ -16,7 +16,7 @@ export async function checkGithubConcurrency(
 			const root = wf.doc as Record<string, unknown>;
 			if (root.concurrency === undefined) {
 				results.push({
-					rule: "concurrency",
+					rule: "actions.concurrency",
 					path: wf.file,
 					message: "concurrency: が宣言されていません。",
 					severity: "error",

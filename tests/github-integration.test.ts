@@ -8,45 +8,49 @@ describe("github integration", () => {
 	it("runs all configured rules", async () => {
 		const results = await runGithubRules(
 			{
-				pinned: [{ path: ".github/workflows/unpinned.yml" }],
-				required: [{ file: ".github/workflows/lint.yml" }],
-				forbidden: [
-					{
-						path: ".github/workflows/with-forbidden.yml",
-						uses: "actions/create-release",
-					},
-				],
-				concurrency: [{ path: ".github/workflows/concurrency-missing.yml" }],
+				actions: {
+					pinned: [{ path: ".github/workflows/unpinned.yml" }],
+					required: [{ file: ".github/workflows/lint.yml" }],
+					forbidden: [
+						{
+							path: ".github/workflows/with-forbidden.yml",
+							uses: "actions/create-release",
+						},
+					],
+					concurrency: [{ path: ".github/workflows/concurrency-missing.yml" }],
+				},
 			},
 			cwd,
 			[],
 		);
 
 		const byName = Object.fromEntries(results.map((r) => [r.name, r.results]));
-		expect(byName.pinned.length).toBeGreaterThan(0);
-		expect(byName.required.length).toBeGreaterThan(0);
-		expect(byName.forbidden.length).toBeGreaterThan(0);
-		expect(byName.concurrency.length).toBeGreaterThan(0);
+		expect(byName["actions.pinned"].length).toBeGreaterThan(0);
+		expect(byName["actions.required"].length).toBeGreaterThan(0);
+		expect(byName["actions.forbidden"].length).toBeGreaterThan(0);
+		expect(byName["actions.concurrency"].length).toBeGreaterThan(0);
 	});
 
 	it("filters by rule name", async () => {
 		const results = await runGithubRules(
 			{
-				pinned: [{ path: ".github/workflows/unpinned.yml" }],
-				forbidden: [
-					{
-						path: ".github/workflows/**/*.yml",
-						uses: "actions/create-release",
-					},
-				],
+				actions: {
+					pinned: [{ path: ".github/workflows/unpinned.yml" }],
+					forbidden: [
+						{
+							path: ".github/workflows/**/*.yml",
+							uses: "actions/create-release",
+						},
+					],
+				},
 			},
 			cwd,
 			[],
-			"pinned",
+			"actions.pinned",
 		);
 
 		expect(results).toHaveLength(1);
-		expect(results[0].name).toBe("pinned");
+		expect(results[0].name).toBe("actions.pinned");
 	});
 
 	it("throws on unknown rule name", async () => {

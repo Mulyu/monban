@@ -2,16 +2,19 @@
 
 GitHub 特有ファイル（ワークフロー・CODEOWNERS）の構造チェック。YAML パースと独自構文パースに特化する。
 
-- ワークフロー: `.github/workflows/**/*.yml` を YAML としてパース
-- CODEOWNERS: `.github/CODEOWNERS` / `CODEOWNERS` / `docs/CODEOWNERS` を独自構文でパース
+- `github.actions.*` — `.github/workflows/**/*.yml` を YAML としてパース
+- `github.codeowners.*` — `.github/CODEOWNERS` / `CODEOWNERS` / `docs/CODEOWNERS` を独自構文でパース
 - セレクタは `path`（glob パターン）
 
 ```bash
-monban github                     # 全ルール実行
-monban github --rule pinned       # 特定ルールのみ
-monban github --diff=main         # 差分スコープのみ（詳細: ./diff.md）
-monban github --json              # JSON 出力
+monban github                              # 全ルール実行
+monban github --rule actions.pinned        # 特定ルールのみ
+monban github --rule codeowners.ownership
+monban github --diff=main                  # 差分スコープのみ（詳細: ./diff.md）
+monban github --json                       # JSON 出力
 ```
+
+ルール名はドット区切り（`<対象ファイル群>.<ルール>`）で指定する。`path` フィールドを各ルール配下で明示的に書く運用で、対象ファイルの暗黙固定はしない。
 
 GitHub 関連でも、構造パースが不要なもの（`LICENSE` / `SECURITY.md` の存在、PR テンプレートの必須セクション、`continue-on-error: true` 禁止 など）は `path.required` / `content.required` / `content.forbidden` で表現し、`github` に取り込まない。
 
@@ -21,17 +24,17 @@ GitHub 関連でも、構造パースが不要なもの（`LICENSE` / `SECURITY.
 
 | # | ルール | 対象 | 概要 |
 |---|--------|------|------|
-| 1 | `pinned` | workflows | `uses` のアクション・reusable workflow・docker image のピン留め |
-| 2 | `required` | workflows | 必須ワークフロー・必須ステップ |
-| 3 | `forbidden` | workflows | 禁止アクション |
-| 4 | `permissions` | workflows | `permissions:` の宣言必須・禁止スカラー値 |
-| 5 | `triggers` | workflows | `on:` イベントの allow / deny |
-| 6 | `runner` | workflows | `runs-on:` の allowlist |
-| 7 | `timeout` | workflows | job に `timeout-minutes:` 必須・上限 |
-| 8 | `concurrency` | workflows | `concurrency:` 宣言必須 |
-| 9 | `consistency` | workflows | 同一アクションのバージョン一貫性 |
-| 10 | `secrets` | workflows | `${{ secrets.X }}` 参照の allowlist |
-| 11 | `codeowners` | CODEOWNERS | path → owners の一方向整合 |
+| 1 | `actions.pinned` | workflows | `uses` のアクション・reusable workflow・docker image のピン留め |
+| 2 | `actions.required` | workflows | 必須ワークフロー・必須ステップ |
+| 3 | `actions.forbidden` | workflows | 禁止アクション |
+| 4 | `actions.permissions` | workflows | `permissions:` の宣言必須・禁止スカラー値 |
+| 5 | `actions.triggers` | workflows | `on:` イベントの allow / deny |
+| 6 | `actions.runner` | workflows | `runs-on:` の allowlist |
+| 7 | `actions.timeout` | workflows | job に `timeout-minutes:` 必須・上限 |
+| 8 | `actions.concurrency` | workflows | `concurrency:` 宣言必須 |
+| 9 | `actions.consistency` | workflows | 同一アクションのバージョン一貫性 |
+| 10 | `actions.secrets` | workflows | `${{ secrets.X }}` 参照の allowlist |
+| 11 | `codeowners.ownership` | CODEOWNERS | path → owners の一方向整合 |
 
 ---
 
@@ -40,58 +43,62 @@ GitHub 関連でも、構造パースが不要なもの（`LICENSE` / `SECURITY.
 ```yaml
 # monban.yml
 github:
-  pinned:
-    - path: ".github/workflows/**/*.yml"
-      targets: ["action", "reusable", "docker"]
+  actions:
+    pinned:
+      - path: ".github/workflows/**/*.yml"
+        targets: ["action", "reusable", "docker"]
 
-  required:
-    - file: ".github/workflows/test.yml"
-    - path: ".github/workflows/test.yml"
-      steps: ["actions/checkout", "actions/setup-node"]
+    required:
+      - file: ".github/workflows/test.yml"
+      - path: ".github/workflows/test.yml"
+        steps: ["actions/checkout", "actions/setup-node"]
 
-  forbidden:
-    - path: ".github/workflows/**/*.yml"
-      uses: "actions/create-release"
-      message: "release-please を使ってください。"
+    forbidden:
+      - path: ".github/workflows/**/*.yml"
+        uses: "actions/create-release"
+        message: "release-please を使ってください。"
 
-  permissions:
-    - path: ".github/workflows/**/*.yml"
-      required: true
-      forbid: ["write-all"]
+    permissions:
+      - path: ".github/workflows/**/*.yml"
+        required: true
+        forbid: ["write-all"]
 
-  triggers:
-    - path: ".github/workflows/**/*.yml"
-      allowed: ["push", "pull_request", "workflow_dispatch"]
-      forbidden: ["pull_request_target"]
+    triggers:
+      - path: ".github/workflows/**/*.yml"
+        allowed: ["push", "pull_request", "workflow_dispatch"]
+        forbidden: ["pull_request_target"]
 
-  runner:
-    - path: ".github/workflows/**/*.yml"
-      allowed: ["ubuntu-latest", "ubuntu-22.04"]
+    runner:
+      - path: ".github/workflows/**/*.yml"
+        allowed: ["ubuntu-latest", "ubuntu-22.04"]
 
-  timeout:
-    - path: ".github/workflows/**/*.yml"
-      max: 30
+    timeout:
+      - path: ".github/workflows/**/*.yml"
+        max: 30
 
-  concurrency:
-    - path: ".github/workflows/**/*.yml"
+    concurrency:
+      - path: ".github/workflows/**/*.yml"
 
-  consistency:
-    - path: ".github/workflows/**/*.yml"
-      actions: ["actions/checkout", "actions/setup-node"]
+    consistency:
+      - path: ".github/workflows/**/*.yml"
+        actions: ["actions/checkout", "actions/setup-node"]
 
-  secrets:
-    - path: ".github/workflows/**/*.yml"
-      allowed: ["NPM_TOKEN", "GITHUB_TOKEN", "SLACK_WEBHOOK"]
+    secrets:
+      - path: ".github/workflows/**/*.yml"
+        allowed: ["NPM_TOKEN", "GITHUB_TOKEN", "SLACK_WEBHOOK"]
 
   codeowners:
-    - path: "src/payments/**"
-      owners: ["@myorg/payments-team"]
-      message: "payments 配下は payments-team のレビュー必須"
+    ownership:
+      - path: "src/payments/**"
+        owners: ["@myorg/payments-team"]
+        message: "payments 配下は payments-team のレビュー必須"
 ```
+
+`github.actions` と `github.codeowners` はそれぞれオブジェクトで、配下にルール配列を持つ。各ルールは `path` を必須で取り、対象ファイル群を glob で明示する。
 
 ---
 
-## 1. pinned
+## 1. actions.pinned
 
 `uses` で指定された参照がコミットハッシュで固定されているかを検証する。
 
@@ -101,9 +108,10 @@ github:
 
 ```yaml
 github:
-  pinned:
-    - path: ".github/workflows/**/*.yml"
-      targets: ["action", "reusable", "docker"]
+  actions:
+    pinned:
+      - path: ".github/workflows/**/*.yml"
+        targets: ["action", "reusable", "docker"]
 ```
 
 ### フィールド
@@ -126,13 +134,13 @@ github:
 ### 出力例
 
 ```
-ERROR [pinned] .github/workflows/test.yml
+ERROR [actions.pinned] .github/workflows/test.yml
   ハッシュ固定されていません: actions/checkout@v4
 ```
 
 ---
 
-## 2. required
+## 2. actions.required
 
 必須ワークフローファイルの存在と、ワークフロー内の必須ステップを検証する。
 
@@ -140,10 +148,11 @@ ERROR [pinned] .github/workflows/test.yml
 
 ```yaml
 github:
-  required:
-    - file: ".github/workflows/test.yml"        # 存在チェック
-    - path: ".github/workflows/test.yml"        # ステップ存在チェック
-      steps: ["actions/checkout", "actions/setup-node"]
+  actions:
+    required:
+      - file: ".github/workflows/test.yml"        # 存在チェック
+      - path: ".github/workflows/test.yml"        # ステップ存在チェック
+        steps: ["actions/checkout", "actions/setup-node"]
 ```
 
 ### フィールド
@@ -159,13 +168,13 @@ github:
 ### 出力例
 
 ```
-ERROR [required] .github/workflows/lint.yml
+ERROR [actions.required] .github/workflows/lint.yml
   必須ワークフローが見つかりません。
 ```
 
 ---
 
-## 3. forbidden
+## 3. actions.forbidden
 
 使用を禁止するアクションを検出する。
 
@@ -173,11 +182,12 @@ ERROR [required] .github/workflows/lint.yml
 
 ```yaml
 github:
-  forbidden:
-    - path: ".github/workflows/**/*.yml"
-      uses: "actions/create-release"
-      message: "release-please を使ってください。"
-      severity: warn
+  actions:
+    forbidden:
+      - path: ".github/workflows/**/*.yml"
+        uses: "actions/create-release"
+        message: "release-please を使ってください。"
+        severity: warn
 ```
 
 ### フィールド
@@ -191,7 +201,7 @@ github:
 
 ---
 
-## 4. permissions
+## 4. actions.permissions
 
 ワークフローの `permissions:` 宣言を検証する。GitHub は `permissions:` 未宣言時に `GITHUB_TOKEN` へ広い権限を与えるため、明示宣言が望ましい。
 
@@ -199,10 +209,11 @@ github:
 
 ```yaml
 github:
-  permissions:
-    - path: ".github/workflows/**/*.yml"
-      required: true              # 宣言必須（デフォルト true）
-      forbid: ["write-all"]       # 禁止する権限スカラー値
+  actions:
+    permissions:
+      - path: ".github/workflows/**/*.yml"
+        required: true              # 宣言必須（デフォルト true）
+        forbid: ["write-all"]       # 禁止する権限スカラー値
 ```
 
 ### フィールド
@@ -221,15 +232,15 @@ github:
 ### 出力例
 
 ```
-ERROR [permissions] .github/workflows/release.yml
+ERROR [actions.permissions] .github/workflows/release.yml
   permissions: が宣言されていません。
-ERROR [permissions] .github/workflows/ci.yml
+ERROR [actions.permissions] .github/workflows/ci.yml
   禁止された permissions スカラー: write-all
 ```
 
 ---
 
-## 5. triggers
+## 5. actions.triggers
 
 ワークフローの `on:` イベントを検証する。
 
@@ -239,10 +250,11 @@ ERROR [permissions] .github/workflows/ci.yml
 
 ```yaml
 github:
-  triggers:
-    - path: ".github/workflows/**/*.yml"
-      allowed: ["push", "pull_request", "workflow_dispatch"]
-      forbidden: ["pull_request_target"]
+  actions:
+    triggers:
+      - path: ".github/workflows/**/*.yml"
+        allowed: ["push", "pull_request", "workflow_dispatch"]
+        forbidden: ["pull_request_target"]
 ```
 
 ### フィールド
@@ -263,7 +275,7 @@ github:
 
 ---
 
-## 6. runner
+## 6. actions.runner
 
 job の `runs-on:` の allowlist を検証する。
 
@@ -273,9 +285,10 @@ job の `runs-on:` の allowlist を検証する。
 
 ```yaml
 github:
-  runner:
-    - path: ".github/workflows/**/*.yml"
-      allowed: ["ubuntu-latest", "ubuntu-22.04"]
+  actions:
+    runner:
+      - path: ".github/workflows/**/*.yml"
+        allowed: ["ubuntu-latest", "ubuntu-22.04"]
 ```
 
 ### フィールド
@@ -293,7 +306,7 @@ github:
 
 ---
 
-## 7. timeout
+## 7. actions.timeout
 
 全 job に `timeout-minutes:` が設定されているか、かつ上限値を超えていないかを検証する。
 
@@ -301,9 +314,10 @@ github:
 
 ```yaml
 github:
-  timeout:
-    - path: ".github/workflows/**/*.yml"
-      max: 30
+  actions:
+    timeout:
+      - path: ".github/workflows/**/*.yml"
+        max: 30
 ```
 
 ### フィールド
@@ -323,7 +337,7 @@ reusable workflow 呼び出し（job 直下 `uses:`）は job 内でタイムア
 
 ---
 
-## 8. concurrency
+## 8. actions.concurrency
 
 ワークフロー単位の `concurrency:` 宣言を必須化する。
 
@@ -333,8 +347,9 @@ reusable workflow 呼び出し（job 直下 `uses:`）は job 内でタイムア
 
 ```yaml
 github:
-  concurrency:
-    - path: ".github/workflows/**/*.yml"
+  actions:
+    concurrency:
+      - path: ".github/workflows/**/*.yml"
 ```
 
 ### フィールド
@@ -350,7 +365,7 @@ github:
 
 ---
 
-## 9. consistency
+## 9. actions.consistency
 
 同一アクションが複数ファイルで同じバージョン（ref）に揃っているかを検証する。
 
@@ -360,9 +375,10 @@ github:
 
 ```yaml
 github:
-  consistency:
-    - path: ".github/workflows/**/*.yml"
-      actions: ["actions/checkout", "actions/setup-node"]
+  actions:
+    consistency:
+      - path: ".github/workflows/**/*.yml"
+        actions: ["actions/checkout", "actions/setup-node"]
 ```
 
 ### フィールド
@@ -380,13 +396,13 @@ github:
 ### 出力例
 
 ```
-ERROR [consistency] .github/workflows/test.yml
+ERROR [actions.consistency] .github/workflows/test.yml
   actions/checkout のバージョンが一貫していません: @v3, @v4
 ```
 
 ---
 
-## 10. secrets
+## 10. actions.secrets
 
 ワークフロー内の `${{ secrets.X }}` 参照が allowlist 内にあるかを検証する。
 
@@ -396,9 +412,10 @@ ERROR [consistency] .github/workflows/test.yml
 
 ```yaml
 github:
-  secrets:
-    - path: ".github/workflows/**/*.yml"
-      allowed: ["NPM_TOKEN", "GITHUB_TOKEN", "SLACK_WEBHOOK"]
+  actions:
+    secrets:
+      - path: ".github/workflows/**/*.yml"
+        allowed: ["NPM_TOKEN", "GITHUB_TOKEN", "SLACK_WEBHOOK"]
 ```
 
 ### フィールド
@@ -416,7 +433,7 @@ github:
 
 ---
 
-## 11. codeowners
+## 11. codeowners.ownership
 
 `CODEOWNERS` の `path → owners` 一方向整合を検証する。
 
@@ -427,9 +444,10 @@ github:
 ```yaml
 github:
   codeowners:
-    - path: "src/payments/**"
-      owners: ["@myorg/payments-team"]
-      message: "payments 配下は payments-team のレビュー必須"
+    ownership:
+      - path: "src/payments/**"
+        owners: ["@myorg/payments-team"]
+        message: "payments 配下は payments-team のレビュー必須"
 ```
 
 ### フィールド
@@ -456,11 +474,12 @@ $ monban github
 
 monban github — GitHub チェック
 
-  ✗ pinned         2 violations
-  ✓ required
-  ✗ permissions    1 violation
-  ✓ triggers
+  ✗ actions.pinned         2 violations
+  ✓ actions.required
+  ✗ actions.permissions    1 violation
+  ✓ actions.triggers
   ...
+  ✓ codeowners.ownership
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

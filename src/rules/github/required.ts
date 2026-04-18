@@ -16,7 +16,7 @@ export async function checkGithubRequired(
 			const abs = join(cwd, rule.file);
 			if (!existsSync(abs)) {
 				results.push({
-					rule: "required",
+					rule: "actions.required",
 					path: rule.file,
 					message: "必須ワークフローが見つかりません。",
 					severity: "error",
@@ -31,7 +31,7 @@ export async function checkGithubRequired(
 				content = await readFile(abs, "utf-8");
 			} catch {
 				results.push({
-					rule: "required",
+					rule: "actions.required",
 					path: rule.path,
 					message: "ワークフローファイルが見つかりません。",
 					severity: "error",
@@ -51,7 +51,7 @@ export async function checkGithubRequired(
 				const found = usesEntries.some((u) => u.startsWith(requiredStep));
 				if (!found) {
 					results.push({
-						rule: "required",
+						rule: "actions.required",
 						path: rule.path,
 						message: `必須ステップが見つかりません: ${requiredStep}`,
 						severity: "error",

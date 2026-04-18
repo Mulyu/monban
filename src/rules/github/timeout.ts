@@ -19,7 +19,7 @@ export async function checkGithubTimeout(
 				const value = job["timeout-minutes"];
 				if (value === undefined) {
 					results.push({
-						rule: "timeout",
+						rule: "actions.timeout",
 						path: wf.file,
 						message: `timeout-minutes が設定されていません (job: ${jobName})`,
 						severity: "error",
@@ -28,7 +28,7 @@ export async function checkGithubTimeout(
 				}
 				if (typeof value !== "number" || !Number.isFinite(value)) {
 					results.push({
-						rule: "timeout",
+						rule: "actions.timeout",
 						path: wf.file,
 						message: `timeout-minutes が数値ではありません (job: ${jobName})`,
 						severity: "error",
@@ -37,7 +37,7 @@ export async function checkGithubTimeout(
 				}
 				if (value > rule.max) {
 					results.push({
-						rule: "timeout",
+						rule: "actions.timeout",
 						path: wf.file,
 						message: `timeout-minutes が上限 ${rule.max} 分を超えています: ${value} (job: ${jobName})`,
 						severity: "error",

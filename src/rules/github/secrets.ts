@@ -25,7 +25,7 @@ export async function checkGithubSecrets(
 				seen.add(name);
 				if (!allowedLower.has(name.toLowerCase())) {
 					results.push({
-						rule: "secrets",
+						rule: "actions.secrets",
 						path: wf.file,
 						message: `許可されていないシークレット参照: ${name}`,
 						severity: "error",

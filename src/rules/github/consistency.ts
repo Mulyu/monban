@@ -54,7 +54,7 @@ export async function checkGithubConsistency(
 			}
 			for (const file of affectedFiles) {
 				results.push({
-					rule: "consistency",
+					rule: "actions.consistency",
 					path: file,
 					message: `${action} のバージョンが一貫していません: ${refList}`,
 					severity: "error",

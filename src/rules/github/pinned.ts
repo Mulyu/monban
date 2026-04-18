@@ -31,7 +31,7 @@ export async function checkGithubPinned(
 				if (entry.kind === "docker") {
 					if (!DOCKER_SHA.test(entry.uses)) {
 						results.push({
-							rule: "pinned",
+							rule: "actions.pinned",
 							path: wf.file,
 							message: `ハッシュ固定されていません: ${entry.uses}`,
 							severity: "error",
@@ -43,7 +43,7 @@ export async function checkGithubPinned(
 				const atIndex = entry.uses.lastIndexOf("@");
 				if (atIndex === -1) {
 					results.push({
-						rule: "pinned",
+						rule: "actions.pinned",
 						path: wf.file,
 						message: `ハッシュ固定されていません: ${entry.uses}`,
 						severity: "error",
@@ -53,7 +53,7 @@ export async function checkGithubPinned(
 				const ref = entry.uses.slice(atIndex + 1);
 				if (!COMMIT_HASH.test(ref)) {
 					results.push({
-						rule: "pinned",
+						rule: "actions.pinned",
 						path: wf.file,
 						message: `ハッシュ固定されていません: ${entry.uses}`,
 						severity: "error",

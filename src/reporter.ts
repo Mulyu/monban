@@ -134,7 +134,7 @@ function reportAllText(groups: CategoryGroup[]): void {
 					parts.push(`${errors} violation${errors > 1 ? "s" : ""}`);
 				if (warns > 0)
 					parts.push(`${warns} violation${warns > 1 ? "s" : ""} (warn)`);
-				console.log(`    ✗ ${rule.name.padEnd(12)} ${parts.join(", ")}`);
+				console.log(`    ✗ ${rule.name.padEnd(22)} ${parts.join(", ")}`);
 			}
 		}
 	}
@@ -173,7 +173,7 @@ function printRuleList(ruleResults: CategoryRuleResult[]): void {
 			if (errors > 0) parts.push(`${errors} violation${errors > 1 ? "s" : ""}`);
 			if (warns > 0)
 				parts.push(`${warns} violation${warns > 1 ? "s" : ""} (warn)`);
-			console.log(`  ✗ ${rule.name.padEnd(12)} ${parts.join(", ")}`);
+			console.log(`  ✗ ${rule.name.padEnd(22)} ${parts.join(", ")}`);
 		}
 	}
 }

@@ -173,7 +173,7 @@ export interface GithubCodeownersRule {
 	message?: string;
 }
 
-export interface GithubConfig {
+export interface GithubActionsConfig {
 	pinned?: GithubPinnedRule[];
 	required?: GithubRequiredRule[];
 	forbidden?: GithubForbiddenRule[];
@@ -184,7 +184,15 @@ export interface GithubConfig {
 	concurrency?: GithubConcurrencyRule[];
 	consistency?: GithubConsistencyRule[];
 	secrets?: GithubSecretsRule[];
-	codeowners?: GithubCodeownersRule[];
+}
+
+export interface GithubCodeownersConfig {
+	ownership?: GithubCodeownersRule[];
+}
+
+export interface GithubConfig {
+	actions?: GithubActionsConfig;
+	codeowners?: GithubCodeownersConfig;
 }
 
 // --- Deps config types ---

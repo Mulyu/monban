@@ -14,7 +14,7 @@ export async function checkGithubForbidden(
 			for (const uses of extractStepUses(wf.doc)) {
 				if (uses.startsWith(rule.uses)) {
 					results.push({
-						rule: "forbidden",
+						rule: "actions.forbidden",
 						path: wf.file,
 						message: rule.message ?? `禁止アクション検出: ${uses}`,
 						severity: rule.severity ?? "error",

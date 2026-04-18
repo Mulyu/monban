@@ -77,7 +77,7 @@ export async function checkGithubCodeowners(
 	if (content === null) {
 		for (const rule of rules) {
 			results.push({
-				rule: "codeowners",
+				rule: "codeowners.ownership",
 				path: rule.path,
 				message:
 					"CODEOWNERS が見つかりません (.github/CODEOWNERS / CODEOWNERS / docs/CODEOWNERS)",
@@ -101,7 +101,7 @@ export async function checkGithubCodeowners(
 			const entry = lastMatching(entries, file);
 			if (!entry || entry.owners.length === 0) {
 				results.push({
-					rule: "codeowners",
+					rule: "codeowners.ownership",
 					path: file,
 					message:
 						rule.message ??
@@ -113,7 +113,7 @@ export async function checkGithubCodeowners(
 			const missing = rule.owners.filter((o) => !entry.owners.includes(o));
 			if (missing.length > 0) {
 				results.push({
-					rule: "codeowners",
+					rule: "codeowners.ownership",
 					path: file,
 					message:
 						rule.message ??
