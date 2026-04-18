@@ -10,8 +10,9 @@ description: monban のプロダクト設計原則。機能追加、ルール設
 ### 言語非依存
 
 - AST、import 解析、型情報など言語固有の機能に依存しない
-- ファイルシステムの走査（glob / パス解析）とプレーンテキストの正規表現のみで動作する
+- ファイルシステムの走査（glob / パス解析）、プレーンテキストの正規表現、YAML / マニフェストの構造パースのみで動作する
 - TypeScript / Ruby / Python / Go など、どの言語のプロジェクトでも同じルールが使える
+- 例外は `monban deps` のみ。外部レジストリ API（ecosyste.ms）に出るが、単一 API で複数エコシステムを吸収するため言語非依存は崩さない。オフライン環境では `--offline` で allowlist / denylist のみ実行する
 
 ### 検出のみ、修正はしない
 
@@ -40,6 +41,9 @@ description: monban のプロダクト設計原則。機能追加、ルール設
 | `monban size` | ファイル行数 | 行カウント |
 | `monban doc` | ドキュメントとコードのハッシュ整合 | SHA256 |
 | `monban github` | GitHub 特有ファイル（workflows / CODEOWNERS） | YAML パース / 独自構文 |
+| `monban deps` | 依存パッケージの実在・鮮度・人気度・類似性 | マニフェスト構造パース + 外部レジストリ API 照合 |
+
+全コマンドに共通する `--diff` フラグで PR 差分にスコープを限定する（`git merge-base` による対象ファイル列挙）。新ルール・新コマンドではなく、既存コマンドのスコープフィルタとして実装する。
 
 ### monban path のルール
 
@@ -75,6 +79,20 @@ description: monban のプロダクト設計原則。機能追加、ルール設
 | `codeowners` | CODEOWNERS | path → owners の一方向整合 |
 
 GitHub 関連でも、構造パースが不要なもの（LICENSE / SECURITY.md の存在、PR テンプレートの必須セクション、`.gitignore` の必須パターン、`continue-on-error: true` 禁止 など）は `path.required` / `content.required` / `content.forbidden` で表現し、`github` に取り込まない。
+
+### monban deps のルール
+
+| ルール | 概要 |
+|--------|------|
+| `existence` | レジストリに該当パッケージが存在しない（hallucination / slopsquat 検出） |
+| `freshness` | 公開から閾値以内の新規パッケージ |
+| `popularity` | 週間ダウンロード数が閾値未満 |
+| `cross_ecosystem` | 別エコシステムにしか存在しない名前の要求 |
+| `typosquat` | 人気パッケージと編集距離が近い類似名 |
+| `allowed` | allowlist（指定名のみ許可） |
+| `denied` | denylist（指定名を禁止） |
+
+対象マニフェストは `package.json` / `requirements.txt` / `pyproject.toml` / `go.mod` / `Gemfile` / `Cargo.toml` / `.github/workflows/**/*.yml`。エコシステムはファイル名から自動判定する。
 
 ## 設定フォーマット
 

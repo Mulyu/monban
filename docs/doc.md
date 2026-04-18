@@ -8,6 +8,7 @@
 ```bash
 monban doc                     # 全ルール実行
 monban doc --rule ref          # 特定ルールのみ
+monban doc --diff=main         # 差分スコープのみ（詳細: ./diff.md）
 monban doc --json              # JSON 出力
 ```
 

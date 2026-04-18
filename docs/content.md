@@ -9,6 +9,7 @@
 ```bash
 monban content                     # 全ルール実行
 monban content --rule forbidden    # 特定ルールのみ
+monban content --diff=main         # 差分スコープのみ（詳細: ./diff.md）
 monban content --json              # JSON 出力
 ```
 

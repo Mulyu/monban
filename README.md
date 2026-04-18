@@ -18,8 +18,9 @@
 | `monban content` | 正規表現による禁止・必須パターン、BOM、不可視文字、シークレット | [docs/content.md](docs/content.md) |
 | `monban doc` | ドキュメントの参照ハッシュ・リンク切れ | [docs/doc.md](docs/doc.md) |
 | `monban github` | GitHub ワークフロー（ピン留め・権限・トリガー等）と CODEOWNERS | [docs/github.md](docs/github.md) |
+| `monban deps` | マニフェストの依存名をレジストリで実在・鮮度・人気度・類似性で検証 | [docs/deps.md](docs/deps.md) |
 
-組織共通ルールの再利用は [docs/extends.md](docs/extends.md) を参照してください。
+PR 差分にスコープを絞る `--diff` フラグは全コマンド共通で使えます（[docs/diff.md](docs/diff.md)）。組織共通ルールの再利用は [docs/extends.md](docs/extends.md) を参照してください。
 
 ---
 
@@ -50,9 +51,13 @@ monban path
 monban content
 monban doc
 monban github
+monban deps
 
 # 特定ルールのみ実行
 monban path --rule forbidden
+
+# PR 差分にスコープを絞る
+monban all --diff=main
 
 # JSON 出力
 monban all --json
@@ -78,6 +83,7 @@ path:    { ... }   # docs/path.md
 content: { ... }   # docs/content.md
 doc:     { ... }   # docs/doc.md
 github:  { ... }   # docs/github.md
+deps:    { ... }   # docs/deps.md
 ```
 
 ---
@@ -98,8 +104,10 @@ github:  { ... }   # docs/github.md
 
 ```yaml
 - name: monban
-  run: npx @mulyu/monban all
+  run: npx @mulyu/monban all --diff=${{ github.event.pull_request.base.sha }}
 ```
+
+`--diff` を省けばフル走査になります。PR レビューでは base SHA を渡して差分検査のみ走らせるのが推奨です。
 
 ---
 

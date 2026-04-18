@@ -9,6 +9,7 @@ GitHub 特有ファイル（ワークフロー・CODEOWNERS）の構造チェッ
 ```bash
 monban github                     # 全ルール実行
 monban github --rule pinned       # 特定ルールのみ
+monban github --diff=main         # 差分スコープのみ（詳細: ./diff.md）
 monban github --json              # JSON 出力
 ```
 

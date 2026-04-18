@@ -9,6 +9,7 @@
 ```bash
 monban path                    # 全ルール実行
 monban path --rule forbidden   # 特定ルールのみ
+monban path --diff=main        # 差分スコープのみ（詳細: ../docs/diff.md）
 monban path --json             # JSON 出力
 ```
 

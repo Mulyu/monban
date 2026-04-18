@@ -15,6 +15,11 @@ monban のユーザー向けドキュメント索引。
 | [content.md](content.md) | ファイル内容（`forbidden` / `required`、BOM・不可視文字・シークレット） |
 | [doc.md](doc.md) | ドキュメント整合性（`ref` / `link`） |
 | [github.md](github.md) | GitHub（workflows + CODEOWNERS、11 ルール） |
+| [deps.md](deps.md) | 依存パッケージ（`existence` / `freshness` / `popularity` / `cross_ecosystem` / `typosquat` / `allowed` / `denied`） |
+
+## CLI
+
+- [diff.md](diff.md) — 全コマンド共通の `--diff` フラグ（PR 差分スコープ）
 
 ## 設定
 
