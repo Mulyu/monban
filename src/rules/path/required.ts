@@ -77,14 +77,16 @@ async function checkCompanions(
 
 		for (const companion of rule.companions ?? []) {
 			const companionPath = companion.pattern.replace("{stem}", stem);
-			const fullCompanionPath = join(dir, companionPath);
+			const fullCompanionPath = companion.root
+				? companionPath
+				: join(dir, companionPath);
 			const exists = await fileExists(join(cwd, fullCompanionPath));
 
 			if (!exists) {
 				results.push({
 					rule: "required",
 					path: file,
-					message: `対応ファイルが見つかりません: ${companionPath}`,
+					message: `対応ファイルが見つかりません: ${fullCompanionPath}`,
 					severity: companion.required ? "error" : "warn",
 				});
 			}

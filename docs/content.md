@@ -21,6 +21,7 @@ monban content --json              # JSON 出力
 |---|--------|------|
 | 1 | `forbidden` | ファイル内の禁止テキストパターン・BOM・不可視文字・シークレットを検出する |
 | 2 | `required` | ファイル内の必須テキストパターンの欠落を検出する |
+| 3 | `size` | ファイルの行数が上限を超えていないか検証する |
 
 ---
 
@@ -47,13 +48,19 @@ content:
       pattern: "^// Copyright \\d{4}"
       scope: first_line
       message: "コピーライトヘッダーが必要です。"
+
+  size:
+    - path: "src/**/*.ts"
+      max_lines: 300
+      exclude: ["src/generated/**"]
+      message: "ファイルが大きすぎます。分割してください。"
 ```
 
 ---
 
 ## 1. forbidden
 
-<!-- monban:ref ../src/rules/content/forbidden.ts sha256:0031427d85aa8dd006592a2ed2b513186533a15d646bb17ef80c039c06c47b59 -->
+<!-- monban:ref ../src/rules/content/forbidden.ts sha256:85467c7d8acf9e12ec2c082e0cdeeb58f8faa9e6c926ebba82f4a8939f08048a -->
 
 ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字、シークレットの 4 種類を同じルールで扱う。
 
@@ -107,6 +114,7 @@ content:
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | 対象ファイルの glob パターン |
+| `exclude` | string[] | No | `[]` | 対象から除外する glob パターン（特定ディレクトリだけ例外扱いに使う） |
 | `pattern` | string | No* | — | 禁止する正規表現パターン（行単位マッチ） |
 | `bom` | boolean | No* | — | `true` で BOM の存在を禁止する |
 | `invisible` | boolean | No* | — | `true` で不可視 Unicode 文字の存在を禁止する |
@@ -188,7 +196,7 @@ ERROR [forbidden] src/handlers/webhook.ts:8
 
 ## 2. required
 
-<!-- monban:ref ../src/rules/content/required.ts sha256:5570d1a213a7fe15bfad3887c415245a407c9a3799217b9b08dc64741168f840 -->
+<!-- monban:ref ../src/rules/content/required.ts sha256:e5daebfd3ef7f79513c5bc6df66704aa945e309698593e29b3901963555197e9 -->
 
 ファイル内に含まれるべきテキストパターンを定義する。
 
@@ -218,6 +226,7 @@ content:
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | 対象ファイルの glob パターン |
+| `exclude` | string[] | No | `[]` | 対象から除外する glob パターン |
 | `pattern` | string | Yes | — | 必須の正規表現パターン |
 | `scope` | `"file"` \| `"first_line"` \| `"last_line"` | No | `"file"` | マッチ範囲 |
 | `message` | string | No | — | エラーメッセージ |
@@ -228,6 +237,53 @@ content:
 ERROR [required] src/billing/invoice.ts
   必須パターンが見つかりません: ^// Copyright \d{4} (first_line)
   コピーライトヘッダーが必要です。
+```
+
+---
+
+## 3. size
+
+<!-- monban:ref ../src/rules/content/size.ts sha256:0c136a6bcc0a68958ef21e1ddebd9af9893c8e02c823b6ac6ff71ba5cb3db5b4 -->
+
+ファイルの行数（line count）が閾値以内に収まっているかを検証する。AIエージェントは 1 ファイルに機能を詰め込みがちで、可読性や責務分割の観点で肥大化を検出したい場面がある。
+
+### 設定
+
+```yaml
+content:
+  size:
+    - path: "src/**/*.ts"
+      max_lines: 300
+      exclude: ["src/generated/**"]
+      message: "ファイルが大きすぎます。分割してください。"
+
+    - path: "src/rules/**/*.ts"
+      max_lines: 150   # ルール単位では小さく保つ
+      severity: warn
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象ファイルの glob パターン |
+| `exclude` | string[] | No | `[]` | 対象から除外する glob パターン |
+| `max_lines` | integer | Yes | — | 許容する最大行数（この値を超えると違反） |
+| `message` | string | No | — | エラーメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+### 判定方法
+
+1. 対象ファイルを読み込む
+2. 行数をカウント（末尾の空行は除外）
+3. `max_lines` を超えていれば違反として報告
+
+### 出力例
+
+```
+ERROR [size] src/cli.ts
+  行数 412 が上限 300 を超えています。
+  ファイルが大きすぎます。分割してください。
 ```
 
 ---

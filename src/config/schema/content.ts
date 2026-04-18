@@ -3,13 +3,16 @@ import type {
 	ContentForbiddenRule,
 	ContentRequiredRule,
 	ContentRequiredScope,
+	ContentSizeRule,
 } from "../../types.js";
 import {
 	assertObject,
 	CONTENT_REQUIRED_SCOPES,
 	optionalString,
+	optionalStringArray,
 	requireString,
 	validateArray,
+	validatePositiveInteger,
 	validateSeverity,
 } from "./common.js";
 
@@ -35,6 +38,13 @@ export function validateContentConfig(raw: unknown): ContentConfig {
 			validateContentRequiredRule,
 		);
 	}
+	if (obj.size !== undefined) {
+		config.size = validateArray(
+			obj.size,
+			"content.size",
+			validateContentSizeRule,
+		);
+	}
 
 	return config;
 }
@@ -50,6 +60,7 @@ function validateContentForbiddenRule(
 	const rule: ContentForbiddenRule = {
 		path: requireString(raw, "path", label),
 	};
+	rule.exclude = optionalStringArray(raw, "exclude", label);
 
 	rule.pattern = optionalString(raw, "pattern", label);
 
@@ -100,6 +111,7 @@ function validateContentRequiredRule(
 		path: requireString(raw, "path", label),
 		pattern: requireString(raw, "pattern", label),
 	};
+	rule.exclude = optionalStringArray(raw, "exclude", label);
 
 	const scope = optionalString(raw, "scope", label);
 	if (scope !== undefined) {
@@ -112,6 +124,32 @@ function validateContentRequiredRule(
 	}
 
 	rule.message = optionalString(raw, "message", label);
+
+	return rule;
+}
+
+function validateContentSizeRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): ContentSizeRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const maxLines = validatePositiveInteger(raw, "max_lines", label);
+	if (maxLines === undefined) {
+		throw new Error(`${label}.max_lines is required`);
+	}
+
+	const rule: ContentSizeRule = {
+		path: requireString(raw, "path", label),
+		max_lines: maxLines,
+	};
+	rule.exclude = optionalStringArray(raw, "exclude", label);
+	rule.message = optionalString(raw, "message", label);
+
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
 
 	return rule;
 }

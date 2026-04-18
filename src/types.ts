@@ -18,6 +18,7 @@ export interface ForbiddenRule {
 export interface CompanionDef {
 	pattern: string;
 	required: boolean;
+	root?: boolean;
 }
 
 export interface RequiredRule {
@@ -60,6 +61,7 @@ export interface PathConfig {
 
 export interface ContentForbiddenRule {
 	path: string;
+	exclude?: string[];
 	pattern?: string;
 	bom?: boolean;
 	invisible?: boolean;
@@ -72,14 +74,24 @@ export type ContentRequiredScope = "file" | "first_line" | "last_line";
 
 export interface ContentRequiredRule {
 	path: string;
+	exclude?: string[];
 	pattern: string;
 	scope?: ContentRequiredScope;
 	message?: string;
 }
 
+export interface ContentSizeRule {
+	path: string;
+	exclude?: string[];
+	max_lines: number;
+	message?: string;
+	severity?: Severity;
+}
+
 export interface ContentConfig {
 	forbidden?: ContentForbiddenRule[];
 	required?: ContentRequiredRule[];
+	size?: ContentSizeRule[];
 }
 
 // --- Doc config types ---

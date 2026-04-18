@@ -21,9 +21,10 @@ describe("content integration", () => {
 			[],
 		);
 
-		expect(results).toHaveLength(2);
+		expect(results).toHaveLength(3);
 		expect(results[0].name).toBe("forbidden");
 		expect(results[1].name).toBe("required");
+		expect(results[2].name).toBe("size");
 	});
 
 	it("filters by rule name", async () => {

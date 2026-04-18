@@ -127,7 +127,7 @@ WARN  [forbidden] tmp/draft.temp.md
 
 ## 2. required
 
-<!-- monban:ref ../src/rules/path/required.ts sha256:48b0a7339554ed8ab0a385200d029c4af69abb75b22d6ac721c8703d7c422fbb -->
+<!-- monban:ref ../src/rules/path/required.ts sha256:c8830437421369adad6bb499bef67c371685e1f7a0414b7aa917406648a9237b -->
 
 特定のディレクトリやファイルに対し、存在すべきファイルを定義する。2つのモードがある。
 
@@ -167,6 +167,7 @@ path:
 ```yaml
 path:
   required:
+    # 同一ディレクトリの随伴ファイル（既定: root 未指定）
     - path: "src/components/**/*.tsx"
       exclude: ["**/*.test.tsx", "**/*.stories.tsx"]
       companions:
@@ -175,13 +176,22 @@ path:
         - pattern: "{stem}.stories.tsx"
           required: false    # warn のみ
 
+    # 別ディレクトリの随伴ファイル（root: true でリポジトリルート起点）
     - path: "app/models/**/*.rb"
       companions:
         - pattern: "spec/models/{stem}_spec.rb"
           required: true
+          root: true
 ```
 
 `{stem}` はソースファイルの拡張子を除いた名前に展開される。
+
+パターンの解決方法は `root` フィールドで制御する。
+
+- `root` 未指定（既定）— ソースファイルのディレクトリ起点で解決する。例: `src/components/UserProfile.tsx` に対する `{stem}.test.tsx` は `src/components/UserProfile.test.tsx`
+- `root: true` — リポジトリルート起点で解決する。例: `app/models/user.rb` に対する `spec/models/{stem}_spec.rb` は `spec/models/user_spec.rb`
+
+一方向性は保たれる（「ソースがあれば随伴があるべき」の一方向で、逆方向のチェックは行わない）。
 
 ### フィールド
 
@@ -196,10 +206,11 @@ path:
 
 **CompanionDef:**
 
-| フィールド | 型 | 必須 | 説明 |
-|-----------|-----|------|------|
-| `pattern` | string | Yes | ペアファイルのパターン（`{stem}` 展開可） |
-| `required` | boolean | Yes | `true` = error, `false` = warn |
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `pattern` | string | Yes | — | ペアファイルのパターン（`{stem}` 展開可） |
+| `required` | boolean | Yes | — | `true` = error, `false` = warn |
+| `root` | boolean | No | `false` | `true` でリポジトリルート起点、`false` でソースファイルのディレクトリ起点 |
 
 ### 出力例
 
