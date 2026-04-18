@@ -4,7 +4,7 @@ import type { DocRuleResult } from "./rules/doc/index.js";
 import type { GithubRuleResult } from "./rules/github/index.js";
 import type { PathRuleResult } from "./rules/path/index.js";
 
-type CategoryRuleResult =
+export type CategoryRuleResult =
 	| PathRuleResult
 	| ContentRuleResult
 	| DocRuleResult
@@ -16,39 +16,21 @@ export interface CategoryGroup {
 	results: CategoryRuleResult[];
 }
 
-export function reportPathResults(
-	ruleResults: PathRuleResult[],
-	json: boolean,
-): void {
-	reportResults("monban path — パスチェック", ruleResults, json);
-}
+const CATEGORY_TITLES: Record<string, string> = {
+	path: "monban path — パスチェック",
+	content: "monban content — コンテンツチェック",
+	doc: "monban doc — ドキュメントチェック",
+	github: "monban github — GitHub チェック",
+	deps: "monban deps — 依存チェック",
+};
 
-export function reportContentResults(
-	ruleResults: ContentRuleResult[],
+export function reportCategory(
+	category: string,
+	ruleResults: CategoryRuleResult[],
 	json: boolean,
 ): void {
-	reportResults("monban content — コンテンツチェック", ruleResults, json);
-}
-
-export function reportDocResults(
-	ruleResults: DocRuleResult[],
-	json: boolean,
-): void {
-	reportResults("monban doc — ドキュメントチェック", ruleResults, json);
-}
-
-export function reportGithubResults(
-	ruleResults: GithubRuleResult[],
-	json: boolean,
-): void {
-	reportResults("monban github — GitHub チェック", ruleResults, json);
-}
-
-export function reportDepsResults(
-	ruleResults: DepsRuleResult[],
-	json: boolean,
-): void {
-	reportResults("monban deps — 依存チェック", ruleResults, json);
+	const title = CATEGORY_TITLES[category] ?? `monban ${category}`;
+	reportResults(title, ruleResults, json);
 }
 
 export function reportAllResults(groups: CategoryGroup[], json: boolean): void {
