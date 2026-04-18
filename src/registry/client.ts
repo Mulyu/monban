@@ -1,3 +1,5 @@
+import { TtlCache } from "../ports/cache.js";
+import { FetchHttpPort, type HttpPort, HttpPortError } from "../ports/http.js";
 import type { DepsEcosystem } from "../types.js";
 
 export interface PackageInfo {
@@ -39,12 +41,23 @@ interface EcosystemeResponse {
 	latest_release_published_at?: string;
 }
 
-export class EcosystemeClient implements RegistryClient {
-	private cache = new Map<string, PackageInfo>();
-	private baseUrl: string;
+export interface EcosystemeClientOpts {
+	baseUrl?: string;
+	http?: HttpPort;
+	cache?: TtlCache<PackageInfo>;
+}
 
-	constructor(baseUrl = "https://packages.ecosyste.ms/api/v1") {
-		this.baseUrl = baseUrl.replace(/\/$/, "");
+export class EcosystemeClient implements RegistryClient {
+	private readonly baseUrl: string;
+	private readonly http: HttpPort;
+	private readonly cache: TtlCache<PackageInfo>;
+
+	constructor(opts: EcosystemeClientOpts = {}) {
+		this.baseUrl = (
+			opts.baseUrl ?? "https://packages.ecosyste.ms/api/v1"
+		).replace(/\/$/, "");
+		this.http = opts.http ?? new FetchHttpPort();
+		this.cache = opts.cache ?? new TtlCache<PackageInfo>();
 	}
 
 	async lookup(name: string, ecosystem: DepsEcosystem): Promise<PackageInfo> {
@@ -61,16 +74,13 @@ export class EcosystemeClient implements RegistryClient {
 
 		const url = `${this.baseUrl}/registries/${encodeURIComponent(registry)}/packages/${encodeURIComponent(name)}`;
 		try {
-			const res = await fetch(url);
-			if (res.status === 404) {
+			const res = await this.http.getJson<EcosystemeResponse>(url);
+			if (!res.ok || res.body === null) {
 				const info: PackageInfo = { name, ecosystem, exists: false };
 				this.cache.set(key, info);
 				return info;
 			}
-			if (!res.ok) {
-				throw new Error(`registry returned ${res.status}`);
-			}
-			const body = (await res.json()) as EcosystemeResponse;
+			const body = res.body;
 			const info: PackageInfo = {
 				name,
 				ecosystem,
@@ -83,9 +93,12 @@ export class EcosystemeClient implements RegistryClient {
 			this.cache.set(key, info);
 			return info;
 		} catch (err) {
-			throw new RegistryLookupError(
-				`Failed to look up ${name} on ${registry}: ${(err as Error).message}`,
-			);
+			if (err instanceof HttpPortError) {
+				throw new RegistryLookupError(
+					`Failed to look up ${name} on ${registry}: ${err.message}`,
+				);
+			}
+			throw err;
 		}
 	}
 
