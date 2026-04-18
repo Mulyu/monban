@@ -22,6 +22,14 @@ describe("config/schema/git", () => {
 					allow: [{ key: "AI-Assistant" }],
 					severity: "error",
 				},
+				references: {
+					required: true,
+					patterns: ["#\\d+", "PROJ-\\d+"],
+					scope: "any",
+					ignore_patterns: ["^chore\\(deps\\):"],
+					ignore_merges: true,
+					severity: "error",
+				},
 			},
 			diff: {
 				size: {
@@ -40,8 +48,16 @@ describe("config/schema/git", () => {
 		const config = validateGitConfig(raw);
 		expect(config.commit?.message?.preset).toBe("conventional");
 		expect(config.commit?.trailers?.deny).toHaveLength(1);
+		expect(config.commit?.references?.scope).toBe("any");
+		expect(config.commit?.references?.patterns).toEqual(["#\\d+", "PROJ-\\d+"]);
 		expect(config.diff?.size?.max_total_lines).toBe(1500);
 		expect(config.diff?.ignored?.scope).toBe("diff");
+	});
+
+	it("rejects invalid references scope", () => {
+		expect(() =>
+			validateGitConfig({ commit: { references: { scope: "each" } } }),
+		).toThrow(/scope/);
 	});
 
 	it("rejects invalid preset", () => {

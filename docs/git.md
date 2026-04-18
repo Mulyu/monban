@@ -19,13 +19,13 @@ monban git --json                   # JSON 出力
 
 ## ルール一覧
 
-| # | ルール | フェーズ | 概要 |
-|---|--------|---------|------|
-| 1 | `commit.message` | Phase 1 | コミットメッセージの形式・長さ・禁止語を検査する |
-| 2 | `commit.trailers` | Phase 1 | trailer（`Co-authored-by` 等）の禁止・必須・許可ポリシーを強制する |
-| 3 | `diff.size` | Phase 1 | PR 変更粒度の上限（ファイル数・行数）を検査する |
-| 4 | `diff.ignored` | Phase 1 | `.gitignore` 対象なのに追跡されているファイルを検出する |
-| 5 | `commit.references` | Phase 2 | Issue / チケット番号の参照を必須化する |
+| # | ルール | 概要 |
+|---|--------|------|
+| 1 | `commit.message` | コミットメッセージの形式・長さ・禁止語を検査する |
+| 2 | `commit.trailers` | trailer（`Co-authored-by` 等）の禁止・必須・許可ポリシーを強制する |
+| 3 | `commit.references` | Issue / チケット番号の参照を必須化する |
+| 4 | `diff.size` | PR 変更粒度の上限（ファイル数・行数）を検査する |
+| 5 | `diff.ignored` | `.gitignore` 対象なのに追跡されているファイルを検出する |
 
 ---
 
@@ -79,7 +79,6 @@ git:
           value_pattern: "(Claude|Copilot|Cursor)"
       severity: error
 
-    # Phase 2
     references:
       required: true
       patterns: ["#\\d+", "PROJ-\\d+"]
@@ -255,7 +254,59 @@ ERROR [commit.trailers] d4e5f6g
 
 ---
 
-## 3. diff.size
+## 3. commit.references
+
+Issue / チケット番号の参照を必須化する。`commit.message` と同じくコミット本文を取得し、正規表現で検査する。
+
+### 設定
+
+```yaml
+git:
+  commit:
+    references:
+      required: true
+
+      # 複数パターンの OR 条件
+      patterns:
+        - "#\\d+"        # GitHub Issue
+        - "PROJ-\\d+"   # Jira
+        - "GH-\\d+"
+
+      # all: 全コミットに必須 / any: range 内に最低 1 つあれば OK
+      scope: any
+
+      # 除外: 依存更新や revert は対象外
+      ignore_patterns:
+        - "^chore\\(deps\\):"
+        - "^Revert "
+      ignore_merges: true
+
+      severity: error
+```
+
+### フィールド
+
+| フィールド | 型 | デフォルト | 説明 |
+|-----------|-----|-----------|------|
+| `required` | boolean | `false` | このルールを有効にするか |
+| `patterns` | string[] | — | 参照として認識する正規表現のリスト（OR 条件） |
+| `scope` | `"all"` \| `"any"` | `"any"` | `all`: 全コミットに必須。`any`: range 内に最低 1 つあれば OK |
+| `ignore_patterns` | string[] | `[]` | subject がこれにマッチするコミットを除外 |
+| `ignore_merges` | boolean | `true` | merge コミットを除外 |
+| `severity` | `"error"` \| `"warn"` | `"error"` | 重大度 |
+
+参照が「実在する Issue か」は検査しない（GitHub API を叩かない）。
+
+### 出力例
+
+```
+ERROR [commit.references]
+  no commit in range contains a reference matching ["#\d+", "PROJ-\d+"]
+```
+
+---
+
+## 4. diff.size
 
 PR の変更粒度が大きすぎないかを検査する。`git diff --numstat <base>...<head>` でファイル単位の増減行数を取得する。
 
@@ -306,7 +357,7 @@ WARN [diff.size]
 
 ---
 
-## 4. diff.ignored
+## 5. diff.ignored
 
 `.gitignore` にパターンが書かれているのに追跡されているファイルを検出する。エージェントが `git add -f` や `git add -A` で意図せず追加する事故への対策。
 
@@ -347,58 +398,6 @@ git:
 WARN [diff.ignored]
   .env.local: matches .gitignore but is tracked
   .vscode/launch.json: matches .gitignore but is tracked
-```
-
----
-
-## 5. commit.references (Phase 2)
-
-Issue / チケット番号の参照を必須化する。`commit.message` の実装基盤を流用して、コミット本文を正規表現で検査する。
-
-### 設定
-
-```yaml
-git:
-  commit:
-    references:
-      required: true
-
-      # 複数パターンの OR 条件
-      patterns:
-        - "#\\d+"        # GitHub Issue
-        - "PROJ-\\d+"   # Jira
-        - "GH-\\d+"
-
-      # all: 全コミットに必須 / any: range 内に最低 1 つあれば OK
-      scope: any
-
-      # 除外: 依存更新や revert は対象外
-      ignore_patterns:
-        - "^chore\\(deps\\):"
-        - "^Revert "
-      ignore_merges: true
-
-      severity: error
-```
-
-### フィールド
-
-| フィールド | 型 | デフォルト | 説明 |
-|-----------|-----|-----------|------|
-| `required` | boolean | `false` | このルールを有効にするか |
-| `patterns` | string[] | — | 参照として認識する正規表現のリスト（OR 条件） |
-| `scope` | `"all"` \| `"any"` | `"any"` | `all`: 全コミットに必須。`any`: range 内に最低 1 つあれば OK |
-| `ignore_patterns` | string[] | `[]` | subject がこれにマッチするコミットを除外 |
-| `ignore_merges` | boolean | `true` | merge コミットを除外 |
-| `severity` | `"error"` \| `"warn"` | `"error"` | 重大度 |
-
-参照が「実在する Issue か」は検査しない（GitHub API を叩かない）。
-
-### 出力例
-
-```
-ERROR [commit.references]
-  no commit in range contains a reference matching ["#\d+", "PROJ-\d+"]
 ```
 
 ---

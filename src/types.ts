@@ -306,9 +306,21 @@ export interface GitDiffIgnoredRule {
 	severity?: Severity;
 }
 
+export type GitCommitReferencesScope = "all" | "any";
+
+export interface GitCommitReferencesRule {
+	required?: boolean;
+	patterns?: string[];
+	scope?: GitCommitReferencesScope;
+	ignore_patterns?: string[];
+	ignore_merges?: boolean;
+	severity?: Severity;
+}
+
 export interface GitCommitConfig {
 	message?: GitCommitMessageRule;
 	trailers?: GitCommitTrailersRule;
+	references?: GitCommitReferencesRule;
 }
 
 export interface GitDiffConfig {

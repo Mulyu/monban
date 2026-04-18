@@ -21,6 +21,7 @@ describe("git/runGitRules", () => {
 		expect(GIT_RULE_NAMES).toEqual([
 			"commit.message",
 			"commit.trailers",
+			"commit.references",
 			"diff.size",
 			"diff.ignored",
 		]);
@@ -48,6 +49,7 @@ describe("git/runGitRules", () => {
 		const ruleNames = results.map((r) => r.name).sort();
 		expect(ruleNames).toEqual([
 			"commit.message",
+			"commit.references",
 			"commit.trailers",
 			"diff.ignored",
 			"diff.size",
