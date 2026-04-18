@@ -3,7 +3,7 @@ import { join, parse as parsePath } from "node:path";
 import fg from "fast-glob";
 import type { RequiredRule, RuleResult } from "../../types.js";
 
-export async function checkRequired(
+export async function checkPathRequired(
 	rules: RequiredRule[],
 	cwd: string,
 	globalExclude: string[],

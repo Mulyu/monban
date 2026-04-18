@@ -1,9 +1,9 @@
 import type { PathConfig, RuleResult } from "../../types.js";
-import { checkCount } from "./count.js";
-import { checkDepth } from "./depth.js";
-import { checkForbidden } from "./forbidden.js";
-import { checkNaming } from "./naming.js";
-import { checkRequired } from "./required.js";
+import { checkPathCount } from "./count.js";
+import { checkPathDepth } from "./depth.js";
+import { checkPathForbidden } from "./forbidden.js";
+import { checkPathNaming } from "./naming.js";
+import { checkPathRequired } from "./required.js";
 
 export interface PathRuleResult {
 	name: string;
@@ -18,11 +18,11 @@ const RULE_RUNNERS: Record<
 		globalExclude: string[],
 	) => Promise<RuleResult[]>
 > = {
-	forbidden: (c, cwd, ex) => checkForbidden(c.forbidden ?? [], cwd, ex),
-	required: (c, cwd, ex) => checkRequired(c.required ?? [], cwd, ex),
-	naming: (c, cwd, ex) => checkNaming(c.naming ?? [], cwd, ex),
-	depth: (c, cwd, ex) => checkDepth(c.depth ?? [], cwd, ex),
-	count: (c, cwd, ex) => checkCount(c.count ?? [], cwd, ex),
+	forbidden: (c, cwd, ex) => checkPathForbidden(c.forbidden ?? [], cwd, ex),
+	required: (c, cwd, ex) => checkPathRequired(c.required ?? [], cwd, ex),
+	naming: (c, cwd, ex) => checkPathNaming(c.naming ?? [], cwd, ex),
+	depth: (c, cwd, ex) => checkPathDepth(c.depth ?? [], cwd, ex),
+	count: (c, cwd, ex) => checkPathCount(c.count ?? [], cwd, ex),
 };
 
 export const RULE_NAMES = Object.keys(RULE_RUNNERS);

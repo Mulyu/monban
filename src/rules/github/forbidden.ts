@@ -1,5 +1,5 @@
 import type { GithubForbiddenRule, RuleResult } from "../../types.js";
-import { extractStepUses, loadWorkflows } from "./utils.js";
+import { extractStepUses, loadWorkflows } from "./workflow.js";
 
 export async function checkGithubForbidden(
 	rules: GithubForbiddenRule[],

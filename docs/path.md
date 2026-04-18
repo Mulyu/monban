@@ -71,7 +71,7 @@ path:
 
 ## 1. forbidden
 
-<!-- monban:ref ../src/rules/path/forbidden.ts sha256:bdd98c6a5adaf42b7f267b7d890b7cccd5239c0432295571315e2804b8204401 -->
+<!-- monban:ref ../src/rules/path/forbidden.ts sha256:5484ae348b6ef7786ba7e0647d144573129cd7ec13c13b187be0a31317213751 -->
 
 存在してはならないファイル・ディレクトリを定義する。
 
@@ -127,7 +127,7 @@ WARN  [forbidden] tmp/draft.temp.md
 
 ## 2. required
 
-<!-- monban:ref ../src/rules/path/required.ts sha256:2e10a29681c1397b5cdd743858e9ae9dd6a5cfa928df5f4e5174319b22288056 -->
+<!-- monban:ref ../src/rules/path/required.ts sha256:48b0a7339554ed8ab0a385200d029c4af69abb75b22d6ac721c8703d7c422fbb -->
 
 特定のディレクトリやファイルに対し、存在すべきファイルを定義する。2つのモードがある。
 
@@ -218,7 +218,7 @@ WARN  [required] src/components/UserProfile.tsx
 
 ## 3. naming
 
-<!-- monban:ref ../src/rules/path/naming.ts sha256:9a4e74475934325636616e42cecc118e3ff91ee16cb74ec0db3314c882bd7915 -->
+<!-- monban:ref ../src/rules/path/naming.ts sha256:075159c15f5f19fd51d089d8dcb250692f3b53f96a5f4bd5ca5a9ceac3b38a13 -->
 
 ファイル名・ディレクトリ名の命名スタイルを強制する。場所を起点として、そこにあるファイル/ディレクトリの名前をチェックする。
 
@@ -278,7 +278,7 @@ ERROR [naming] src/hooks/auth.ts
 
 ## 4. depth
 
-<!-- monban:ref ../src/rules/path/depth.ts sha256:812074426cac3eed081d94078682b47f22a8df4e9bb74bd504b3804a9e9115a3 -->
+<!-- monban:ref ../src/rules/path/depth.ts sha256:f10e9e5c4c142e578c2a6af296dddede8ab934a3662ce30109c3c0e5a3fa04a9 -->
 
 ディレクトリのネスト深度に上限を設ける。
 
@@ -319,7 +319,7 @@ ERROR [depth] src/domain/user/profile/settings/theme.ts
 
 ## 5. count
 
-<!-- monban:ref ../src/rules/path/count.ts sha256:9aabef7b9d37ab0b5d6ec473ccb5651c0866fd4a802db86dd04d3dc62bb95747 -->
+<!-- monban:ref ../src/rules/path/count.ts sha256:f4226953993a0445d3038ed9fb1ff981fcca1aad68e0edac199b7a67d2cdbd92 -->
 
 1ディレクトリに置けるファイル数に上限を設ける。
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateConfig } from "../src/config/schema.js";
+import { validateConfig } from "../src/config/schema/index.js";
 
 describe("extends/schema", () => {
 	it("validates local extends", () => {

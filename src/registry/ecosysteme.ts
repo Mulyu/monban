@@ -1,19 +1,11 @@
 import { TtlCache } from "../ports/cache.js";
 import { FetchHttpPort, type HttpPort, HttpPortError } from "../ports/http.js";
 import type { DepsEcosystem } from "../types.js";
-
-export interface PackageInfo {
-	name: string;
-	ecosystem: DepsEcosystem;
-	exists: boolean;
-	publishedAt?: string;
-	downloads?: number;
-}
-
-export interface RegistryClient {
-	lookup(name: string, ecosystem: DepsEcosystem): Promise<PackageInfo>;
-	lookupAcross(name: string): Promise<PackageInfo[]>;
-}
+import {
+	type PackageInfo,
+	type RegistryClient,
+	RegistryLookupError,
+} from "./types.js";
 
 export const ECOSYSTEME_REGISTRIES: Record<DepsEcosystem, string> = {
 	npm: "npmjs.org",
@@ -111,16 +103,5 @@ export class EcosystemeClient implements RegistryClient {
 			),
 		);
 		return results;
-	}
-}
-
-export class RegistryLookupError extends Error {}
-
-export class OfflineRegistryClient implements RegistryClient {
-	async lookup(name: string, ecosystem: DepsEcosystem): Promise<PackageInfo> {
-		return { name, ecosystem, exists: true };
-	}
-	async lookupAcross(name: string): Promise<PackageInfo[]> {
-		return [{ name, ecosystem: "npm", exists: true }];
 	}
 }

@@ -11,6 +11,14 @@ path:
       message: "helpers/ は使用禁止。"
     - path: "src/**/*.js"
       message: "src/ 内に .js は配置できません。TypeScript を使用してください。"
+    - path: "src/**/utils.ts"
+      message: "utils.ts は曖昧な命名。具体的な責務を表すファイル名にしてください (例: manifest-loader.ts, workflow.ts)。"
+    - path: "src/**/helpers.ts"
+      message: "helpers.ts は曖昧な命名。具体的な責務を表すファイル名にしてください。"
+    - path: "src/config/schema.ts"
+      message: "schema.ts は schema/ ディレクトリと共存させず、schema/index.ts に統合してください。"
+    - path: "src/registry/client.ts"
+      message: "client.ts は registry/ ディレクトリと共存させず、registry/index.ts または責務別ファイル (ecosysteme.ts, offline.ts など) に分割してください。"
 
   required:
     - path: "src/rules/*"
@@ -48,6 +56,21 @@ content:
     - path: "src/**/*.ts"
       secret: true
       message: "シークレットらしき文字列が検出されました。"
+    - path: "src/rules/path/*.ts"
+      pattern: '^export (async )?function check(?!Path)[A-Z]'
+      message: "src/rules/path/ の check 関数は checkPath* と命名してください (例: checkPathRequired)。他カテゴリと一貫させる。"
+    - path: "src/rules/content/*.ts"
+      pattern: '^export (async )?function check(?!Content)[A-Z]'
+      message: "src/rules/content/ の check 関数は checkContent* と命名してください。"
+    - path: "src/rules/doc/*.ts"
+      pattern: '^export (async )?function check(?!Doc)[A-Z]'
+      message: "src/rules/doc/ の check 関数は checkDoc* と命名してください。"
+    - path: "src/rules/github/*.ts"
+      pattern: '^export (async )?function check(?!Github)[A-Z]'
+      message: "src/rules/github/ の check 関数は checkGithub* と命名してください。"
+    - path: "src/rules/deps/*.ts"
+      pattern: '^export (async )?function check(?!Deps)[A-Z]'
+      message: "src/rules/deps/ の check 関数は checkDeps* と命名してください。"
 
 github:
   pinned:

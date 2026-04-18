@@ -1,8 +1,8 @@
 import { networkWarning } from "../../errors.js";
-import type { RegistryClient } from "../../registry/client.js";
-import { RegistryLookupError } from "../../registry/client.js";
+import type { RegistryClient } from "../../registry/index.js";
+import { RegistryLookupError } from "../../registry/index.js";
 import type { DepsCrossEcosystemRule, RuleResult } from "../../types.js";
-import { formatLocation, loadManifests } from "./utils.js";
+import { formatLocation, loadManifests } from "./manifest-loader.js";
 
 export async function checkDepsCrossEcosystem(
 	rules: DepsCrossEcosystemRule[],

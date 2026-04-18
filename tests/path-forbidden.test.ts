@@ -1,12 +1,16 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { checkForbidden } from "../src/rules/path/forbidden.js";
+import { checkPathForbidden } from "../src/rules/path/forbidden.js";
 
 const cwd = resolve(import.meta.dirname, "fixtures/project");
 
 describe("path/forbidden", () => {
 	it("detects files matching forbidden glob", async () => {
-		const results = await checkForbidden([{ path: "**/utils/**" }], cwd, []);
+		const results = await checkPathForbidden(
+			[{ path: "**/utils/**" }],
+			cwd,
+			[],
+		);
 		expect(results.length).toBeGreaterThan(0);
 		expect(results[0].rule).toBe("forbidden");
 		expect(results[0].severity).toBe("error");
@@ -14,7 +18,7 @@ describe("path/forbidden", () => {
 	});
 
 	it("detects forbidden file extensions", async () => {
-		const results = await checkForbidden(
+		const results = await checkPathForbidden(
 			[{ path: "src/**/*.js", message: "No .js files in src/" }],
 			cwd,
 			[],
@@ -25,7 +29,7 @@ describe("path/forbidden", () => {
 	});
 
 	it("returns empty when no matches", async () => {
-		const results = await checkForbidden(
+		const results = await checkPathForbidden(
 			[{ path: "**/nonexistent/**" }],
 			cwd,
 			[],
@@ -34,7 +38,7 @@ describe("path/forbidden", () => {
 	});
 
 	it("uses custom severity", async () => {
-		const results = await checkForbidden(
+		const results = await checkPathForbidden(
 			[{ path: "src/**/*.js", severity: "warn" }],
 			cwd,
 			[],

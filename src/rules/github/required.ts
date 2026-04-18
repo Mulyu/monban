@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parse } from "yaml";
 import type { GithubRequiredRule, RuleResult } from "../../types.js";
-import { extractStepUses } from "./utils.js";
+import { extractStepUses } from "./workflow.js";
 
 export async function checkGithubRequired(
 	rules: GithubRequiredRule[],

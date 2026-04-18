@@ -4,7 +4,7 @@ import {
 	type PackageInfo,
 	type RegistryClient,
 	RegistryLookupError,
-} from "../src/registry/client.js";
+} from "../src/registry/index.js";
 import { checkDepsCrossEcosystem } from "../src/rules/deps/cross-ecosystem.js";
 import { checkDepsExistence } from "../src/rules/deps/existence.js";
 import { checkDepsFreshness } from "../src/rules/deps/freshness.js";

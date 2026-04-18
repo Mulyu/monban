@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import type { PackageInfo, RegistryClient } from "../src/registry/client.js";
+import type { PackageInfo, RegistryClient } from "../src/registry/index.js";
 import { checkDepsAllowed } from "../src/rules/deps/allowed.js";
 import { checkDepsCrossEcosystem } from "../src/rules/deps/cross-ecosystem.js";
 import { checkDepsDenied } from "../src/rules/deps/denied.js";
