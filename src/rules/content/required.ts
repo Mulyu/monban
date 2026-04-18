@@ -15,7 +15,7 @@ export async function checkContentRequired(
 			cwd,
 			dot: false,
 			onlyFiles: true,
-			ignore: globalExclude,
+			ignore: [...globalExclude, ...(rule.exclude ?? [])],
 		});
 
 		const scope = rule.scope ?? "file";

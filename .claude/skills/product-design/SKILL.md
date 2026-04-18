@@ -43,9 +43,7 @@ description: monban のプロダクト設計原則。機能追加、ルール設
 | コマンド | 対象 | 判定手段 |
 |---------|------|---------|
 | `monban path` | パス構造（存在、命名、深度、数） | glob / パス文字列 |
-| `monban content` | ファイル内容（禁止・必須パターン） | 正規表現 |
-| `monban comment` | コメント率 | 行カウント |
-| `monban size` | ファイル行数 | 行カウント |
+| `monban content` | ファイル内容（禁止・必須パターン・行数） | 正規表現 / 行カウント |
 | `monban doc` | ドキュメントとコードのハッシュ整合 | SHA256 |
 | `monban github` | GitHub 特有ファイル（workflows / CODEOWNERS） | YAML パース / 独自構文 |
 | `monban deps` | 依存パッケージの実在・鮮度・人気度・類似性 | マニフェスト構造パース + 外部レジストリ API 照合 |
@@ -66,8 +64,9 @@ description: monban のプロダクト設計原則。機能追加、ルール設
 
 | ルール | 概要 |
 |--------|------|
-| `forbidden` | 禁止テキストパターン |
+| `forbidden` | 禁止テキストパターン・BOM・不可視文字・シークレット |
 | `required` | 必須テキストパターン |
+| `size` | ファイル行数上限 |
 
 ### monban github のルール
 

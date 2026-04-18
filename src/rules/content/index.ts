@@ -1,6 +1,7 @@
 import type { ContentConfig, RuleResult } from "../../types.js";
 import { checkContentForbidden } from "./forbidden.js";
 import { checkContentRequired } from "./required.js";
+import { checkContentSize } from "./size.js";
 
 export interface ContentRuleResult {
 	name: string;
@@ -17,6 +18,7 @@ const RULE_RUNNERS: Record<
 > = {
 	forbidden: (c, cwd, ex) => checkContentForbidden(c.forbidden ?? [], cwd, ex),
 	required: (c, cwd, ex) => checkContentRequired(c.required ?? [], cwd, ex),
+	size: (c, cwd, ex) => checkContentSize(c.size ?? [], cwd, ex),
 };
 
 export const CONTENT_RULE_NAMES = Object.keys(RULE_RUNNERS);

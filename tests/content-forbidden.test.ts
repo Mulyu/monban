@@ -192,4 +192,21 @@ describe("content/forbidden", () => {
 			expect(results).toHaveLength(0);
 		});
 	});
+
+	describe("rule-level exclude", () => {
+		it("respects per-rule exclude patterns", async () => {
+			const results = await checkContentForbidden(
+				[
+					{
+						path: "**/*.ts",
+						exclude: ["**/has-forbidden-pattern.ts"],
+						pattern: "process\\.env",
+					},
+				],
+				cwd,
+				[],
+			);
+			expect(results).toHaveLength(0);
+		});
+	});
 });

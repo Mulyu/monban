@@ -107,7 +107,7 @@ export function createCli(): Command {
 	addCategoryCommand(
 		program,
 		"content",
-		"コンテンツチェック: ファイル内容の禁止・必須パターンを検証",
+		"コンテンツチェック: ファイル内容の禁止・必須パターン・行数を検証",
 	);
 	addCategoryCommand(
 		program,

@@ -56,7 +56,7 @@ export async function checkContentForbidden(
 			cwd,
 			dot: false,
 			onlyFiles: true,
-			ignore: globalExclude,
+			ignore: [...globalExclude, ...(rule.exclude ?? [])],
 		});
 
 		for (const file of files) {

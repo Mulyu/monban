@@ -64,4 +64,41 @@ describe("path/required - companions mode", () => {
 			expect(r.severity).toBe("warn");
 		}
 	});
+
+	it("resolves companion paths relative to source dir by default", async () => {
+		const results = await checkPathRequired(
+			[
+				{
+					path: "src/components/UserProfile.tsx",
+					companions: [{ pattern: "{stem}.test.tsx", required: true }],
+				},
+			],
+			cwd,
+			[],
+		);
+		// UserProfile.test.tsx exists in the same dir → pass
+		expect(results).toHaveLength(0);
+	});
+
+	it("resolves companion paths from repository root when root: true", async () => {
+		const results = await checkPathRequired(
+			[
+				{
+					path: "src/components/UserProfile.tsx",
+					companions: [
+						{
+							pattern: "docs/components/{stem}.md",
+							required: true,
+							root: true,
+						},
+					],
+				},
+			],
+			cwd,
+			[],
+		);
+		// docs/components/UserProfile.md does NOT exist in the fixture → fail
+		expect(results).toHaveLength(1);
+		expect(results[0].message).toContain("docs/components/UserProfile.md");
+	});
 });

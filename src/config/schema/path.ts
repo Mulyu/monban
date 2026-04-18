@@ -102,10 +102,17 @@ function validateRequiredRule(
 			(c: unknown, ci: number): CompanionDef => {
 				const clabel = `${label}.companions[${ci}]`;
 				assertObject(c, clabel);
-				return {
+				const def: CompanionDef = {
 					pattern: requireString(c, "pattern", clabel),
 					required: typeof c.required === "boolean" ? c.required : true,
 				};
+				if (c.root !== undefined) {
+					if (typeof c.root !== "boolean") {
+						throw new Error(`${clabel}.root must be a boolean`);
+					}
+					def.root = c.root;
+				}
+				return def;
 			},
 		);
 	}
