@@ -1,5 +1,6 @@
 import type { GitConfig, RuleResult } from "../../types.js";
 import { checkGitCommitMessage } from "./commit-message.js";
+import { checkGitCommitReferences } from "./commit-references.js";
 import { checkGitCommitTrailers } from "./commit-trailers.js";
 import { checkGitDiffIgnored } from "./diff-ignored.js";
 import { checkGitDiffSize } from "./diff-size.js";
@@ -17,6 +18,7 @@ export interface GitRuleOpts {
 export const GIT_RULE_NAMES = [
 	"commit.message",
 	"commit.trailers",
+	"commit.references",
 	"diff.size",
 	"diff.ignored",
 ];
@@ -60,6 +62,13 @@ function runSingleRule(
 			if (!range) return [];
 			return checkGitCommitTrailers(
 				config.commit?.trailers,
+				cwd,
+				range.commitRange,
+			);
+		case "commit.references":
+			if (!range) return [];
+			return checkGitCommitReferences(
+				config.commit?.references,
 				cwd,
 				range.commitRange,
 			);

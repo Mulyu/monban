@@ -2,6 +2,8 @@ import type {
 	GitCommitConfig,
 	GitCommitMessagePreset,
 	GitCommitMessageRule,
+	GitCommitReferencesRule,
+	GitCommitReferencesScope,
 	GitCommitTrailersRule,
 	GitConfig,
 	GitDiffConfig,
@@ -24,6 +26,7 @@ import {
 
 const PRESETS: GitCommitMessagePreset[] = ["conventional"];
 const IGNORED_SCOPES: GitDiffIgnoredScope[] = ["diff", "all"];
+const REFERENCES_SCOPES: GitCommitReferencesScope[] = ["all", "any"];
 
 export function validateGitConfig(raw: unknown): GitConfig {
 	if (typeof raw !== "object" || raw === null) {
@@ -52,6 +55,9 @@ function validateGitCommitConfig(raw: unknown): GitCommitConfig {
 	}
 	if (raw.trailers !== undefined) {
 		config.trailers = validateCommitTrailersRule(raw.trailers);
+	}
+	if (raw.references !== undefined) {
+		config.references = validateCommitReferencesRule(raw.references);
 	}
 
 	return config;
@@ -200,6 +206,40 @@ function validateAllowEntry(
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
 	return { key: requireString(raw, "key", label) };
+}
+
+function validateCommitReferencesRule(raw: unknown): GitCommitReferencesRule {
+	const label = "git.commit.references";
+	assertObject(raw, label);
+
+	const rule: GitCommitReferencesRule = {};
+
+	const required = optionalBoolean(raw, "required", label);
+	if (required !== undefined) rule.required = required;
+
+	const patterns = optionalStringArray(raw, "patterns", label);
+	if (patterns !== undefined) rule.patterns = patterns;
+
+	const scope = optionalString(raw, "scope", label);
+	if (scope !== undefined) {
+		if (!REFERENCES_SCOPES.includes(scope as GitCommitReferencesScope)) {
+			throw new Error(
+				`${label}.scope must be one of: ${REFERENCES_SCOPES.join(", ")}`,
+			);
+		}
+		rule.scope = scope as GitCommitReferencesScope;
+	}
+
+	const ignorePatterns = optionalStringArray(raw, "ignore_patterns", label);
+	if (ignorePatterns !== undefined) rule.ignore_patterns = ignorePatterns;
+
+	const ignoreMerges = optionalBoolean(raw, "ignore_merges", label);
+	if (ignoreMerges !== undefined) rule.ignore_merges = ignoreMerges;
+
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+
+	return rule;
 }
 
 function validateDiffSizeRule(raw: unknown): GitDiffSizeRule {

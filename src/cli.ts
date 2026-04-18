@@ -135,7 +135,7 @@ export function createCli(): Command {
 	addCategoryCommand(
 		program,
 		"git",
-		"Git チェック: コミットメッセージ・trailer・変更粒度・ignore すり抜けを検証",
+		"Git チェック: コミットメッセージ・trailer・Issue 参照・変更粒度・ignore すり抜けを検証",
 	);
 
 	return program;
