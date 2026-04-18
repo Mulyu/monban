@@ -5,7 +5,7 @@ import {
 } from "../../registry/client.js";
 import type { DepsConfig, RuleResult } from "../../types.js";
 import { checkDepsAllowed } from "./allowed.js";
-import { checkDepsCrossEcosystem } from "./cross_ecosystem.js";
+import { checkDepsCrossEcosystem } from "./cross-ecosystem.js";
 import { checkDepsDenied } from "./denied.js";
 import { checkDepsExistence } from "./existence.js";
 import { checkDepsFreshness } from "./freshness.js";

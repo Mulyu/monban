@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { PackageInfo, RegistryClient } from "../src/registry/client.js";
 import { checkDepsAllowed } from "../src/rules/deps/allowed.js";
-import { checkDepsCrossEcosystem } from "../src/rules/deps/cross_ecosystem.js";
+import { checkDepsCrossEcosystem } from "../src/rules/deps/cross-ecosystem.js";
 import { checkDepsDenied } from "../src/rules/deps/denied.js";
 import { checkDepsExistence } from "../src/rules/deps/existence.js";
 import { checkDepsFreshness } from "../src/rules/deps/freshness.js";
