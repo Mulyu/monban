@@ -15,6 +15,7 @@ import {
 import { CONTENT_RULE_NAMES } from "./rules/content/index.js";
 import { DEPS_RULE_NAMES } from "./rules/deps/index.js";
 import { DOC_RULE_NAMES } from "./rules/doc/index.js";
+import { GIT_RULE_NAMES } from "./rules/git/index.js";
 import { GITHUB_RULE_NAMES } from "./rules/github/index.js";
 import { RULE_NAMES as PATH_RULE_NAMES } from "./rules/path/index.js";
 
@@ -28,6 +29,7 @@ const RULE_NAMES_BY_CATEGORY: Record<Category, readonly string[]> = {
 	doc: DOC_RULE_NAMES,
 	github: GITHUB_RULE_NAMES,
 	deps: DEPS_RULE_NAMES,
+	git: GIT_RULE_NAMES,
 };
 
 async function runSingle(category: Category, opts: CommonOpts): Promise<void> {
@@ -129,6 +131,11 @@ export function createCli(): Command {
 				"ネットワーク通信をせず allowed / denied のみ実行",
 			);
 		},
+	);
+	addCategoryCommand(
+		program,
+		"git",
+		"Git チェック: コミットメッセージ・trailer・変更粒度・ignore すり抜けを検証",
 	);
 
 	return program;

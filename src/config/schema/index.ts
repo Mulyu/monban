@@ -4,6 +4,7 @@ import { validateContentConfig } from "./content.js";
 import { validateDepsConfig } from "./deps.js";
 import { validateDocConfig } from "./doc.js";
 import { validateExtends } from "./extends.js";
+import { validateGitConfig } from "./git.js";
 import { validateGithubConfig } from "./github.js";
 import { validatePathConfig } from "./path.js";
 
@@ -44,6 +45,10 @@ export function validateConfig(raw: unknown): MonbanConfig {
 
 	if (obj.deps !== undefined) {
 		config.deps = validateDepsConfig(obj.deps);
+	}
+
+	if (obj.git !== undefined) {
+		config.git = validateGitConfig(obj.git);
 	}
 
 	return config;

@@ -3,11 +3,12 @@ import type { CategoryGroup, CategoryRuleResult } from "./reporter.js";
 import { runContentRules } from "./rules/content/index.js";
 import { runDepsRules } from "./rules/deps/index.js";
 import { runDocRules } from "./rules/doc/index.js";
+import { runGitRules } from "./rules/git/index.js";
 import { runGithubRules } from "./rules/github/index.js";
 import { runPathRules } from "./rules/path/index.js";
 import type { DiffGranularity, DiffScope, MonbanConfig } from "./types.js";
 
-export type Category = "path" | "content" | "doc" | "github" | "deps";
+export type Category = "path" | "content" | "doc" | "github" | "deps" | "git";
 
 export const ALL_CATEGORIES: Category[] = [
 	"path",
@@ -15,6 +16,7 @@ export const ALL_CATEGORIES: Category[] = [
 	"doc",
 	"github",
 	"deps",
+	"git",
 ];
 
 export interface OrchestratorOpts {
@@ -31,7 +33,7 @@ export async function runCategory(
 	opts: OrchestratorOpts,
 ): Promise<CategoryGroup | null> {
 	const globalExclude = config.exclude ?? [];
-	const scope = resolveDiffScope(cwd, opts);
+	const scope = category === "git" ? null : resolveDiffScope(cwd, opts);
 	const results = await execute(cwd, category, config, globalExclude, opts);
 	if (results === null) return null;
 	return { category, results: filter(results, scope) };
@@ -76,6 +78,9 @@ async function execute(
 			return runDepsRules(config.deps, cwd, globalExclude, opts.rule, {
 				offline: opts.offline,
 			});
+		case "git":
+			if (!config.git) return null;
+			return runGitRules(config.git, cwd, opts.rule, { diff: opts.diff });
 	}
 }
 

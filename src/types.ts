@@ -250,6 +250,77 @@ export interface DepsConfig {
 	denied?: DepsDeniedRule[];
 }
 
+// --- Git config types ---
+
+export type GitCommitMessagePreset = "conventional";
+
+export interface GitCommitMessageRule {
+	preset?: GitCommitMessagePreset;
+	pattern?: string;
+	subject_max_length?: number;
+	subject_min_length?: number;
+	body_min_length?: number;
+	forbidden_subjects?: string[];
+	ignore_merges?: boolean;
+	ignore_reverts?: boolean;
+	severity?: Severity;
+}
+
+export interface GitTrailerDenyEntry {
+	key: string;
+	value_pattern?: string;
+	message?: string;
+}
+
+export interface GitTrailerRequireEntry {
+	key: string;
+	message?: string;
+}
+
+export interface GitTrailerAllowEntry {
+	key: string;
+}
+
+export interface GitCommitTrailersRule {
+	deny?: GitTrailerDenyEntry[];
+	require?: GitTrailerRequireEntry[];
+	allow?: GitTrailerAllowEntry[];
+	severity?: Severity;
+}
+
+export interface GitDiffSizeRule {
+	max_files?: number;
+	max_insertions?: number;
+	max_deletions?: number;
+	max_total_lines?: number;
+	exclude?: string[];
+	severity?: Severity;
+}
+
+export type GitDiffIgnoredScope = "diff" | "all";
+
+export interface GitDiffIgnoredRule {
+	scope?: GitDiffIgnoredScope;
+	allow?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface GitCommitConfig {
+	message?: GitCommitMessageRule;
+	trailers?: GitCommitTrailersRule;
+}
+
+export interface GitDiffConfig {
+	size?: GitDiffSizeRule;
+	ignored?: GitDiffIgnoredRule;
+}
+
+export interface GitConfig {
+	commit?: GitCommitConfig;
+	diff?: GitDiffConfig;
+}
+
 // --- Extends types ---
 
 export interface ExtendsLocal {
@@ -274,6 +345,7 @@ export interface MonbanConfig {
 	doc?: DocConfig;
 	github?: GithubConfig;
 	deps?: DepsConfig;
+	git?: GitConfig;
 }
 
 // --- Diff scope types ---

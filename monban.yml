@@ -44,6 +44,8 @@ path:
       max: 10
     - path: "src/rules/github"
       max: 15
+    - path: "src/rules/git"
+      max: 10
 
 content:
   forbidden:
@@ -71,6 +73,9 @@ content:
     - path: "src/rules/deps/*.ts"
       pattern: '^export (async )?function check(?!Deps)[A-Z]'
       message: "src/rules/deps/ の check 関数は checkDeps* と命名してください。"
+    - path: "src/rules/git/*.ts"
+      pattern: '^export (async )?function check(?!Git)[A-Z]'
+      message: "src/rules/git/ の check 関数は checkGit* と命名してください。"
 
 github:
   pinned:

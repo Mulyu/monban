@@ -1,6 +1,7 @@
 import type { ContentRuleResult } from "./rules/content/index.js";
 import type { DepsRuleResult } from "./rules/deps/index.js";
 import type { DocRuleResult } from "./rules/doc/index.js";
+import type { GitRuleResult } from "./rules/git/index.js";
 import type { GithubRuleResult } from "./rules/github/index.js";
 import type { PathRuleResult } from "./rules/path/index.js";
 
@@ -9,7 +10,8 @@ export type CategoryRuleResult =
 	| ContentRuleResult
 	| DocRuleResult
 	| GithubRuleResult
-	| DepsRuleResult;
+	| DepsRuleResult
+	| GitRuleResult;
 
 export interface CategoryGroup {
 	category: string;
@@ -22,6 +24,7 @@ const CATEGORY_TITLES: Record<string, string> = {
 	doc: "monban doc — ドキュメントチェック",
 	github: "monban github — GitHub チェック",
 	deps: "monban deps — 依存チェック",
+	git: "monban git — Git チェック",
 };
 
 export function reportCategory(

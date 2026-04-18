@@ -81,6 +81,10 @@ function collectAddedLines(
 }
 
 function resolveBase(cwd: string, base?: string): string | null {
+	return resolveDiffBase(cwd, base);
+}
+
+export function resolveDiffBase(cwd: string, base?: string): string | null {
 	if (base && base.length > 0) {
 		return base;
 	}
