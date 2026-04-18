@@ -144,10 +144,14 @@ actions:
 ## インストール
 
 ```bash
-npm install -g monban
-# or
-npx monban
+# グローバルインストール
+npm install -g @mulyu/monban
+
+# 単発実行（CI 等で推奨）
+npx @mulyu/monban all
 ```
+
+> パッケージ名は `@mulyu/monban` ですが、インストール後のコマンド名は `monban` です。
 
 ---
 
@@ -237,14 +241,14 @@ actions:
 ```markdown
 ## 変更後の確認
 
-コードを変更したあとは必ず `npx monban all` を実行し、すべてのチェックがパスすることを確認すること。
+コードを変更したあとは必ず `npx @mulyu/monban all` を実行し、すべてのチェックがパスすることを確認すること。
 ```
 
 ### GitHub Actions
 
 ```yaml
 - name: monban
-  run: npx monban all
+  run: npx @mulyu/monban all
 ```
 
 ---
