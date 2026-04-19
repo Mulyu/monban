@@ -25,7 +25,7 @@ describe("path command integration", () => {
 		};
 
 		const results = await runPathRules(config, cwd, []);
-		expect(results).toHaveLength(5); // 5 rule categories (count has no config)
+		expect(results).toHaveLength(8); // forbidden / required / naming / depth / count / hash / size / case_conflict
 
 		const forbidden = results.find((r) => r.name === "forbidden");
 		expect(forbidden?.results.length).toBeGreaterThan(0);

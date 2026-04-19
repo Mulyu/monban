@@ -45,4 +45,32 @@ describe("path/forbidden", () => {
 		);
 		expect(results[0].severity).toBe("warn");
 	});
+
+	describe("type filter", () => {
+		const extrasCwd = resolve(import.meta.dirname, "fixtures/path-extras");
+
+		it("matches only symlinks when type: symlink", async () => {
+			const results = await checkPathForbidden(
+				[{ path: "case-dir/*", type: "symlink" }],
+				extrasCwd,
+				[],
+			);
+			expect(results).toHaveLength(1);
+			expect(results[0].path).toBe("case-dir/symlink-to-pinned");
+		});
+
+		it("matches only files when type: file", async () => {
+			const results = await checkPathForbidden(
+				[{ path: "case-dir/*", type: "file" }],
+				extrasCwd,
+				[],
+			);
+			// 3 regular files (README.md, readme.md, other.txt) — symlink is excluded
+			expect(results.map((r) => r.path).sort()).toEqual([
+				"case-dir/README.md",
+				"case-dir/other.txt",
+				"case-dir/readme.md",
+			]);
+		});
+	});
 });

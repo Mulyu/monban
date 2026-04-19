@@ -1,9 +1,12 @@
 import type { PathConfig, RuleResult } from "../../types.js";
+import { checkPathCaseConflict } from "./case-conflict.js";
 import { checkPathCount } from "./count.js";
 import { checkPathDepth } from "./depth.js";
 import { checkPathForbidden } from "./forbidden.js";
+import { checkPathHash } from "./hash.js";
 import { checkPathNaming } from "./naming.js";
 import { checkPathRequired } from "./required.js";
+import { checkPathSize } from "./size.js";
 
 export interface PathRuleResult {
 	name: string;
@@ -23,6 +26,10 @@ const RULE_RUNNERS: Record<
 	naming: (c, cwd, ex) => checkPathNaming(c.naming ?? [], cwd, ex),
 	depth: (c, cwd, ex) => checkPathDepth(c.depth ?? [], cwd, ex),
 	count: (c, cwd, ex) => checkPathCount(c.count ?? [], cwd, ex),
+	hash: (c, cwd, ex) => checkPathHash(c.hash ?? [], cwd, ex),
+	size: (c, cwd, ex) => checkPathSize(c.size ?? [], cwd, ex),
+	case_conflict: (c, cwd, ex) =>
+		checkPathCaseConflict(c.case_conflict ?? [], cwd, ex),
 };
 
 export const RULE_NAMES = Object.keys(RULE_RUNNERS);

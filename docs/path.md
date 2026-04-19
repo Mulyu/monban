@@ -23,7 +23,10 @@ monban path --json             # JSON 出力
 | 2 | `required` | 存在しなければならないファイルの欠落を検出する |
 | 3 | `naming` | ファイル・ディレクトリの命名規則違反を検出する |
 | 4 | `depth` | ディレクトリのネスト深度の超過を検出する |
-| 5 | `count` | ディレクトリ内のファイル数の超過を検出する |
+| 5 | `count` | ディレクトリ内のファイル数の上限・下限を検査する |
+| 6 | `hash` | 単一ファイルを SHA256 で固定する（テンプレート / ベンダ / 生成物の改竄検知） |
+| 7 | `size` | ファイルサイズ（バイト数）の上限を検査する |
+| 8 | `case_conflict` | 大文字小文字違いで衝突するファイル名を検出する（macOS/Windows 破壊対策） |
 
 ---
 
@@ -71,7 +74,7 @@ path:
 
 ## 1. forbidden
 
-<!-- monban:ref ../src/rules/path/forbidden.ts sha256:5484ae348b6ef7786ba7e0647d144573129cd7ec13c13b187be0a31317213751 -->
+<!-- monban:ref ../src/rules/path/forbidden.ts sha256:550b88f8a963672c732389404fe13f4d039513e5eff20d980830f80659a24276 -->
 
 存在してはならないファイル・ディレクトリを定義する。
 
@@ -107,8 +110,19 @@ path:
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | 禁止する glob パターン |
+| `type` | `"file"` \| `"directory"` \| `"symlink"` | No | — | エントリ種別で絞り込む（指定しないと全種別） |
 | `message` | string | No | — | エラーメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+`type: symlink` を使うと、リポジトリ内のシンボリックリンク禁止をシンプルに表現できる:
+
+```yaml
+path:
+  forbidden:
+    - path: "**"
+      type: symlink
+      message: "シンボリックリンクは使用禁止。"
+```
 
 ### 出力例
 
@@ -330,7 +344,7 @@ ERROR [depth] src/domain/user/profile/settings/theme.ts
 
 ## 5. count
 
-<!-- monban:ref ../src/rules/path/count.ts sha256:f4226953993a0445d3038ed9fb1ff981fcca1aad68e0edac199b7a67d2cdbd92 -->
+<!-- monban:ref ../src/rules/path/count.ts sha256:6596f61566e4ca8af19628768eb1a744deaeed64b2b5033dde038db0ef7654e4 -->
 
 1ディレクトリに置けるファイル数に上限を設ける。
 
@@ -354,14 +368,129 @@ path:
 | フィールド | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
 | `path` | string | Yes | 対象ディレクトリ |
-| `max` | number | Yes | 最大ファイル数 |
+| `max` | number | No* | 最大ファイル数 |
+| `min` | number | No* | 最小ファイル数 |
 | `exclude` | string[] | No | カウント除外パターン |
+
+\* `max` または `min` のいずれか 1 つ以上が必須。両方指定すれば範囲チェックになる。
 
 ### 出力例
 
 ```
 ERROR [count] src/handlers/
   ファイル数 24 が上限 20 を超えています。
+
+ERROR [count] src/rules/
+  ファイル数 0 が下限 1 を下回っています。
+```
+
+---
+
+## 6. hash
+
+単一ファイルの SHA256 を固定する。LICENSE のテンプレ、ベンダ済みファイル、生成成果物の改竄を検出する。
+
+`doc.ref`（A の中に B のハッシュが埋め込まれている cross-file 照合）とは別概念で、こちらは「特定のファイルそのものが既知のバイト列であるか」を見る。
+
+### 設定
+
+```yaml
+path:
+  hash:
+    # 組織共通の LICENSE をピン留め
+    - path: "LICENSE"
+      sha256: "f288702d2fa16d3cdf0035b15a9eecc3866f4ddc5c1f6f5a2f8c8b4a0c1f4..."
+      message: "LICENSE は組織共通テンプレを使ってください。"
+
+    # ベンダ済みスクリプトの改竄検知
+    - path: "vendor/setup.sh"
+      sha256: "8a2c..."
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象ファイルの glob（通常は単一ファイルを指す） |
+| `sha256` | string (64桁hex) | Yes | — | 期待する SHA256 |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+### 出力例
+
+```
+ERROR [hash] LICENSE
+  ハッシュ不一致: expected f288702d2fa1... actual 9b5fe22e4730...
+  LICENSE は組織共通テンプレを使ってください。
+```
+
+---
+
+## 7. size
+
+ファイルサイズ（バイト数）の上限を検査する。`content.size` が行数を見るのに対し、こちらはバイナリ・画像・バンドル成果物などを対象にできる。
+
+### 設定
+
+```yaml
+path:
+  size:
+    # 画像アセットの肥大化を防ぐ
+    - path: "assets/**/*.{png,jpg,gif}"
+      max_bytes: 102400  # 100 KiB
+      severity: warn
+
+    # 設定ファイルが暴走的に肥大化していないかを担保
+    - path: "config/**/*.json"
+      max_bytes: 10240   # 10 KiB
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象ファイルの glob |
+| `exclude` | string[] | No | — | 除外 glob |
+| `max_bytes` | integer | Yes | — | バイト数の上限 |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+### 出力例
+
+```
+WARN  [size] assets/banner.png
+  サイズ 412.3 KiB が上限 100.0 KiB を超えています。
+```
+
+---
+
+## 8. case_conflict
+
+同一ディレクトリ内で大文字小文字違いのみで衝突するファイル名を検出する。case-insensitive ファイルシステム（macOS / Windows）でリポジトリを開いたときに片方が消えるバグを防ぐ。
+
+### 設定
+
+```yaml
+path:
+  case_conflict:
+    - path: "**/*"
+      exclude: ["node_modules/**"]
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象ファイル / ディレクトリの glob |
+| `exclude` | string[] | No | — | 除外 glob |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+### 出力例
+
+```
+ERROR [case_conflict] src/{Foo.ts, foo.ts}
+  大文字小文字違いで衝突するパス: Foo.ts, foo.ts
 ```
 
 ---

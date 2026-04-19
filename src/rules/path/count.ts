@@ -22,11 +22,20 @@ export async function checkPathCount(
 
 		const count = files.length;
 
-		if (count > rule.max) {
+		if (rule.max !== undefined && count > rule.max) {
 			results.push({
 				rule: "count",
 				path: `${rule.path}/`,
 				message: `ファイル数 ${count} が上限 ${rule.max} を超えています。`,
+				severity: "error",
+			});
+		}
+
+		if (rule.min !== undefined && count < rule.min) {
+			results.push({
+				rule: "count",
+				path: `${rule.path}/`,
+				message: `ファイル数 ${count} が下限 ${rule.min} を下回っています。`,
 				severity: "error",
 			});
 		}

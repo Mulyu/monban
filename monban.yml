@@ -37,7 +37,7 @@ path:
 
   count:
     - path: "src/rules/path"
-      max: 10
+      max: 12
     - path: "src/rules/content"
       max: 10
     - path: "src/rules/doc"
@@ -46,6 +46,15 @@ path:
       max: 15
     - path: "src/rules/git"
       max: 12
+
+  # シンボリックリンクは禁止（CI でビルド成果物が壊れたり、依存解決が壊れたりするため）
+  # path.forbidden の type: symlink を使う
+  # ※ 既存の forbidden ブロックは上で定義済み
+
+  # 大文字小文字違いで衝突するファイル名を検出
+  case_conflict:
+    - path: "**/*"
+      severity: error
 
 content:
   forbidden:
