@@ -64,8 +64,11 @@ describe("applyDiffFilter", () => {
 
 describe("resolveDiffBase", () => {
 	let repo: string;
+	let savedBaseRef: string | undefined;
 
 	beforeEach(async () => {
+		savedBaseRef = process.env.GITHUB_BASE_REF;
+		delete process.env.GITHUB_BASE_REF;
 		repo = await createGitRepo();
 		await writeAndAdd(repo, "README.md", "base\n");
 		commit(repo, "init");
@@ -73,7 +76,11 @@ describe("resolveDiffBase", () => {
 
 	afterEach(async () => {
 		await rm(repo, { recursive: true });
-		delete process.env.GITHUB_BASE_REF;
+		if (savedBaseRef === undefined) {
+			delete process.env.GITHUB_BASE_REF;
+		} else {
+			process.env.GITHUB_BASE_REF = savedBaseRef;
+		}
 	});
 
 	it("returns the explicit base when provided", () => {

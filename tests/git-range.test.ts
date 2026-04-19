@@ -10,7 +10,11 @@ describe("git/resolveGitRange", () => {
 	let baseSha: string;
 	let headSha: string;
 
+	let savedBaseRef: string | undefined;
+
 	beforeEach(async () => {
+		savedBaseRef = process.env.GITHUB_BASE_REF;
+		delete process.env.GITHUB_BASE_REF;
 		repo = await createGitRepo();
 		await writeAndAdd(repo, "README.md", "base\n");
 		baseSha = commit(repo, "init");
@@ -20,6 +24,11 @@ describe("git/resolveGitRange", () => {
 
 	afterEach(async () => {
 		await rm(repo, { recursive: true });
+		if (savedBaseRef === undefined) {
+			delete process.env.GITHUB_BASE_REF;
+		} else {
+			process.env.GITHUB_BASE_REF = savedBaseRef;
+		}
 	});
 
 	it("returns null when HEAD cannot be resolved", async () => {
