@@ -1,4 +1,5 @@
 import type { MonbanConfig } from "../../types.js";
+import { validateAgentConfig } from "./agent.js";
 import { optionalStringArray } from "./common.js";
 import { validateContentConfig } from "./content.js";
 import { validateDepsConfig } from "./deps.js";
@@ -49,6 +50,10 @@ export function validateConfig(raw: unknown): MonbanConfig {
 
 	if (obj.git !== undefined) {
 		config.git = validateGitConfig(obj.git);
+	}
+
+	if (obj.agent !== undefined) {
+		config.agent = validateAgentConfig(obj.agent);
 	}
 
 	return config;

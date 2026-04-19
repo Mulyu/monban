@@ -16,7 +16,8 @@ monban のユーザー向けドキュメント索引。
 | [doc.md](doc.md) | ドキュメント整合性（`ref` / `link`） |
 | [github.md](github.md) | GitHub（workflows + CODEOWNERS、11 ルール） |
 | [deps.md](deps.md) | 依存パッケージ（`existence` / `freshness` / `popularity` / `cross_ecosystem` / `typosquat` / `allowed` / `denied`） |
-| [git.md](git.md) | Git メタデータ（`commit.message` / `commit.trailers` / `commit.references` / `diff.size` / `diff.ignored`） |
+| [git.md](git.md) | Git メタデータ（`commit.message` / `commit.trailers` / `commit.references` / `diff.size` / `diff.ignored` / `branch_name` / `tag_name`） |
+| [agent.md](agent.md) | AI エージェント設定（`instructions` / `mcp` / `ignore`） |
 
 ## CLI
 

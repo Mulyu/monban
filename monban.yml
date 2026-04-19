@@ -271,3 +271,12 @@ doc:
   link:
     - path: "docs/**/*.md"
     - path: "*.md"
+
+# エージェント向けリポジトリ設定の整合性（2025-26 の MCP 関連 CVE 対応）
+agent:
+  # .mcp.json は存在しない場合は当然スキップされる（glob が 0 マッチ）
+  mcp:
+    - path: "{.mcp.json,.claude/settings.json,.cursor/mcp.json}"
+      forbid_unpinned_npx: true
+      forbid_env_secrets: true
+      severity: warn
