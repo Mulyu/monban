@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "monban",
+  "version": "0.2.0",
+  "description": "コーディングエージェントのための番所。monban CLI の使い方スキルと monban.yml の雛形生成コマンドを提供する。",
+  "author": {
+    "name": "mulyu",
+    "url": "https://github.com/Mulyu"
+  },
+  "homepage": "https://github.com/Mulyu/monban",
+  "repository": "https://github.com/Mulyu/monban",
+  "license": "MIT",
+  "keywords": [
+    "monban",
+    "linter",
+    "architecture",
+    "project-structure",
+    "coding-agent"
+  ]
+}
