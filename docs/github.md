@@ -34,7 +34,9 @@ GitHub 関連でも、構造パースが不要なもの（`LICENSE` / `SECURITY.
 | 8 | `actions.concurrency` | workflows | `concurrency:` 宣言必須 |
 | 9 | `actions.consistency` | workflows | 同一アクションのバージョン一貫性 |
 | 10 | `actions.secrets` | workflows | `${{ secrets.X }}` 参照の allowlist |
-| 11 | `codeowners.ownership` | CODEOWNERS | path → owners の一方向整合 |
+| 11 | `actions.danger` | workflows | `pull_request_target` + `actions/checkout` の危険な組み合わせと `persist-credentials` 未指定を検出 |
+| 12 | `actions.injection` | workflows | 信頼できない `${{ github.event.* }}` 入力が `run:` ステップに直埋めされる script injection を検出 |
+| 13 | `codeowners.ownership` | CODEOWNERS | path → owners の一方向整合 |
 
 ---
 
@@ -433,7 +435,103 @@ github:
 
 ---
 
-## 11. codeowners.ownership
+## 11. actions.danger
+
+ワークフローに含まれる **危険な定型パターン** を検出する。tj-actions/changed-files (CVE-2025-30066) 後に GitHub / OpenSSF が示した Actions ハードニングのうち、以下の 2 点を検査:
+
+1. `pull_request_target` + `actions/checkout` の組み合わせ — フォーク PR から secret が窃取される典型経路
+2. `actions/checkout` における `persist-credentials: false` の未指定 — 既定では `GITHUB_TOKEN` が `.git/config` に残留し、後続ステップから読み取れる
+
+### 設定
+
+```yaml
+github:
+  actions:
+    danger:
+      - path: ".github/workflows/**/*.yml"
+        severity: error
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|
+| `path` | string | Yes | — | 対象 workflow の glob |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+### 出力例
+
+```
+ERROR [actions.danger] .github/workflows/release.yml:publish
+  actions/checkout は persist-credentials: false を明示してください (デフォルトでトークンが残留)。
+
+ERROR [actions.danger] .github/workflows/pr.yml:build
+  pull_request_target + actions/checkout の組み合わせは危険 (フォーク PR から secret が窃取される経路)。
+```
+
+---
+
+## 12. actions.injection
+
+`${{ github.event.*.body }}` などの **信頼できない入力** が `run:` ステップ内に直接埋め込まれていないかを検出する。GitHub の security hardening ガイドが「最も悪用されやすい経路」と明示している script injection 攻撃の検出。
+
+### 検出対象
+
+以下のコンテキストが `run:` 内の `${{ ... }}` で展開されている場合に検出:
+
+- `github.event.issue.title` / `.body`
+- `github.event.pull_request.title` / `.body` / `.head.ref` / `.head.label`
+- `github.event.comment.body`
+- `github.event.review.body` / `review_comment.body`
+- `github.event.discussion.title` / `.body`
+- `github.event.commits.*.message` / `.author.email` / `.author.name`
+- `github.head_ref`
+
+正しい使い方は `env:` 経由で受け渡すこと（脆弱なコンテキストでも `env:` の値はシェル変数として安全に展開される）。
+
+### 設定
+
+```yaml
+github:
+  actions:
+    injection:
+      - path: ".github/workflows/**/*.yml"
+        severity: error
+        # 例外: 専用に sanitize 済みの run: ステップを許容する
+        allow_contexts:
+          - "github.event.issue.number"  # number は injection にならない
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|
+| `path` | string | Yes | — | 対象 workflow の glob |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `allow_contexts` | string[] | No | `[]` | 検査をスキップするコンテキスト式（完全一致） |
+
+### 出力例
+
+```
+ERROR [actions.injection] .github/workflows/welcome.yml:greet
+  信頼できない入力 github.event.issue.title が run: ステップ内で使われています (script injection の経路)。env: 経由で受け渡してください。
+```
+
+### 修正パターン
+
+```yaml
+# 危険
+- run: echo "Title: ${{ github.event.issue.title }}"
+
+# 安全
+- env:
+    ISSUE_TITLE: ${{ github.event.issue.title }}
+  run: echo "Title: $ISSUE_TITLE"
+```
+
+---
+
+## 13. codeowners.ownership
 
 `CODEOWNERS` の `path → owners` 一方向整合を検証する。
 

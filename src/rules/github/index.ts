@@ -2,7 +2,9 @@ import type { GithubConfig, RuleResult } from "../../types.js";
 import { checkGithubCodeowners } from "./codeowners.js";
 import { checkGithubConcurrency } from "./concurrency.js";
 import { checkGithubConsistency } from "./consistency.js";
+import { checkGithubActionsDanger } from "./danger.js";
 import { checkGithubForbidden } from "./forbidden.js";
+import { checkGithubActionsInjection } from "./injection.js";
 import { checkGithubPermissions } from "./permissions.js";
 import { checkGithubPinned } from "./pinned.js";
 import { checkGithubRequired } from "./required.js";
@@ -44,6 +46,10 @@ const RULE_RUNNERS: Record<
 		checkGithubConsistency(c.actions?.consistency ?? [], cwd, ex),
 	"actions.secrets": (c, cwd, ex) =>
 		checkGithubSecrets(c.actions?.secrets ?? [], cwd, ex),
+	"actions.danger": (c, cwd, ex) =>
+		checkGithubActionsDanger(c.actions?.danger ?? [], cwd, ex),
+	"actions.injection": (c, cwd, ex) =>
+		checkGithubActionsInjection(c.actions?.injection ?? [], cwd, ex),
 	"codeowners.ownership": (c, cwd, ex) =>
 		checkGithubCodeowners(c.codeowners?.ownership ?? [], cwd, ex),
 };

@@ -1,0 +1,12 @@
+name: process new issues
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "New issue: ${{ github.event.issue.title }}"
+          echo "Body: ${{ github.event.issue.body }}"
