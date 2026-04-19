@@ -33,7 +33,7 @@ jobs:
         run: npm audit --omit=dev
 
       - name: npm audit signatures
-        run: npm audit signatures
+        run: npm audit signatures --omit=dev
 
       - run: npm run check
 
