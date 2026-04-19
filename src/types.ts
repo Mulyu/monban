@@ -364,9 +364,26 @@ export interface GitDiffConfig {
 	ignored?: GitDiffIgnoredRule;
 }
 
+export interface GitBranchNameRule {
+	pattern: string;
+	allow?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface GitTagNameRule {
+	pattern: string;
+	scope?: "all" | "recent";
+	limit?: number;
+	message?: string;
+	severity?: Severity;
+}
+
 export interface GitConfig {
 	commit?: GitCommitConfig;
 	diff?: GitDiffConfig;
+	branch_name?: GitBranchNameRule;
+	tag_name?: GitTagNameRule;
 }
 
 // --- Extends types ---

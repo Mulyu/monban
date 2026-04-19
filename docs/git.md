@@ -26,6 +26,8 @@ monban git --json                   # JSON 出力
 | 3 | `commit.references` | Issue / チケット番号の参照を必須化する |
 | 4 | `diff.size` | PR 変更粒度の上限（ファイル数・行数）を検査する |
 | 5 | `diff.ignored` | `.gitignore` 対象なのに追跡されているファイルを検出する |
+| 6 | `branch_name` | 現在のブランチ名が規約 regex を満たすか検査する |
+| 7 | `tag_name` | リポジトリのタグ名が規約 regex（SemVer 等）を満たすか検査する |
 
 ---
 
@@ -399,6 +401,82 @@ WARN [diff.ignored]
   .env.local: matches .gitignore but is tracked
   .vscode/launch.json: matches .gitignore but is tracked
 ```
+
+---
+
+## 6. branch_name
+
+現在チェックアウトされているブランチ名が regex に一致するかを検査する。エージェントが作る一時ブランチ命名（例 `claude/foo-bar-XYZ`）を組織規約に揃える用途。
+
+`detached HEAD`（CI の PR イベント等）では何も検査しない。
+
+### 設定
+
+```yaml
+git:
+  branch_name:
+    pattern: "^(feat|fix|chore|docs|claude)/[a-z0-9-]+$"
+    allow: ["main", "develop", "release"]
+    severity: warn
+    message: "ブランチ名は <type>/<kebab-case> 形式にしてください。"
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|
+| `pattern` | string | Yes | — | 一致を要求する正規表現 |
+| `allow` | string[] | No | `[]` | regex 検査をスキップする許可名（`main` 等） |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+### 出力例
+
+```
+ERROR [branch_name] WIP_branch
+  branch "WIP_branch" does not match pattern ^(feat|fix|chore)/[a-z0-9-]+$
+```
+
+---
+
+## 7. tag_name
+
+リポジトリ内のタグ名が regex に一致するかを検査する。SemVer の徹底や、`v` 接頭辞ポリシーの担保に使う。
+
+タグが 1 つもないリポジトリでは何も報告しない（リリース前のプロジェクト想定）。
+
+### 設定
+
+```yaml
+git:
+  tag_name:
+    pattern: "^v\\d+\\.\\d+\\.\\d+(-[a-z0-9.]+)?$"
+    scope: recent      # all | recent
+    limit: 50
+    severity: error
+    message: "SemVer 形式のタグを使ってください (例: v1.2.3, v1.2.3-rc.1)。"
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|
+| `pattern` | string | Yes | — | 一致を要求する正規表現 |
+| `scope` | `"all"` \| `"recent"` | No | `"all"` | `recent` は creatordate の新しい順で `limit` 件のみ検査 |
+| `limit` | integer | No | `100` | `scope: recent` のときの検査タグ数 |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+### 出力例
+
+```
+ERROR [tag_name] release-2
+  tag "release-2" does not match pattern ^v\d+\.\d+\.\d+$
+```
+
+### 既存タグの取り扱い
+
+SemVer 規約導入時、過去の非準拠タグは `scope: recent` で対象から除外して段階的に整備する想定。`scope: all` は新規プロジェクトや、既に整備済みのリポジトリで使う。
 
 ---
 
