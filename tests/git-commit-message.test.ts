@@ -77,18 +77,6 @@ describe("git/commit.message", () => {
 		expect(results.every((r) => r.message.includes("forbidden"))).toBe(true);
 	});
 
-	it("ignores merge commits by default", () => {
-		// create a branch, make a commit on it, merge back
-		commit(repo, "feat: base work");
-		const mainHead = commit(repo, "feat: more main work");
-
-		// manually create a merge-like structure using --allow-empty won't work;
-		// this just tests subject "Merge ..." which won't happen automatically.
-		// For unit testing purposes we rely on commit with a Merge-like subject
-		// to verify ignore_reverts behaves symmetrically.
-		void mainHead;
-	});
-
 	it("ignores reverts by default", () => {
 		commit(repo, 'Revert "feat: something"');
 		const results = checkGitCommitMessage(

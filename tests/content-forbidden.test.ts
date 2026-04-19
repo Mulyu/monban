@@ -105,55 +105,21 @@ describe("content/forbidden", () => {
 	});
 
 	describe("secret", () => {
-		it("detects AWS access key", async () => {
+		it.each([
+			["AWS Access Key"],
+			["GitHub"],
+			["Google API Key"],
+			["Slack"],
+			["JWT"],
+		])("detects %s", async (kind) => {
 			const results = await checkContentForbidden(
 				[{ path: "has-secret.ts", secret: true }],
 				cwd,
 				[],
 			);
-			const aws = results.find((r) => r.message.includes("AWS Access Key"));
-			expect(aws).toBeDefined();
-			expect(aws?.path).toMatch(/has-secret\.ts:\d+/);
-		});
-
-		it("detects GitHub token", async () => {
-			const results = await checkContentForbidden(
-				[{ path: "has-secret.ts", secret: true }],
-				cwd,
-				[],
-			);
-			const gh = results.find((r) => r.message.includes("GitHub"));
-			expect(gh).toBeDefined();
-		});
-
-		it("detects Google API key", async () => {
-			const results = await checkContentForbidden(
-				[{ path: "has-secret.ts", secret: true }],
-				cwd,
-				[],
-			);
-			const google = results.find((r) => r.message.includes("Google API Key"));
-			expect(google).toBeDefined();
-		});
-
-		it("detects Slack token", async () => {
-			const results = await checkContentForbidden(
-				[{ path: "has-secret.ts", secret: true }],
-				cwd,
-				[],
-			);
-			const slack = results.find((r) => r.message.includes("Slack"));
-			expect(slack).toBeDefined();
-		});
-
-		it("detects JWT", async () => {
-			const results = await checkContentForbidden(
-				[{ path: "has-secret.ts", secret: true }],
-				cwd,
-				[],
-			);
-			const jwt = results.find((r) => r.message.includes("JWT"));
-			expect(jwt).toBeDefined();
+			const hit = results.find((r) => r.message.includes(kind));
+			expect(hit).toBeDefined();
+			expect(hit?.path).toMatch(/has-secret\.ts:\d+/);
 		});
 
 		it("does not flag non-secret strings", async () => {

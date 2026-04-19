@@ -29,14 +29,13 @@ describe("extends/local", () => {
 		);
 	});
 
-	it("passes through when extends is empty", async () => {
-		const raw = { path: { forbidden: [{ path: "a" }] } };
-		const result = await resolveExtends(raw, fixtureDir);
-		expect(result).toEqual(raw);
-	});
-
-	it("passes through when extends is missing", async () => {
-		const raw = { path: { forbidden: [{ path: "a" }] } };
+	it.each([
+		["missing extends field", { path: { forbidden: [{ path: "a" }] } }],
+		[
+			"empty extends array",
+			{ extends: [], path: { forbidden: [{ path: "a" }] } },
+		],
+	])("passes through when %s", async (_label, raw) => {
 		const result = await resolveExtends(raw, fixtureDir);
 		expect(result).toEqual(raw);
 	});
