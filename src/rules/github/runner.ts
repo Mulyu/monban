@@ -25,7 +25,16 @@ export async function checkGithubRunner(
 				const runners = extractRunners(runsOn);
 				for (const r of runners) {
 					if (r.includes("${{")) continue;
-					if (!rule.allowed.includes(r)) {
+					if (rule.forbidden?.includes(r)) {
+						results.push({
+							rule: "actions.runner",
+							path: wf.file,
+							message: `禁止されたランナー: ${r} (job: ${jobName})`,
+							severity: "error",
+						});
+						continue;
+					}
+					if (rule.allowed && !rule.allowed.includes(r)) {
 						results.push({
 							rule: "actions.runner",
 							path: wf.file,

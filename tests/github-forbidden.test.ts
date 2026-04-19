@@ -49,4 +49,20 @@ describe("github/forbidden", () => {
 		);
 		expect(results[0].severity).toBe("warn");
 	});
+
+	it("accepts uses as an array of prefixes", async () => {
+		const results = await checkGithubForbidden(
+			[
+				{
+					path: ".github/workflows/with-forbidden.yml",
+					uses: ["actions/upload-release-asset", "actions/create-release"],
+					message: "release-please を使ってください。",
+				},
+			],
+			cwd,
+			[],
+		);
+		expect(results).toHaveLength(1);
+		expect(results[0].message).toBe("release-please を使ってください。");
+	});
 });

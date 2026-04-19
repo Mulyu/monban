@@ -60,8 +60,8 @@ function validateInstructionsRule(
 	if (required !== undefined) rule.required_sections = required;
 	const maxBytes = validatePositiveInteger(raw, "max_bytes", label);
 	if (maxBytes !== undefined) rule.max_bytes = maxBytes;
-	const fmKeys = optionalStringArray(raw, "frontmatter_keys", label);
-	if (fmKeys !== undefined) rule.frontmatter_keys = fmKeys;
+	const fmKeys = optionalStringArray(raw, "allowed_frontmatter_keys", label);
+	if (fmKeys !== undefined) rule.allowed_frontmatter_keys = fmKeys;
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);
@@ -122,8 +122,8 @@ function validateIgnoreRule(
 	};
 	const exclude = optionalStringArray(raw, "exclude", label);
 	if (exclude !== undefined) rule.exclude = exclude;
-	const mustCover = optionalStringArray(raw, "must_cover", label);
-	if (mustCover !== undefined) rule.must_cover = mustCover;
+	const required = optionalStringArray(raw, "required", label);
+	if (required !== undefined) rule.required = required;
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);

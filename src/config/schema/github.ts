@@ -247,9 +247,27 @@ function validateGithubForbiddenRule(
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
 
+	const usesValue = raw.uses;
+	let uses: string | string[];
+	if (typeof usesValue === "string") {
+		uses = usesValue;
+	} else if (Array.isArray(usesValue)) {
+		if (usesValue.length === 0) {
+			throw new Error(`${label}.uses must be a non-empty string array`);
+		}
+		for (const item of usesValue) {
+			if (typeof item !== "string") {
+				throw new Error(`${label}.uses[] must be strings`);
+			}
+		}
+		uses = usesValue as string[];
+	} else {
+		throw new Error(`${label}.uses must be a string or string array`);
+	}
+
 	const rule: GithubForbiddenRule = {
 		path: requireString(raw, "path", label),
-		uses: requireString(raw, "uses", label),
+		uses,
 	};
 	rule.message = optionalString(raw, "message", label);
 
@@ -317,14 +335,26 @@ function validateGithubRunnerRule(
 	assertObject(raw, label);
 
 	const allowed = optionalStringArray(raw, "allowed", label);
-	if (!allowed || allowed.length === 0) {
+	const forbidden = optionalStringArray(raw, "forbidden", label);
+
+	if (!allowed && !forbidden) {
+		throw new Error(
+			`${label} must have at least one of "allowed" or "forbidden"`,
+		);
+	}
+	if (allowed && allowed.length === 0) {
 		throw new Error(`${label}.allowed must be a non-empty string array`);
 	}
+	if (forbidden && forbidden.length === 0) {
+		throw new Error(`${label}.forbidden must be a non-empty string array`);
+	}
 
-	return {
+	const rule: GithubRunnerRule = {
 		path: requireString(raw, "path", label),
-		allowed,
 	};
+	if (allowed) rule.allowed = allowed;
+	if (forbidden) rule.forbidden = forbidden;
+	return rule;
 }
 
 function validateGithubTimeoutRule(
@@ -387,14 +417,20 @@ function validateGithubSecretsRule(
 	assertObject(raw, label);
 
 	const allowed = optionalStringArray(raw, "allowed", label);
-	if (!allowed) {
-		throw new Error(`${label}.allowed must be a string array`);
+	const forbidden = optionalStringArray(raw, "forbidden", label);
+
+	if (!allowed && !forbidden) {
+		throw new Error(
+			`${label} must have at least one of "allowed" or "forbidden"`,
+		);
 	}
 
-	return {
+	const rule: GithubSecretsRule = {
 		path: requireString(raw, "path", label),
-		allowed,
 	};
+	if (allowed) rule.allowed = allowed;
+	if (forbidden) rule.forbidden = forbidden;
+	return rule;
 }
 
 function validateGithubCodeownersRule(

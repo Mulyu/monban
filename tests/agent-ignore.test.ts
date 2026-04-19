@@ -33,9 +33,9 @@ describe("agent/ignore", () => {
 		expect(results[0].message).toContain("見つかりません");
 	});
 
-	it("supports custom must_cover list", async () => {
+	it("supports custom required list", async () => {
 		const results = await checkAgentIgnore(
-			[{ path: ".llmignore", must_cover: ["node_modules/"] }],
+			[{ path: ".llmignore", required: ["node_modules/"] }],
 			okCwd,
 			[],
 		);

@@ -253,12 +253,12 @@ function validateDepsInstallScriptsRule(
 	};
 	const exclude = optionalStringArray(raw, "exclude", label);
 	if (exclude !== undefined) rule.exclude = exclude;
-	const hooks = optionalStringArray(raw, "hooks", label);
-	if (hooks !== undefined) {
-		if (hooks.length === 0) {
-			throw new Error(`${label}.hooks must be a non-empty string array`);
+	const forbidden = optionalStringArray(raw, "forbidden", label);
+	if (forbidden !== undefined) {
+		if (forbidden.length === 0) {
+			throw new Error(`${label}.forbidden must be a non-empty string array`);
 		}
-		rule.hooks = hooks;
+		rule.forbidden = forbidden;
 	}
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;
@@ -300,6 +300,8 @@ function validateDepsFloatingVersionRule(
 	};
 	const exclude = optionalStringArray(raw, "exclude", label);
 	if (exclude !== undefined) rule.exclude = exclude;
+	const allowed = optionalStringArray(raw, "allowed", label);
+	if (allowed !== undefined) rule.allowed = allowed;
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);

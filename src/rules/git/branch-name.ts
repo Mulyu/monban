@@ -13,20 +13,43 @@ export function checkGitBranchName(
 	const allowed = new Set(rule.allowed ?? []);
 	if (allowed.has(branch)) return [];
 
-	const re = new RegExp(rule.pattern);
-	if (re.test(branch)) return [];
-
 	const severity: Severity = rule.severity ?? "error";
-	return [
-		{
-			rule: "branch_name",
-			path: branch,
-			message:
-				rule.message ??
-				`branch "${branch}" does not match pattern ${rule.pattern}`,
-			severity,
-		},
-	];
+
+	if (rule.forbidden) {
+		for (const raw of rule.forbidden) {
+			const re = new RegExp(raw);
+			if (re.test(branch)) {
+				return [
+					{
+						rule: "branch_name",
+						path: branch,
+						message:
+							rule.message ??
+							`branch "${branch}" matches forbidden pattern ${raw}`,
+						severity,
+					},
+				];
+			}
+		}
+	}
+
+	if (rule.pattern) {
+		const re = new RegExp(rule.pattern);
+		if (!re.test(branch)) {
+			return [
+				{
+					rule: "branch_name",
+					path: branch,
+					message:
+						rule.message ??
+						`branch "${branch}" does not match pattern ${rule.pattern}`,
+					severity,
+				},
+			];
+		}
+	}
+
+	return [];
 }
 
 function currentBranch(cwd: string): string | null {

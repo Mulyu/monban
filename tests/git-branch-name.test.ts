@@ -82,4 +82,35 @@ describe("git/branch_name", () => {
 		);
 		expect(results[0].severity).toBe("warn");
 	});
+
+	it("flags branches that match the forbidden list", async () => {
+		const repo = await createGitRepo();
+		await writeAndAdd(repo, "README.md", "init\n");
+		commit(repo, "init");
+		git(repo, ["checkout", "-q", "-b", "wip/experiment"]);
+
+		const results = checkGitBranchName(
+			{ forbidden: ["^wip(/|$)", "^tmp(/|$)"] },
+			repo,
+		);
+		expect(results).toHaveLength(1);
+		expect(results[0].message).toContain("forbidden");
+	});
+
+	it("forbidden is evaluated before pattern", async () => {
+		const repo = await createGitRepo();
+		await writeAndAdd(repo, "README.md", "init\n");
+		commit(repo, "init");
+		git(repo, ["checkout", "-q", "-b", "wip/thing"]);
+
+		const results = checkGitBranchName(
+			{
+				pattern: "^(feat|fix|wip)/[a-z0-9-]+$",
+				forbidden: ["^wip(/|$)"],
+			},
+			repo,
+		);
+		expect(results).toHaveLength(1);
+		expect(results[0].message).toContain("forbidden");
+	});
 });

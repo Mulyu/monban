@@ -52,7 +52,7 @@ describe("agent/instructions", () => {
 			[
 				{
 					path: "AGENTS.md",
-					frontmatter_keys: ["description"], // tags is not allowed
+					allowed_frontmatter_keys: ["description"], // tags is not allowed
 				},
 			],
 			okCwd,
@@ -67,7 +67,7 @@ describe("agent/instructions", () => {
 			[
 				{
 					path: "AGENTS.md",
-					frontmatter_keys: ["description", "tags"],
+					allowed_frontmatter_keys: ["description", "tags"],
 				},
 			],
 			okCwd,

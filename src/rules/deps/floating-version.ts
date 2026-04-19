@@ -1,3 +1,4 @@
+import picomatch from "picomatch";
 import type { DepsFloatingVersionRule, RuleResult } from "../../types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
 
@@ -10,6 +11,10 @@ export async function checkDepsFloatingVersion(
 
 	for (const rule of rules) {
 		const severity = rule.severity ?? "warn";
+		const isAllowed =
+			rule.allowed && rule.allowed.length > 0
+				? picomatch(rule.allowed)
+				: () => false;
 		const manifests = await loadManifests(
 			rule.path,
 			cwd,
@@ -21,6 +26,7 @@ export async function checkDepsFloatingVersion(
 			for (const entry of manifest.entries) {
 				const reason = detect(entry.version, manifest.ecosystem);
 				if (!reason) continue;
+				if (isAllowed(entry.name)) continue;
 				results.push({
 					rule: "floating_version",
 					path: formatLocation(manifest.file, entry.line),
