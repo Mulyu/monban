@@ -19,8 +19,8 @@ monban content --json              # JSON 出力
 
 | # | ルール | 概要 |
 |---|--------|------|
-| 1 | `forbidden` | ファイル内の禁止テキストパターン・BOM・不可視文字・シークレット・プロンプトインジェクション・マージコンフリクトマーカーを検出する |
-| 2 | `required` | ファイル内の必須テキストパターンの欠落を検出する（`within_lines` で先頭 N 行に限定可） |
+| 1 | `required` | ファイル内の必須テキストパターンの欠落を検出する（`within_lines` で先頭 N 行に限定可） |
+| 2 | `forbidden` | ファイル内の禁止テキストパターン・BOM・不可視文字・シークレット・プロンプトインジェクション・マージコンフリクトマーカーを検出する |
 | 3 | `size` | ファイルの行数が上限を超えていないか検証する |
 
 ---
@@ -30,6 +30,12 @@ monban content --json              # JSON 出力
 ```yaml
 # monban.yml
 content:
+  required:
+    - path: "src/**/*.ts"
+      pattern: "^// Copyright \\d{4}"
+      scope: first_line
+      message: "コピーライトヘッダーが必要です。"
+
   forbidden:
     - path: "src/domain/**"
       pattern: "process\\.env"
@@ -43,12 +49,6 @@ content:
       invisible: true
       message: "不可視の Unicode 文字が含まれています。"
 
-  required:
-    - path: "src/**/*.ts"
-      pattern: "^// Copyright \\d{4}"
-      scope: first_line
-      message: "コピーライトヘッダーが必要です。"
-
   size:
     - path: "src/**/*.ts"
       max_lines: 300
@@ -58,7 +58,67 @@ content:
 
 ---
 
-## 1. forbidden
+## 1. required
+
+<!-- monban:ref ../src/rules/content/required.ts sha256:98f26028c52b78cfbb147f4687ce354d4ba786c120fae979f593e0e650bda0ef -->
+
+ファイル内に含まれるべきテキストパターンを定義する。
+
+コピーライトヘッダーやライセンス表記など、すべてのファイルに存在すべき定型テキストのチェックに使う。
+
+### 設定
+
+```yaml
+content:
+  required:
+    - path: "src/**/*.ts"
+      pattern: "^// Copyright \\d{4}"
+      scope: first_line
+      message: "コピーライトヘッダーが必要です。"
+
+    - path: "**/*.rb"
+      pattern: "^# frozen_string_literal: true"
+      scope: first_line
+
+    - path: "packages/*/src/**/*.ts"
+      pattern: "@license MIT"
+      scope: file
+
+    # 生成ファイルは先頭 3 行以内に DO NOT EDIT マーカーを持つべき
+    - path: "src/generated/**/*.{ts,go}"
+      pattern: "(@generated|DO NOT EDIT)"
+      within_lines: 3
+      message: "生成ファイルには先頭に DO NOT EDIT マーカーが必要です。"
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象ファイルの glob パターン |
+| `exclude` | string[] | No | `[]` | 対象から除外する glob パターン |
+| `pattern` | string | Yes | — | 必須の正規表現パターン |
+| `scope` | `"file"` \| `"first_line"` \| `"last_line"` | No | `"file"` | マッチ範囲 |
+| `within_lines` | integer | No | — | 先頭 N 行に限定してマッチする（`scope` が `"file"` のときのみ指定可） |
+| `message` | string | No | — | エラーメッセージ |
+
+`scope: "first_line"` は `within_lines: 1` と同等。複数行のヘッダ（generated マーカーのように `@generated` / `DO NOT EDIT` が先頭 2–3 行のどこかに現れる）を許容したい場合は `within_lines` を使う。
+
+### 出力例
+
+```
+ERROR [required] src/billing/invoice.ts
+  必須パターンが見つかりません: ^// Copyright \d{4} (first_line)
+  コピーライトヘッダーが必要です。
+
+ERROR [required] src/generated/api.ts
+  必須パターンが見つかりません: (@generated|DO NOT EDIT) (within first 3 lines)
+  生成ファイルには先頭に DO NOT EDIT マーカーが必要です。
+```
+
+---
+
+## 2. forbidden
 
 <!-- monban:ref ../src/rules/content/forbidden.ts sha256:662d943a5e611479896d237df99ad00389d527dfee920321c9f0d7f2b8635627 -->
 
@@ -240,66 +300,6 @@ ERROR [forbidden] AGENTS.md:42
 ERROR [forbidden] src/legacy/module.ts:12
   マージコンフリクトマーカー検出: start marker (<<<<<<<)
   未解決のマージコンフリクトが残っています。
-```
-
----
-
-## 2. required
-
-<!-- monban:ref ../src/rules/content/required.ts sha256:98f26028c52b78cfbb147f4687ce354d4ba786c120fae979f593e0e650bda0ef -->
-
-ファイル内に含まれるべきテキストパターンを定義する。
-
-コピーライトヘッダーやライセンス表記など、すべてのファイルに存在すべき定型テキストのチェックに使う。
-
-### 設定
-
-```yaml
-content:
-  required:
-    - path: "src/**/*.ts"
-      pattern: "^// Copyright \\d{4}"
-      scope: first_line
-      message: "コピーライトヘッダーが必要です。"
-
-    - path: "**/*.rb"
-      pattern: "^# frozen_string_literal: true"
-      scope: first_line
-
-    - path: "packages/*/src/**/*.ts"
-      pattern: "@license MIT"
-      scope: file
-
-    # 生成ファイルは先頭 3 行以内に DO NOT EDIT マーカーを持つべき
-    - path: "src/generated/**/*.{ts,go}"
-      pattern: "(@generated|DO NOT EDIT)"
-      within_lines: 3
-      message: "生成ファイルには先頭に DO NOT EDIT マーカーが必要です。"
-```
-
-### フィールド
-
-| フィールド | 型 | 必須 | デフォルト | 説明 |
-|-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob パターン |
-| `exclude` | string[] | No | `[]` | 対象から除外する glob パターン |
-| `pattern` | string | Yes | — | 必須の正規表現パターン |
-| `scope` | `"file"` \| `"first_line"` \| `"last_line"` | No | `"file"` | マッチ範囲 |
-| `within_lines` | integer | No | — | 先頭 N 行に限定してマッチする（`scope` が `"file"` のときのみ指定可） |
-| `message` | string | No | — | エラーメッセージ |
-
-`scope: "first_line"` は `within_lines: 1` と同等。複数行のヘッダ（generated マーカーのように `@generated` / `DO NOT EDIT` が先頭 2–3 行のどこかに現れる）を許容したい場合は `within_lines` を使う。
-
-### 出力例
-
-```
-ERROR [required] src/billing/invoice.ts
-  必須パターンが見つかりません: ^// Copyright \d{4} (first_line)
-  コピーライトヘッダーが必要です。
-
-ERROR [required] src/generated/api.ts
-  必須パターンが見つかりません: (@generated|DO NOT EDIT) (within first 3 lines)
-  生成ファイルには先頭に DO NOT EDIT マーカーが必要です。
 ```
 
 ---

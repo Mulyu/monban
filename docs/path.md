@@ -19,13 +19,13 @@ monban path --json             # JSON 出力
 
 | # | ルール | 概要 |
 |---|--------|------|
-| 1 | `forbidden` | 存在してはならないパスを検出する |
-| 2 | `required` | 存在しなければならないファイルの欠落を検出する |
+| 1 | `required` | 存在しなければならないファイルの欠落を検出する |
+| 2 | `forbidden` | 存在してはならないパスを検出する |
 | 3 | `naming` | ファイル・ディレクトリの命名規則違反を検出する |
 | 4 | `depth` | ディレクトリのネスト深度の超過を検出する |
 | 5 | `count` | ディレクトリ内のファイル数の上限・下限を検査する |
-| 6 | `hash` | 単一ファイルを SHA256 で固定する（テンプレート / ベンダ / 生成物の改竄検知） |
-| 7 | `size` | ファイルサイズ（バイト数）の上限を検査する |
+| 6 | `size` | ファイルサイズ（バイト数）の上限を検査する |
+| 7 | `hash` | 単一ファイルを SHA256 で固定する（テンプレート / ベンダ / 生成物の改竄検知） |
 | 8 | `case_conflict` | 大文字小文字違いで衝突するファイル名を検出する（macOS/Windows 破壊対策） |
 
 ---
@@ -41,18 +41,18 @@ exclude:
   - "**/vendor/**"
 
 path:
-  forbidden:
-    - path: "**/utils/**"
-      message: "utils/ は使用禁止。適切なモジュールに配置してください。"
-    - path: "src/**/*.js"
-      message: "src/ 内に .js は配置できません。"
-
   required:
     - path: "src/handlers/*"
       files: ["index.ts", "schema.ts"]
     - path: "src/components/**/*.tsx"
       exclude: ["**/*.test.tsx"]
       companions: ["{stem}.test.tsx"]
+
+  forbidden:
+    - path: "**/utils/**"
+      message: "utils/ は使用禁止。適切なモジュールに配置してください。"
+    - path: "src/**/*.js"
+      message: "src/ 内に .js は配置できません。"
 
   naming:
     - path: "src/components/**/*.tsx"
@@ -72,74 +72,7 @@ path:
 
 ---
 
-## 1. forbidden
-
-<!-- monban:ref ../src/rules/path/forbidden.ts sha256:550b88f8a963672c732389404fe13f4d039513e5eff20d980830f80659a24276 -->
-
-存在してはならないファイル・ディレクトリを定義する。
-
-AIエージェントは `utils/`、`helpers/` のような曖昧なディレクトリを安易に作る。拡張子の制限やトップレベル構造の制御にも使える。
-
-### 設定
-
-```yaml
-path:
-  forbidden:
-    # ディレクトリ禁止
-    - path: "**/utils/**"
-      message: "utils/ は使用禁止。適切なモジュールに配置してください。"
-    - path: "**/helpers/**"
-      message: "helpers/ は使用禁止。"
-
-    # 拡張子禁止
-    - path: "src/**/*.js"
-      message: "src/ 内に .js は配置できません。"
-
-    # 一時ファイル
-    - path: "**/*.temp.*"
-      severity: warn
-      message: "一時ファイルをコミットしないでください。"
-
-    # トップレベル構造の制御
-    - path: "src/!(domain|application|infrastructure|presentation)/"
-      message: "src/ 直下に未定義のディレクトリを作成しないでください。"
-```
-
-### フィールド
-
-| フィールド | 型 | 必須 | デフォルト | 説明 |
-|-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 禁止する glob パターン |
-| `type` | `"file"` \| `"directory"` \| `"symlink"` | No | — | エントリ種別で絞り込む（指定しないと全種別） |
-| `message` | string | No | — | エラーメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
-
-`type: symlink` を使うと、リポジトリ内のシンボリックリンク禁止をシンプルに表現できる:
-
-```yaml
-path:
-  forbidden:
-    - path: "**"
-      type: symlink
-      message: "シンボリックリンクは使用禁止。"
-```
-
-### 出力例
-
-```
-ERROR [forbidden] src/utils/format.ts
-  utils/ は使用禁止。適切なモジュールに配置してください。
-
-ERROR [forbidden] src/legacy/handler.js
-  src/ 内に .js は配置できません。
-
-WARN  [forbidden] tmp/draft.temp.md
-  一時ファイルをコミットしないでください。
-```
-
----
-
-## 2. required
+## 1. required
 
 <!-- monban:ref ../src/rules/path/required.ts sha256:c8830437421369adad6bb499bef67c371685e1f7a0414b7aa917406648a9237b -->
 
@@ -237,6 +170,73 @@ ERROR [required] src/components/UserProfile.tsx
 
 WARN  [required] src/components/UserProfile.tsx
   対応ファイルが見つかりません: UserProfile.stories.tsx
+```
+
+---
+
+## 2. forbidden
+
+<!-- monban:ref ../src/rules/path/forbidden.ts sha256:550b88f8a963672c732389404fe13f4d039513e5eff20d980830f80659a24276 -->
+
+存在してはならないファイル・ディレクトリを定義する。
+
+AIエージェントは `utils/`、`helpers/` のような曖昧なディレクトリを安易に作る。拡張子の制限やトップレベル構造の制御にも使える。
+
+### 設定
+
+```yaml
+path:
+  forbidden:
+    # ディレクトリ禁止
+    - path: "**/utils/**"
+      message: "utils/ は使用禁止。適切なモジュールに配置してください。"
+    - path: "**/helpers/**"
+      message: "helpers/ は使用禁止。"
+
+    # 拡張子禁止
+    - path: "src/**/*.js"
+      message: "src/ 内に .js は配置できません。"
+
+    # 一時ファイル
+    - path: "**/*.temp.*"
+      severity: warn
+      message: "一時ファイルをコミットしないでください。"
+
+    # トップレベル構造の制御
+    - path: "src/!(domain|application|infrastructure|presentation)/"
+      message: "src/ 直下に未定義のディレクトリを作成しないでください。"
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 禁止する glob パターン |
+| `type` | `"file"` \| `"directory"` \| `"symlink"` | No | — | エントリ種別で絞り込む（指定しないと全種別） |
+| `message` | string | No | — | エラーメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+`type: symlink` を使うと、リポジトリ内のシンボリックリンク禁止をシンプルに表現できる:
+
+```yaml
+path:
+  forbidden:
+    - path: "**"
+      type: symlink
+      message: "シンボリックリンクは使用禁止。"
+```
+
+### 出力例
+
+```
+ERROR [forbidden] src/utils/format.ts
+  utils/ は使用禁止。適切なモジュールに配置してください。
+
+ERROR [forbidden] src/legacy/handler.js
+  src/ 内に .js は配置できません。
+
+WARN  [forbidden] tmp/draft.temp.md
+  一時ファイルをコミットしないでください。
 ```
 
 ---
@@ -386,7 +386,47 @@ ERROR [count] src/rules/
 
 ---
 
-## 6. hash
+## 6. size
+
+<!-- monban:ref ../src/rules/path/size.ts sha256:f54d72a23a1edde734b5f895d3caee71f8ca7f940706244da9cde15ae7f058ee -->
+
+ファイルサイズ（バイト数）の上限を検査する。`content.size` が行数を見るのに対し、こちらはバイナリ・画像・バンドル成果物などを対象にできる。
+
+### 設定
+
+```yaml
+path:
+  size:
+    # 画像アセットの肥大化を防ぐ
+    - path: "assets/**/*.{png,jpg,gif}"
+      max_bytes: 102400  # 100 KiB
+      severity: warn
+
+    # 設定ファイルが暴走的に肥大化していないかを担保
+    - path: "config/**/*.json"
+      max_bytes: 10240   # 10 KiB
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象ファイルの glob |
+| `exclude` | string[] | No | — | 除外 glob |
+| `max_bytes` | integer | Yes | — | バイト数の上限 |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+### 出力例
+
+```
+WARN  [size] assets/banner.png
+  サイズ 412.3 KiB が上限 100.0 KiB を超えています。
+```
+
+---
+
+## 7. hash
 
 <!-- monban:ref ../src/rules/path/hash.ts sha256:5427e3c0b0222579544c2d206c19d781c4774a535d8740014af9240e1563b7c3 -->
 
@@ -424,46 +464,6 @@ path:
 ERROR [hash] LICENSE
   ハッシュ不一致: expected f288702d2fa1... actual 9b5fe22e4730...
   LICENSE は組織共通テンプレを使ってください。
-```
-
----
-
-## 7. size
-
-<!-- monban:ref ../src/rules/path/size.ts sha256:f54d72a23a1edde734b5f895d3caee71f8ca7f940706244da9cde15ae7f058ee -->
-
-ファイルサイズ（バイト数）の上限を検査する。`content.size` が行数を見るのに対し、こちらはバイナリ・画像・バンドル成果物などを対象にできる。
-
-### 設定
-
-```yaml
-path:
-  size:
-    # 画像アセットの肥大化を防ぐ
-    - path: "assets/**/*.{png,jpg,gif}"
-      max_bytes: 102400  # 100 KiB
-      severity: warn
-
-    # 設定ファイルが暴走的に肥大化していないかを担保
-    - path: "config/**/*.json"
-      max_bytes: 10240   # 10 KiB
-```
-
-### フィールド
-
-| フィールド | 型 | 必須 | デフォルト | 説明 |
-|-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob |
-| `exclude` | string[] | No | — | 除外 glob |
-| `max_bytes` | integer | Yes | — | バイト数の上限 |
-| `message` | string | No | — | カスタムメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
-
-### 出力例
-
-```
-WARN  [size] assets/banner.png
-  サイズ 412.3 KiB が上限 100.0 KiB を超えています。
 ```
 
 ---

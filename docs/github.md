@@ -24,9 +24,9 @@ GitHub 関連でも、構造パースが不要なもの（`LICENSE` / `SECURITY.
 
 | # | ルール | 対象 | 概要 |
 |---|--------|------|------|
-| 1 | `actions.pinned` | workflows | `uses` のアクション・reusable workflow・docker image のピン留め |
-| 2 | `actions.required` | workflows | 必須ワークフロー・必須ステップ |
-| 3 | `actions.forbidden` | workflows | 禁止アクション（`uses` は単一文字列 / 配列のどちらも可） |
+| 1 | `actions.required` | workflows | 必須ワークフロー・必須ステップ |
+| 2 | `actions.forbidden` | workflows | 禁止アクション（`uses` は単一文字列 / 配列のどちらも可） |
+| 3 | `actions.pinned` | workflows | `uses` のアクション・reusable workflow・docker image のピン留め |
 | 4 | `actions.permissions` | workflows | `permissions:` の宣言必須・禁止スカラー値 |
 | 5 | `actions.triggers` | workflows | `on:` イベントの allow / deny |
 | 6 | `actions.runner` | workflows | `runs-on:` の allowlist |
@@ -46,10 +46,6 @@ GitHub 関連でも、構造パースが不要なもの（`LICENSE` / `SECURITY.
 # monban.yml
 github:
   actions:
-    pinned:
-      - path: ".github/workflows/**/*.yml"
-        targets: ["action", "reusable", "docker"]
-
     required:
       - file: ".github/workflows/test.yml"
       - path: ".github/workflows/test.yml"
@@ -59,6 +55,10 @@ github:
       - path: ".github/workflows/**/*.yml"
         uses: ["actions/create-release", "actions/upload-release-asset"]
         message: "release-please を使ってください。"
+
+    pinned:
+      - path: ".github/workflows/**/*.yml"
+        targets: ["action", "reusable", "docker"]
 
     permissions:
       - path: ".github/workflows/**/*.yml"
@@ -102,7 +102,77 @@ github:
 
 ---
 
-## 1. actions.pinned
+## 1. actions.required
+
+<!-- monban:ref ../src/rules/github/required.ts sha256:2f2ae5a0de6966983aa3e172b959da82ef95f068ab8b5672fb3baf4ead84c1d9 -->
+
+必須ワークフローファイルの存在と、ワークフロー内の必須ステップを検証する。
+
+### 設定
+
+```yaml
+github:
+  actions:
+    required:
+      - file: ".github/workflows/test.yml"        # 存在チェック
+      - path: ".github/workflows/test.yml"        # ステップ存在チェック
+        steps: ["actions/checkout", "actions/setup-node"]
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| `file` | string | No* | 必須ワークフローファイルのパス |
+| `path` | string | No* | 対象ワークフローファイルのパス |
+| `steps` | string[] | No | 必須ステップ（`uses` の前方一致） |
+
+\* `file` または `path` + `steps` のいずれかが必須。
+
+### 出力例
+
+```
+ERROR [actions.required] .github/workflows/lint.yml
+  必須ワークフローが見つかりません。
+```
+
+---
+
+## 2. actions.forbidden
+
+<!-- monban:ref ../src/rules/github/forbidden.ts sha256:d52b87a8fe6081b2f202197468e2ede3fb010045c36117302d34ee6e80ec7fc9 -->
+
+使用を禁止するアクションを検出する。
+
+### 設定
+
+```yaml
+github:
+  actions:
+    forbidden:
+      - path: ".github/workflows/**/*.yml"
+        uses: "actions/create-release"
+        message: "release-please を使ってください。"
+        severity: warn
+      # 複数禁止は配列でまとめられる
+      - path: ".github/workflows/**/*.yml"
+        uses:
+          - "actions/create-release"
+          - "actions/upload-release-asset"
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象 glob |
+| `uses` | string \| string[] | Yes | — | 禁止アクション（前方一致）。配列で複数指定可 |
+| `message` | string | No | — | エラーメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+---
+
+## 3. actions.pinned
 
 <!-- monban:ref ../src/rules/github/pinned.ts sha256:2bdd15a8cbd7f1951916c5d9d91fddfb6ef311ee9c26abceb735d9ba94452b69 -->
 
@@ -143,76 +213,6 @@ github:
 ERROR [actions.pinned] .github/workflows/test.yml
   ハッシュ固定されていません: actions/checkout@v4
 ```
-
----
-
-## 2. actions.required
-
-<!-- monban:ref ../src/rules/github/required.ts sha256:2f2ae5a0de6966983aa3e172b959da82ef95f068ab8b5672fb3baf4ead84c1d9 -->
-
-必須ワークフローファイルの存在と、ワークフロー内の必須ステップを検証する。
-
-### 設定
-
-```yaml
-github:
-  actions:
-    required:
-      - file: ".github/workflows/test.yml"        # 存在チェック
-      - path: ".github/workflows/test.yml"        # ステップ存在チェック
-        steps: ["actions/checkout", "actions/setup-node"]
-```
-
-### フィールド
-
-| フィールド | 型 | 必須 | 説明 |
-|-----------|-----|------|------|
-| `file` | string | No* | 必須ワークフローファイルのパス |
-| `path` | string | No* | 対象ワークフローファイルのパス |
-| `steps` | string[] | No | 必須ステップ（`uses` の前方一致） |
-
-\* `file` または `path` + `steps` のいずれかが必須。
-
-### 出力例
-
-```
-ERROR [actions.required] .github/workflows/lint.yml
-  必須ワークフローが見つかりません。
-```
-
----
-
-## 3. actions.forbidden
-
-<!-- monban:ref ../src/rules/github/forbidden.ts sha256:d52b87a8fe6081b2f202197468e2ede3fb010045c36117302d34ee6e80ec7fc9 -->
-
-使用を禁止するアクションを検出する。
-
-### 設定
-
-```yaml
-github:
-  actions:
-    forbidden:
-      - path: ".github/workflows/**/*.yml"
-        uses: "actions/create-release"
-        message: "release-please を使ってください。"
-        severity: warn
-      # 複数禁止は配列でまとめられる
-      - path: ".github/workflows/**/*.yml"
-        uses:
-          - "actions/create-release"
-          - "actions/upload-release-asset"
-```
-
-### フィールド
-
-| フィールド | 型 | 必須 | デフォルト | 説明 |
-|-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象 glob |
-| `uses` | string \| string[] | Yes | — | 禁止アクション（前方一致）。配列で複数指定可 |
-| `message` | string | No | — | エラーメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
 
 ---
 

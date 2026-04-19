@@ -22,13 +22,13 @@ monban deps --json             # JSON 出力
 
 | # | ルール | 概要 |
 |---|--------|------|
-| 1 | `existence` | レジストリに存在しない依存名を検出する（hallucination / slopsquat 対策） |
-| 2 | `freshness` | 公開から閾値以内の新規パッケージを検出する |
-| 3 | `popularity` | 週間ダウンロード数が閾値未満のパッケージを検出する |
+| 1 | `allowed` | allowlist（指定名のみ許可） |
+| 2 | `forbidden` | denylist（指定名を禁止） |
+| 3 | `existence` | レジストリに存在しない依存名を検出する（hallucination / slopsquat 対策） |
 | 4 | `cross_ecosystem` | 別エコシステムにしか存在しない名前の要求を検出する |
 | 5 | `typosquat` | 人気パッケージと編集距離が近い類似名を検出する |
-| 6 | `allowed` | allowlist（指定名のみ許可） |
-| 7 | `forbidden` | denylist（指定名を禁止） |
+| 6 | `freshness` | 公開から閾値以内の新規パッケージを検出する |
+| 7 | `popularity` | 週間ダウンロード数が閾値未満のパッケージを検出する |
 | 8 | `install_scripts` | npm lifecycle hooks（preinstall / install / postinstall / prepare）の宣言を検出する |
 | 9 | `git_dependency` | レジストリ外のソース（git+ / file: / URL 直指定）の依存を検出する |
 | 10 | `floating_version` | `^` / `~` / `*` / `latest` / 上限なし `>=` の浮動バージョンを検出する |
@@ -61,30 +61,6 @@ exclude:
   - "**/vendor/**"
 
 deps:
-  existence:
-    - path: "package.json"
-    - path: "pyproject.toml"
-    - path: ".github/workflows/**/*.yml"
-
-  freshness:
-    - path: "package.json"
-      max_age_hours: 24
-      severity: warn
-
-  popularity:
-    - path: "package.json"
-      min_downloads: 100
-      severity: warn
-
-  cross_ecosystem:
-    - path: "package.json"
-      severity: warn
-
-  typosquat:
-    - path: "package.json"
-      max_distance: 2
-      severity: warn
-
   allowed:
     - path: "package.json"
       names:
@@ -97,6 +73,30 @@ deps:
         - event-stream
         - flatmap-stream
       message: "過去に compromise されたパッケージです。"
+
+  existence:
+    - path: "package.json"
+    - path: "pyproject.toml"
+    - path: ".github/workflows/**/*.yml"
+
+  cross_ecosystem:
+    - path: "package.json"
+      severity: warn
+
+  typosquat:
+    - path: "package.json"
+      max_distance: 2
+      severity: warn
+
+  freshness:
+    - path: "package.json"
+      max_age_hours: 24
+      severity: warn
+
+  popularity:
+    - path: "package.json"
+      min_downloads: 100
+      severity: warn
 
   install_scripts:
     - path: "**/package.json"
@@ -115,7 +115,79 @@ deps:
 
 ---
 
-## 1. existence
+## 1. allowed
+
+<!-- monban:ref ../src/rules/deps/allowed.ts sha256:eb03f7384054b249e24e1996de525ca051ba38f5240f30ce807930149bb7eed1 -->
+
+allowlist。指定した名前のみ許可し、それ以外をすべて違反とする。組織の承認済みリスト運用に用いる。
+
+### 設定
+
+```yaml
+deps:
+  allowed:
+    - path: "package.json"
+      names:
+        - "@myorg/*"       # glob 可
+        - express
+        - react
+        - react-dom
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|
+| `path` | string | Yes | — | 対象マニフェストの glob |
+| `names` | string[] | Yes | — | 許可するパッケージ名（glob 可） |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+### 出力例
+
+```
+ERROR [allowed] package.json:6 some-random-lib
+  allowlist に含まれていません。
+```
+
+---
+
+## 2. forbidden
+
+<!-- monban:ref ../src/rules/deps/forbidden.ts sha256:128f2581f53d375c65c4723608cc15efb437dc9b72f23146b3e00b4e414df841 -->
+
+denylist。指定した名前を禁止する。過去に compromise されたパッケージや、内部的に置き換え済みのパッケージに使う。
+
+### 設定
+
+```yaml
+deps:
+  forbidden:
+    - path: "package.json"
+      names:
+        - event-stream
+        - flatmap-stream
+      message: "過去に compromise されたパッケージです。"
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|
+| `path` | string | Yes | — | 対象マニフェストの glob |
+| `names` | string[] | Yes | — | 禁止するパッケージ名（glob 可） |
+| `message` | string | No | — | エラーメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+### 出力例
+
+```
+ERROR [forbidden] package.json:9 event-stream
+  過去に compromise されたパッケージです。
+```
+
+---
+
+## 3. existence
 
 <!-- monban:ref ../src/rules/deps/existence.ts sha256:f5fa699c97824c08b3d5109772ffbde73d6d33bd254b8ea73345df87db5165c2 -->
 
@@ -157,72 +229,6 @@ ERROR [existence] package.json:3 ai-json-helper
 ERROR [existence] package.json:4 reqeusts
   npm レジストリに存在しません。
   PyPI には同名の近接パッケージがあります（requests）。
-```
-
----
-
-## 2. freshness
-
-<!-- monban:ref ../src/rules/deps/freshness.ts sha256:a54b9ce4097cb82e2ab4864d78f0824c4350a541534321686548c91a426d5174 -->
-
-公開から一定時間内の新規パッケージを警告する。新規パッケージは slopsquat のターゲットになりやすい。
-
-### 設定
-
-```yaml
-deps:
-  freshness:
-    - path: "package.json"
-      max_age_hours: 24
-      severity: warn
-```
-
-### フィールド
-
-| フィールド | 型 | 必須 | デフォルト | 説明 |
-|---|---|---|---|---|
-| `path` | string | Yes | — | 対象マニフェストの glob |
-| `max_age_hours` | number | No | `24` | これ未満の経過時間を違反とする |
-| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
-
-### 出力例
-
-```
-WARN  [freshness] package.json:5 brand-new-logger
-  公開から 3 時間（閾値 24h 未満）。
-```
-
----
-
-## 3. popularity
-
-<!-- monban:ref ../src/rules/deps/popularity.ts sha256:fe78df4f2e795c2d6b1f87ddc2d51a6abe0c2fc8ada12f48eee7201adb21b082 -->
-
-週間ダウンロード数が閾値未満のパッケージを警告する。
-
-### 設定
-
-```yaml
-deps:
-  popularity:
-    - path: "package.json"
-      min_downloads: 100
-      severity: warn
-```
-
-### フィールド
-
-| フィールド | 型 | 必須 | デフォルト | 説明 |
-|---|---|---|---|---|
-| `path` | string | Yes | — | 対象マニフェストの glob |
-| `min_downloads` | number | No | `100` | これ未満の週間ダウンロード数を違反とする |
-| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
-
-### 出力例
-
-```
-WARN  [popularity] package.json:5 brand-new-logger
-  週間ダウンロード数 2（閾値 100 未満）。
 ```
 
 ---
@@ -292,23 +298,20 @@ WARN  [typosquat] package.json:7 lodahs
 
 ---
 
-## 6. allowed
+## 6. freshness
 
-<!-- monban:ref ../src/rules/deps/allowed.ts sha256:eb03f7384054b249e24e1996de525ca051ba38f5240f30ce807930149bb7eed1 -->
+<!-- monban:ref ../src/rules/deps/freshness.ts sha256:a54b9ce4097cb82e2ab4864d78f0824c4350a541534321686548c91a426d5174 -->
 
-allowlist。指定した名前のみ許可し、それ以外をすべて違反とする。組織の承認済みリスト運用に用いる。
+公開から一定時間内の新規パッケージを警告する。新規パッケージは slopsquat のターゲットになりやすい。
 
 ### 設定
 
 ```yaml
 deps:
-  allowed:
+  freshness:
     - path: "package.json"
-      names:
-        - "@myorg/*"       # glob 可
-        - express
-        - react
-        - react-dom
+      max_age_hours: 24
+      severity: warn
 ```
 
 ### フィールド
@@ -316,34 +319,32 @@ deps:
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |---|---|---|---|---|
 | `path` | string | Yes | — | 対象マニフェストの glob |
-| `names` | string[] | Yes | — | 許可するパッケージ名（glob 可） |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `max_age_hours` | number | No | `24` | これ未満の経過時間を違反とする |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
 
 ### 出力例
 
 ```
-ERROR [allowed] package.json:6 some-random-lib
-  allowlist に含まれていません。
+WARN  [freshness] package.json:5 brand-new-logger
+  公開から 3 時間（閾値 24h 未満）。
 ```
 
 ---
 
-## 7. forbidden
+## 7. popularity
 
-<!-- monban:ref ../src/rules/deps/forbidden.ts sha256:128f2581f53d375c65c4723608cc15efb437dc9b72f23146b3e00b4e414df841 -->
+<!-- monban:ref ../src/rules/deps/popularity.ts sha256:fe78df4f2e795c2d6b1f87ddc2d51a6abe0c2fc8ada12f48eee7201adb21b082 -->
 
-denylist。指定した名前を禁止する。過去に compromise されたパッケージや、内部的に置き換え済みのパッケージに使う。
+週間ダウンロード数が閾値未満のパッケージを警告する。
 
 ### 設定
 
 ```yaml
 deps:
-  forbidden:
+  popularity:
     - path: "package.json"
-      names:
-        - event-stream
-        - flatmap-stream
-      message: "過去に compromise されたパッケージです。"
+      min_downloads: 100
+      severity: warn
 ```
 
 ### フィールド
@@ -351,15 +352,14 @@ deps:
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |---|---|---|---|---|
 | `path` | string | Yes | — | 対象マニフェストの glob |
-| `names` | string[] | Yes | — | 禁止するパッケージ名（glob 可） |
-| `message` | string | No | — | エラーメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `min_downloads` | number | No | `100` | これ未満の週間ダウンロード数を違反とする |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
 
 ### 出力例
 
 ```
-ERROR [forbidden] package.json:9 event-stream
-  過去に compromise されたパッケージです。
+WARN  [popularity] package.json:5 brand-new-logger
+  週間ダウンロード数 2（閾値 100 未満）。
 ```
 
 ---
