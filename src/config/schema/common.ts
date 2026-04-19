@@ -2,6 +2,7 @@ import type {
 	ContentRequiredScope,
 	GithubPinnedTarget,
 	NamingStyle,
+	RuleHints,
 	Severity,
 } from "../../types.js";
 
@@ -120,4 +121,20 @@ export function validatePositiveInteger(
 		throw new Error(`${label}.${key} must be a positive integer`);
 	}
 	return value;
+}
+
+/**
+ * Apply optional `fail_text` and `docs_url` hints onto a rule object.
+ * These hints flow through to every RuleResult the rule produces.
+ */
+export function applyRuleHints<T extends RuleHints>(
+	rule: T,
+	raw: Record<string, unknown>,
+	label: string,
+): T {
+	const failText = optionalString(raw, "fail_text", label);
+	if (failText !== undefined) rule.fail_text = failText;
+	const docsUrl = optionalString(raw, "docs_url", label);
+	if (docsUrl !== undefined) rule.docs_url = docsUrl;
+	return rule;
 }

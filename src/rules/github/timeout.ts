@@ -23,6 +23,8 @@ export async function checkGithubTimeout(
 						path: wf.file,
 						message: `timeout-minutes が設定されていません (job: ${jobName})`,
 						severity: "error",
+						fail_text: rule.fail_text,
+						docs_url: rule.docs_url,
 					});
 					continue;
 				}
@@ -32,6 +34,8 @@ export async function checkGithubTimeout(
 						path: wf.file,
 						message: `timeout-minutes が数値ではありません (job: ${jobName})`,
 						severity: "error",
+						fail_text: rule.fail_text,
+						docs_url: rule.docs_url,
 					});
 					continue;
 				}
@@ -41,6 +45,8 @@ export async function checkGithubTimeout(
 						path: wf.file,
 						message: `timeout-minutes が上限 ${rule.max} 分を超えています: ${value} (job: ${jobName})`,
 						severity: "error",
+						fail_text: rule.fail_text,
+						docs_url: rule.docs_url,
 					});
 				}
 			}

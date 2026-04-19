@@ -12,6 +12,7 @@ import type {
 	DepsTyposquatRule,
 } from "../../types.js";
 import {
+	applyRuleHints,
 	assertObject,
 	optionalString,
 	optionalStringArray,
@@ -119,6 +120,7 @@ function validateDepsExistenceRule(
 	if (severity !== undefined) rule.severity = severity;
 	const exclude = optionalStringArray(raw, "exclude", label);
 	if (exclude !== undefined) rule.exclude = exclude;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -137,6 +139,7 @@ function validateDepsFreshnessRule(
 	if (hours !== undefined) rule.max_age_hours = hours;
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -155,6 +158,7 @@ function validateDepsPopularityRule(
 	if (min !== undefined) rule.min_downloads = min;
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -171,6 +175,7 @@ function validateDepsCrossEcosystemRule(
 	};
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -191,6 +196,7 @@ function validateDepsTyposquatRule(
 	if (targets !== undefined) rule.targets = targets;
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -213,6 +219,7 @@ function validateDepsAllowedRule(
 	};
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -237,6 +244,7 @@ function validateDepsDeniedRule(
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -264,6 +272,7 @@ function validateDepsInstallScriptsRule(
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -284,6 +293,7 @@ function validateDepsGitDependencyRule(
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -304,5 +314,6 @@ function validateDepsFloatingVersionRule(
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }

@@ -107,6 +107,8 @@ export async function checkContentForbidden(
 						path: file,
 						message: rule.message ?? "BOM (Byte Order Mark) が検出されました。",
 						severity: rule.severity ?? "error",
+						fail_text: rule.fail_text,
+						docs_url: rule.docs_url,
 					});
 				}
 			}
@@ -133,6 +135,8 @@ export async function checkContentForbidden(
 								path: `${file}:${lineNum}`,
 								message: rule.message ?? `禁止パターン検出: ${rule.pattern}`,
 								severity: rule.severity ?? "error",
+								fail_text: rule.fail_text,
+								docs_url: rule.docs_url,
 							});
 						}
 					}

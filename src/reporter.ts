@@ -59,11 +59,7 @@ function reportResults(
 function reportJson(ruleResults: CategoryRuleResult[]): void {
 	const output = ruleResults.map((r) => ({
 		rule: r.name,
-		violations: r.results.map((v) => ({
-			path: v.path,
-			message: v.message,
-			severity: v.severity,
-		})),
+		violations: r.results.map((v) => withRemediation(v)),
 	}));
 	console.log(JSON.stringify(output, null, 2));
 }
@@ -73,14 +69,31 @@ function reportAllJson(groups: CategoryGroup[]): void {
 	for (const g of groups) {
 		output[g.category] = g.results.map((r) => ({
 			rule: r.name,
-			violations: r.results.map((v) => ({
-				path: v.path,
-				message: v.message,
-				severity: v.severity,
-			})),
+			violations: r.results.map((v) => withRemediation(v)),
 		}));
 	}
 	console.log(JSON.stringify(output, null, 2));
+}
+
+function withRemediation(v: {
+	path: string;
+	message: string;
+	severity: string;
+	fail_text?: string;
+	docs_url?: string;
+}): Record<string, unknown> {
+	const out: Record<string, unknown> = {
+		path: v.path,
+		message: v.message,
+		severity: v.severity,
+	};
+	if (v.fail_text || v.docs_url) {
+		const remediation: Record<string, unknown> = {};
+		if (v.fail_text) remediation.fail_text = v.fail_text;
+		if (v.docs_url) remediation.docs_url = v.docs_url;
+		out.remediation = remediation;
+	}
+	return out;
 }
 
 function reportText(title: string, ruleResults: CategoryRuleResult[]): void {
@@ -144,10 +157,7 @@ function reportAllText(groups: CategoryGroup[]): void {
 		for (const g of groups) {
 			for (const rule of g.results) {
 				for (const v of rule.results) {
-					const prefix = v.severity === "error" ? "ERROR" : "WARN ";
-					console.log(`${prefix} [${v.rule}] ${v.path}`);
-					console.log(`  ${v.message}`);
-					console.log("");
+					printViolation(v);
 				}
 			}
 		}
@@ -182,12 +192,25 @@ function printViolationDetails(ruleResults: CategoryRuleResult[]): void {
 	console.log("");
 	for (const rule of ruleResults) {
 		for (const v of rule.results) {
-			const prefix = v.severity === "error" ? "ERROR" : "WARN ";
-			console.log(`${prefix} [${v.rule}] ${v.path}`);
-			console.log(`  ${v.message}`);
-			console.log("");
+			printViolation(v);
 		}
 	}
+}
+
+function printViolation(v: {
+	rule: string;
+	path: string;
+	message: string;
+	severity: string;
+	fail_text?: string;
+	docs_url?: string;
+}): void {
+	const prefix = v.severity === "error" ? "ERROR" : "WARN ";
+	console.log(`${prefix} [${v.rule}] ${v.path}`);
+	console.log(`  ${v.message}`);
+	if (v.fail_text) console.log(`  Fix: ${v.fail_text}`);
+	if (v.docs_url) console.log(`  Docs: ${v.docs_url}`);
+	console.log("");
 }
 
 function printSummaryFooter(

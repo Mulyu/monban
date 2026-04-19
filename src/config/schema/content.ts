@@ -6,6 +6,7 @@ import type {
 	ContentSizeRule,
 } from "../../types.js";
 import {
+	applyRuleHints,
 	assertObject,
 	CONTENT_REQUIRED_SCOPES,
 	optionalString,
@@ -117,6 +118,7 @@ function validateContentForbiddenRule(
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -156,6 +158,7 @@ function validateContentRequiredRule(
 
 	rule.message = optionalString(raw, "message", label);
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -182,5 +185,6 @@ function validateContentSizeRule(
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }

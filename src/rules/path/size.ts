@@ -28,6 +28,8 @@ export async function checkPathSize(
 						rule.message ??
 						`サイズ ${formatBytes(info.size)} が上限 ${formatBytes(rule.max_bytes)} を超えています。`,
 					severity: rule.severity ?? "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 		}

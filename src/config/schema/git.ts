@@ -17,6 +17,7 @@ import type {
 	GitTrailerRequireEntry,
 } from "../../types.js";
 import {
+	applyRuleHints,
 	assertObject,
 	optionalString,
 	optionalStringArray,
@@ -68,6 +69,7 @@ function validateBranchNameRule(raw: unknown): GitBranchNameRule {
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -93,6 +95,7 @@ function validateTagNameRule(raw: unknown): GitTagNameRule {
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -187,6 +190,7 @@ function validateCommitMessageRule(raw: unknown): GitCommitMessageRule {
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -213,6 +217,7 @@ function validateCommitTrailersRule(raw: unknown): GitCommitTrailersRule {
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -289,6 +294,7 @@ function validateCommitReferencesRule(raw: unknown): GitCommitReferencesRule {
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -312,6 +318,7 @@ function validateDiffSizeRule(raw: unknown): GitDiffSizeRule {
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -340,6 +347,7 @@ function validateDiffIgnoredRule(raw: unknown): GitDiffIgnoredRule {
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 

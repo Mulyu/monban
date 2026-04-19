@@ -54,6 +54,8 @@ export async function checkDocLink(
 							path: `${file}:${lineNum}`,
 							message: `リンク切れ: ${href}`,
 							severity: "error",
+							fail_text: rule.fail_text,
+							docs_url: rule.docs_url,
 						});
 					}
 				}

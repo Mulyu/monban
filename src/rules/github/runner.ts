@@ -31,6 +31,8 @@ export async function checkGithubRunner(
 							path: wf.file,
 							message: `許可されていないランナー: ${r} (job: ${jobName})`,
 							severity: "error",
+							fail_text: rule.fail_text,
+							docs_url: rule.docs_url,
 						});
 					}
 				}

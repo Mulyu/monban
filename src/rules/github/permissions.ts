@@ -24,6 +24,8 @@ export async function checkGithubPermissions(
 					path: wf.file,
 					message: "permissions: が宣言されていません。",
 					severity: "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 
@@ -33,6 +35,8 @@ export async function checkGithubPermissions(
 					path: wf.file,
 					message: `禁止された permissions スカラー: ${topLevel}`,
 					severity: "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 
@@ -44,6 +48,8 @@ export async function checkGithubPermissions(
 						path: wf.file,
 						message: `禁止された permissions スカラー: ${jobPerm} (job: ${jobName})`,
 						severity: "error",
+						fail_text: rule.fail_text,
+						docs_url: rule.docs_url,
 					});
 				}
 			}

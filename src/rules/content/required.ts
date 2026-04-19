@@ -54,6 +54,8 @@ export async function checkContentRequired(
 						rule.message ??
 						`必須パターンが見つかりません: ${rule.pattern}${scopeLabel}`,
 					severity: "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 		}

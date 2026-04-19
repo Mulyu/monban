@@ -44,6 +44,8 @@ export async function checkPathCaseConflict(
 					rule.message ??
 					`大文字小文字違いで衝突するパス: ${sorted.join(", ")}`,
 				severity: rule.severity ?? "error",
+				fail_text: rule.fail_text,
+				docs_url: rule.docs_url,
 			});
 		}
 	}

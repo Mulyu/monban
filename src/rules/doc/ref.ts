@@ -45,6 +45,8 @@ export async function checkDocRef(
 							path: `${file}:${lineNum}`,
 							message: `参照先ファイルが見つかりません: ${refPath}`,
 							severity: "error",
+							fail_text: rule.fail_text,
+							docs_url: rule.docs_url,
 						});
 						continue;
 					}
@@ -59,6 +61,8 @@ export async function checkDocRef(
 							path: `${file}:${lineNum}`,
 							message: `ハッシュ不一致: ${refPath} (expected: ${expectedHash.slice(0, 12)}... actual: ${actualHash.slice(0, 12)}...)`,
 							severity: "error",
+							fail_text: rule.fail_text,
+							docs_url: rule.docs_url,
 						});
 					}
 				}

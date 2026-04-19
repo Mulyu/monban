@@ -30,6 +30,8 @@ export async function checkContentSize(
 						rule.message ??
 						`行数 ${lines} が上限 ${rule.max_lines} を超えています。`,
 					severity: rule.severity ?? "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 		}

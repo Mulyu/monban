@@ -18,6 +18,7 @@ import type {
 	GithubTriggersRule,
 } from "../../types.js";
 import {
+	applyRuleHints,
 	assertObject,
 	optionalString,
 	optionalStringArray,
@@ -153,6 +154,7 @@ function validateGithubActionsDangerRule(
 	};
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -170,6 +172,7 @@ function validateGithubActionsInjectionRule(
 	if (severity !== undefined) rule.severity = severity;
 	const allow = optionalStringArray(raw, "allow_contexts", label);
 	if (allow !== undefined) rule.allow_contexts = allow;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -216,6 +219,7 @@ function validateGithubPinnedRule(
 		rule.targets = targets as GithubPinnedTarget[];
 	}
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -236,6 +240,7 @@ function validateGithubRequiredRule(
 		throw new Error(`${label} must have either "file" or "path" with "steps"`);
 	}
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -256,6 +261,7 @@ function validateGithubForbiddenRule(
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -280,6 +286,7 @@ function validateGithubPermissionsRule(
 	const forbid = optionalStringArray(raw, "forbid", label);
 	if (forbid !== undefined) rule.forbid = forbid;
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -305,6 +312,7 @@ function validateGithubTriggersRule(
 		);
 	}
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -415,5 +423,6 @@ function validateGithubCodeownersRule(
 		owners,
 	};
 	rule.message = optionalString(raw, "message", label);
+	applyRuleHints(rule, raw, label);
 	return rule;
 }

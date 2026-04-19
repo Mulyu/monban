@@ -18,6 +18,8 @@ export async function checkGithubForbidden(
 						path: wf.file,
 						message: rule.message ?? `禁止アクション検出: ${uses}`,
 						severity: rule.severity ?? "error",
+						fail_text: rule.fail_text,
+						docs_url: rule.docs_url,
 					});
 				}
 			}

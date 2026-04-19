@@ -13,6 +13,7 @@ import type {
 	RequiredRule,
 } from "../../types.js";
 import {
+	applyRuleHints,
 	assertObject,
 	NAMING_STYLES,
 	optionalString,
@@ -103,6 +104,7 @@ function validateForbiddenRule(
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -151,6 +153,7 @@ function validateRequiredRule(
 		throw new Error(`${label} must have either "files" or "companions"`);
 	}
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -185,6 +188,7 @@ function validateNamingRule(
 	rule.prefix = optionalString(raw, "prefix", label);
 	rule.suffix = optionalString(raw, "suffix", label);
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -242,6 +246,7 @@ function validateCountRule(
 
 	rule.exclude = optionalStringArray(raw, "exclude", label);
 
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -265,6 +270,7 @@ function validateHashRule(
 	rule.message = optionalString(raw, "message", label);
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -289,6 +295,7 @@ function validateSizeRule(
 	rule.message = optionalString(raw, "message", label);
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }
 
@@ -307,5 +314,6 @@ function validateCaseConflictRule(
 	rule.message = optionalString(raw, "message", label);
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
+	applyRuleHints(rule, raw, label);
 	return rule;
 }

@@ -35,6 +35,8 @@ export async function checkGithubPinned(
 							path: wf.file,
 							message: `ハッシュ固定されていません: ${entry.uses}`,
 							severity: "error",
+							fail_text: rule.fail_text,
+							docs_url: rule.docs_url,
 						});
 					}
 					continue;
@@ -47,6 +49,8 @@ export async function checkGithubPinned(
 						path: wf.file,
 						message: `ハッシュ固定されていません: ${entry.uses}`,
 						severity: "error",
+						fail_text: rule.fail_text,
+						docs_url: rule.docs_url,
 					});
 					continue;
 				}
@@ -57,6 +61,8 @@ export async function checkGithubPinned(
 						path: wf.file,
 						message: `ハッシュ固定されていません: ${entry.uses}`,
 						severity: "error",
+						fail_text: rule.fail_text,
+						docs_url: rule.docs_url,
 					});
 				}
 			}

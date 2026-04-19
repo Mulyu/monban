@@ -58,6 +58,8 @@ export async function checkGithubConsistency(
 					path: file,
 					message: `${action} のバージョンが一貫していません: ${refList}`,
 					severity: "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 		}

@@ -29,6 +29,8 @@ export async function checkGithubSecrets(
 						path: wf.file,
 						message: `許可されていないシークレット参照: ${name}`,
 						severity: "error",
+						fail_text: rule.fail_text,
+						docs_url: rule.docs_url,
 					});
 				}
 			}

@@ -52,6 +52,8 @@ function validateName(
 			path: entryPath,
 			message: `prefix "${rule.prefix}" が期待されています。\n  現在: ${parsePath(entryPath).base}`,
 			severity: "error",
+			fail_text: rule.fail_text,
+			docs_url: rule.docs_url,
 		});
 		return results;
 	}
@@ -62,6 +64,8 @@ function validateName(
 			path: entryPath,
 			message: `suffix "${rule.suffix}" が期待されています。\n  現在: ${parsePath(entryPath).base}`,
 			severity: "error",
+			fail_text: rule.fail_text,
+			docs_url: rule.docs_url,
 		});
 		return results;
 	}

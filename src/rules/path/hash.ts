@@ -27,6 +27,8 @@ export async function checkPathHash(
 				message:
 					rule.message ?? `ハッシュ照合対象が見つかりません: ${rule.path}`,
 				severity: rule.severity ?? "error",
+				fail_text: rule.fail_text,
+				docs_url: rule.docs_url,
 			});
 			continue;
 		}
@@ -42,6 +44,8 @@ export async function checkPathHash(
 						rule.message ??
 						`ハッシュ不一致: expected ${expected.slice(0, 12)}... actual ${actual.slice(0, 12)}...`,
 					severity: rule.severity ?? "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 		}

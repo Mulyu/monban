@@ -1,17 +1,30 @@
 export type Severity = "error" | "warn";
 
+export interface Remediation {
+	fail_text?: string;
+	docs_url?: string;
+}
+
+/** Hints attached at config time and propagated to every result the rule produces. */
+export interface RuleHints {
+	fail_text?: string;
+	docs_url?: string;
+}
+
 export interface RuleResult {
 	rule: string;
 	path: string;
 	message: string;
 	severity: Severity;
+	fail_text?: string;
+	docs_url?: string;
 }
 
 // --- Path config types ---
 
 export type PathEntryType = "file" | "directory" | "symlink";
 
-export interface ForbiddenRule {
+export interface ForbiddenRule extends RuleHints {
 	path: string;
 	type?: PathEntryType;
 	message?: string;
@@ -24,7 +37,7 @@ export interface CompanionDef {
 	root?: boolean;
 }
 
-export interface RequiredRule {
+export interface RequiredRule extends RuleHints {
 	path: string;
 	exclude?: string[];
 	files?: string[];
@@ -33,7 +46,7 @@ export interface RequiredRule {
 
 export type NamingStyle = "pascal" | "camel" | "kebab" | "snake";
 
-export interface NamingRule {
+export interface NamingRule extends RuleHints {
 	path: string;
 	target?: "file" | "directory";
 	style: NamingStyle;
@@ -41,26 +54,26 @@ export interface NamingRule {
 	suffix?: string;
 }
 
-export interface DepthRule {
+export interface DepthRule extends RuleHints {
 	path: string;
 	max: number;
 }
 
-export interface CountRule {
+export interface CountRule extends RuleHints {
 	path: string;
 	max?: number;
 	min?: number;
 	exclude?: string[];
 }
 
-export interface PathHashRule {
+export interface PathHashRule extends RuleHints {
 	path: string;
 	sha256: string;
 	message?: string;
 	severity?: Severity;
 }
 
-export interface PathSizeRule {
+export interface PathSizeRule extends RuleHints {
 	path: string;
 	exclude?: string[];
 	max_bytes: number;
@@ -68,7 +81,7 @@ export interface PathSizeRule {
 	severity?: Severity;
 }
 
-export interface PathCaseConflictRule {
+export interface PathCaseConflictRule extends RuleHints {
 	path: string;
 	exclude?: string[];
 	message?: string;
@@ -88,7 +101,7 @@ export interface PathConfig {
 
 // --- Content config types ---
 
-export interface ContentForbiddenRule {
+export interface ContentForbiddenRule extends RuleHints {
 	path: string;
 	exclude?: string[];
 	pattern?: string;
@@ -103,7 +116,7 @@ export interface ContentForbiddenRule {
 
 export type ContentRequiredScope = "file" | "first_line" | "last_line";
 
-export interface ContentRequiredRule {
+export interface ContentRequiredRule extends RuleHints {
 	path: string;
 	exclude?: string[];
 	pattern: string;
@@ -112,7 +125,7 @@ export interface ContentRequiredRule {
 	message?: string;
 }
 
-export interface ContentSizeRule {
+export interface ContentSizeRule extends RuleHints {
 	path: string;
 	exclude?: string[];
 	max_lines: number;
@@ -128,11 +141,11 @@ export interface ContentConfig {
 
 // --- Doc config types ---
 
-export interface DocRefRule {
+export interface DocRefRule extends RuleHints {
 	path: string;
 }
 
-export interface DocLinkRule {
+export interface DocLinkRule extends RuleHints {
 	path: string;
 }
 
@@ -145,72 +158,72 @@ export interface DocConfig {
 
 export type GithubPinnedTarget = "action" | "reusable" | "docker";
 
-export interface GithubPinnedRule {
+export interface GithubPinnedRule extends RuleHints {
 	path: string;
 	targets?: GithubPinnedTarget[];
 }
 
-export interface GithubRequiredRule {
+export interface GithubRequiredRule extends RuleHints {
 	file?: string;
 	path?: string;
 	steps?: string[];
 }
 
-export interface GithubForbiddenRule {
+export interface GithubForbiddenRule extends RuleHints {
 	path: string;
 	uses: string;
 	message?: string;
 	severity?: Severity;
 }
 
-export interface GithubPermissionsRule {
+export interface GithubPermissionsRule extends RuleHints {
 	path: string;
 	required?: boolean;
 	forbid?: string[];
 }
 
-export interface GithubTriggersRule {
+export interface GithubTriggersRule extends RuleHints {
 	path: string;
 	allowed?: string[];
 	forbidden?: string[];
 }
 
-export interface GithubRunnerRule {
+export interface GithubRunnerRule extends RuleHints {
 	path: string;
 	allowed: string[];
 }
 
-export interface GithubTimeoutRule {
+export interface GithubTimeoutRule extends RuleHints {
 	path: string;
 	max: number;
 }
 
-export interface GithubConcurrencyRule {
+export interface GithubConcurrencyRule extends RuleHints {
 	path: string;
 }
 
-export interface GithubConsistencyRule {
+export interface GithubConsistencyRule extends RuleHints {
 	path: string;
 	actions: string[];
 }
 
-export interface GithubSecretsRule {
+export interface GithubSecretsRule extends RuleHints {
 	path: string;
 	allowed: string[];
 }
 
-export interface GithubCodeownersRule {
+export interface GithubCodeownersRule extends RuleHints {
 	path: string;
 	owners: string[];
 	message?: string;
 }
 
-export interface GithubActionsDangerRule {
+export interface GithubActionsDangerRule extends RuleHints {
 	path: string;
 	severity?: Severity;
 }
 
-export interface GithubActionsInjectionRule {
+export interface GithubActionsInjectionRule extends RuleHints {
 	path: string;
 	severity?: Severity;
 	allow_contexts?: string[];
@@ -250,50 +263,50 @@ export type DepsEcosystem =
 	| "go"
 	| "github-actions";
 
-export interface DepsExistenceRule {
+export interface DepsExistenceRule extends RuleHints {
 	path: string;
 	severity?: Severity;
 	exclude?: string[];
 }
 
-export interface DepsFreshnessRule {
+export interface DepsFreshnessRule extends RuleHints {
 	path: string;
 	max_age_hours?: number;
 	severity?: Severity;
 }
 
-export interface DepsPopularityRule {
+export interface DepsPopularityRule extends RuleHints {
 	path: string;
 	min_downloads?: number;
 	severity?: Severity;
 }
 
-export interface DepsCrossEcosystemRule {
+export interface DepsCrossEcosystemRule extends RuleHints {
 	path: string;
 	severity?: Severity;
 }
 
-export interface DepsTyposquatRule {
+export interface DepsTyposquatRule extends RuleHints {
 	path: string;
 	max_distance?: number;
 	targets?: string[];
 	severity?: Severity;
 }
 
-export interface DepsAllowedRule {
+export interface DepsAllowedRule extends RuleHints {
 	path: string;
 	names: string[];
 	severity?: Severity;
 }
 
-export interface DepsDeniedRule {
+export interface DepsDeniedRule extends RuleHints {
 	path: string;
 	names: string[];
 	message?: string;
 	severity?: Severity;
 }
 
-export interface DepsInstallScriptsRule {
+export interface DepsInstallScriptsRule extends RuleHints {
 	path: string;
 	exclude?: string[];
 	hooks?: string[];
@@ -301,14 +314,14 @@ export interface DepsInstallScriptsRule {
 	severity?: Severity;
 }
 
-export interface DepsGitDependencyRule {
+export interface DepsGitDependencyRule extends RuleHints {
 	path: string;
 	exclude?: string[];
 	message?: string;
 	severity?: Severity;
 }
 
-export interface DepsFloatingVersionRule {
+export interface DepsFloatingVersionRule extends RuleHints {
 	path: string;
 	exclude?: string[];
 	message?: string;
@@ -332,7 +345,7 @@ export interface DepsConfig {
 
 export type GitCommitMessagePreset = "conventional";
 
-export interface GitCommitMessageRule {
+export interface GitCommitMessageRule extends RuleHints {
 	preset?: GitCommitMessagePreset;
 	pattern?: string;
 	subject_max_length?: number;
@@ -359,14 +372,14 @@ export interface GitTrailerAllowEntry {
 	key: string;
 }
 
-export interface GitCommitTrailersRule {
+export interface GitCommitTrailersRule extends RuleHints {
 	deny?: GitTrailerDenyEntry[];
 	require?: GitTrailerRequireEntry[];
 	allow?: GitTrailerAllowEntry[];
 	severity?: Severity;
 }
 
-export interface GitDiffSizeRule {
+export interface GitDiffSizeRule extends RuleHints {
 	max_files?: number;
 	max_insertions?: number;
 	max_deletions?: number;
@@ -377,7 +390,7 @@ export interface GitDiffSizeRule {
 
 export type GitDiffIgnoredScope = "diff" | "all";
 
-export interface GitDiffIgnoredRule {
+export interface GitDiffIgnoredRule extends RuleHints {
 	scope?: GitDiffIgnoredScope;
 	allow?: string[];
 	message?: string;
@@ -386,7 +399,7 @@ export interface GitDiffIgnoredRule {
 
 export type GitCommitReferencesScope = "all" | "any";
 
-export interface GitCommitReferencesRule {
+export interface GitCommitReferencesRule extends RuleHints {
 	required?: boolean;
 	patterns?: string[];
 	scope?: GitCommitReferencesScope;
@@ -406,14 +419,14 @@ export interface GitDiffConfig {
 	ignored?: GitDiffIgnoredRule;
 }
 
-export interface GitBranchNameRule {
+export interface GitBranchNameRule extends RuleHints {
 	pattern: string;
 	allow?: string[];
 	message?: string;
 	severity?: Severity;
 }
 
-export interface GitTagNameRule {
+export interface GitTagNameRule extends RuleHints {
 	pattern: string;
 	scope?: "all" | "recent";
 	limit?: number;

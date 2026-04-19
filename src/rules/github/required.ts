@@ -20,6 +20,8 @@ export async function checkGithubRequired(
 					path: rule.file,
 					message: "必須ワークフローが見つかりません。",
 					severity: "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 		}
@@ -35,6 +37,8 @@ export async function checkGithubRequired(
 					path: rule.path,
 					message: "ワークフローファイルが見つかりません。",
 					severity: "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 				continue;
 			}
@@ -55,6 +59,8 @@ export async function checkGithubRequired(
 						path: rule.path,
 						message: `必須ステップが見つかりません: ${requiredStep}`,
 						severity: "error",
+						fail_text: rule.fail_text,
+						docs_url: rule.docs_url,
 					});
 				}
 			}

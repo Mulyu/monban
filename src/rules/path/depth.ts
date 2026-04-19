@@ -29,6 +29,8 @@ export async function checkPathDepth(
 					path: entry,
 					message: `深度 ${depth} は上限 ${rule.max} を超えています (基準: ${basePath}/)`,
 					severity: "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 		}

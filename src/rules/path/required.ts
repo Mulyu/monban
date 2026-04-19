@@ -49,6 +49,8 @@ async function checkFiles(
 					path: `${dir}/`,
 					message: `必須${kind}が見つかりません: ${file}`,
 					severity: "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 		}

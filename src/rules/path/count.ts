@@ -28,6 +28,8 @@ export async function checkPathCount(
 				path: `${rule.path}/`,
 				message: `ファイル数 ${count} が上限 ${rule.max} を超えています。`,
 				severity: "error",
+				fail_text: rule.fail_text,
+				docs_url: rule.docs_url,
 			});
 		}
 
@@ -37,6 +39,8 @@ export async function checkPathCount(
 				path: `${rule.path}/`,
 				message: `ファイル数 ${count} が下限 ${rule.min} を下回っています。`,
 				severity: "error",
+				fail_text: rule.fail_text,
+				docs_url: rule.docs_url,
 			});
 		}
 	}

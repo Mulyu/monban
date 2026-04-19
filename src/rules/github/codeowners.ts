@@ -82,6 +82,8 @@ export async function checkGithubCodeowners(
 				message:
 					"CODEOWNERS が見つかりません (.github/CODEOWNERS / CODEOWNERS / docs/CODEOWNERS)",
 				severity: "error",
+				fail_text: rule.fail_text,
+				docs_url: rule.docs_url,
 			});
 		}
 		return results;
@@ -107,6 +109,8 @@ export async function checkGithubCodeowners(
 						rule.message ??
 						`CODEOWNERS で owner が割り当てられていません。期待: ${rule.owners.join(", ")}`,
 					severity: "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 				continue;
 			}
@@ -119,6 +123,8 @@ export async function checkGithubCodeowners(
 						rule.message ??
 						`CODEOWNERS の owner が不足しています。不足: ${missing.join(", ")} (該当パターン: ${entry.pattern})`,
 					severity: "error",
+					fail_text: rule.fail_text,
+					docs_url: rule.docs_url,
 				});
 			}
 		}

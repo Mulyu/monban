@@ -37,6 +37,8 @@ export async function checkGithubTriggers(
 							path: wf.file,
 							message: `許可されていないトリガー: ${event}`,
 							severity: "error",
+							fail_text: rule.fail_text,
+							docs_url: rule.docs_url,
 						});
 					}
 				}
@@ -50,6 +52,8 @@ export async function checkGithubTriggers(
 							path: wf.file,
 							message: `禁止されたトリガー: ${event}`,
 							severity: "error",
+							fail_text: rule.fail_text,
+							docs_url: rule.docs_url,
 						});
 					}
 				}
