@@ -174,8 +174,7 @@ github:
       - path: ".github/workflows/**/*.yml"
         message: "release-please を使ってください。"
 
-# 依存のサプライチェーン安全性
-# network 系は warn で留め、CI で落とさず気づかせる
+# 依存のサプライチェーン安全性（全 severity を error に揃える）
 deps:
   # ハルシネーション / slopsquat 対策（存在しないパッケージ名の検出）
   existence:
@@ -183,27 +182,28 @@ deps:
     - path: ".github/workflows/**/*.yml"
 
   # 人気パッケージに類似した名前（typosquat）の検出
+  # vitest/vite のような実在の別物が誤検出されないよう距離 1 に絞る
   typosquat:
     - path: "package.json"
-      max_distance: 2
-      severity: warn
+      max_distance: 1
+      severity: error
 
   # 公開直後の新規パッケージ（攻撃で頻出）を警告
   freshness:
     - path: "package.json"
       max_age_hours: 72
-      severity: warn
+      severity: error
 
   # 低人気パッケージを警告
   popularity:
     - path: "package.json"
       min_downloads: 1000
-      severity: warn
+      severity: error
 
   # エコシステム取り違え（AI エージェントの典型ミス）検出
   cross_ecosystem:
     - path: "package.json"
-      severity: warn
+      severity: error
 
   # 既知の compromise 事例を明示的に拒否
   forbidden:
@@ -216,18 +216,18 @@ deps:
   # npm lifecycle hook は任意コード実行の攻撃面（Shai-Hulud 等）
   install_scripts:
     - path: "package.json"
-      severity: warn
+      severity: error
       message: "npm lifecycle hook はサプライチェーン攻撃の主要ベクトル。正当性を PR でレビュー。"
 
   # レジストリ外依存はレジストリ監査が効かない
   git_dependency:
     - path: "package.json"
-      severity: warn
+      severity: error
 
   # 浮動バージョンは新規パッケージ侵害時に自動的に被弾する
   floating_version:
     - path: "package.json"
-      severity: warn
+      severity: error
       exclude:
         - "tests/fixtures/**"
 
@@ -248,22 +248,22 @@ git:
         - "package-lock.json"
         - "**/__snapshots__/**"
         - "**/*.lock"
-      severity: warn
+      severity: error
     # .gitignore 対象ファイル（.env 等）の誤追跡を検出
     ignored:
       scope: diff
-      severity: warn
+      severity: error
 
   # ブランチ命名規約（main / claude/* / feat/* / fix/* / chore/* / docs/*）
   branch_name:
     pattern: "^(claude|feat|fix|chore|docs|refactor|test|ci|build)/[A-Za-z0-9._/-]+$"
     allowed: ["main"]
-    severity: warn
+    severity: error
 
   # SemVer 形式のタグのみ許容（過去タグの整理が完了したら scope を all に切替）
   tag_name:
     pattern: "^v\\d+\\.\\d+\\.\\d+(-[a-z0-9.]+)?$"
-    severity: warn
+    severity: error
 
 doc:
   ref:
@@ -279,4 +279,4 @@ agent:
     - path: "{.mcp.json,.claude/settings.json,.cursor/mcp.json}"
       unpinned_npx: true
       env_secrets: true
-      severity: warn
+      severity: error

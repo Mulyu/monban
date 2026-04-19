@@ -388,6 +388,8 @@ ERROR [count] src/rules/
 
 ## 6. hash
 
+<!-- monban:ref ../src/rules/path/hash.ts sha256:5427e3c0b0222579544c2d206c19d781c4774a535d8740014af9240e1563b7c3 -->
+
 単一ファイルの SHA256 を固定する。LICENSE のテンプレ、ベンダ済みファイル、生成成果物の改竄を検出する。
 
 `doc.ref`（A の中に B のハッシュが埋め込まれている cross-file 照合）とは別概念で、こちらは「特定のファイルそのものが既知のバイト列であるか」を見る。
@@ -428,6 +430,8 @@ ERROR [hash] LICENSE
 
 ## 7. size
 
+<!-- monban:ref ../src/rules/path/size.ts sha256:f54d72a23a1edde734b5f895d3caee71f8ca7f940706244da9cde15ae7f058ee -->
+
 ファイルサイズ（バイト数）の上限を検査する。`content.size` が行数を見るのに対し、こちらはバイナリ・画像・バンドル成果物などを対象にできる。
 
 ### 設定
@@ -465,6 +469,8 @@ WARN  [size] assets/banner.png
 ---
 
 ## 8. case_conflict
+
+<!-- monban:ref ../src/rules/path/case-conflict.ts sha256:0f66bf1e1692fc004b5db2bd206df0714e54cef8b351ad4ea0fbc18c59db71c5 -->
 
 同一ディレクトリ内で大文字小文字違いのみで衝突するファイル名を検出する。case-insensitive ファイルシステム（macOS / Windows）でリポジトリを開いたときに片方が消えるバグを防ぐ。
 

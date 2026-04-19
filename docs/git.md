@@ -106,6 +106,8 @@ git:
 
 ## 1. commit.message
 
+<!-- monban:ref ../src/rules/git/commit-message.ts sha256:04015849c7ad913c088716b72b94b2ae4ed87a9c94592e60f6b3dde7f109b178 -->
+
 コミットメッセージの形式・長さ・禁止語を検査する。
 
 対象コミットは `git log --no-merges --format='%H%x00%B%x00' <base>..<head>` で取得する。
@@ -177,6 +179,8 @@ ERROR [commit.message] d4e5f6g
 ---
 
 ## 2. commit.trailers
+
+<!-- monban:ref ../src/rules/git/commit-trailers.ts sha256:e6d00b467a4d811470b9bb7641a5929ce16d23b7ea84de51f18bcdf519f6f7f9 -->
 
 trailer（`Co-authored-by`、`Signed-off-by`、`AI-Assistant` 等）のポリシーを強制する。
 
@@ -258,6 +262,8 @@ ERROR [commit.trailers] d4e5f6g
 
 ## 3. commit.references
 
+<!-- monban:ref ../src/rules/git/commit-references.ts sha256:e6199d3565daf0295c41dc0923ec1a8ef18fc16fb9558c5b8d60626ddb01e21b -->
+
 Issue / チケット番号の参照を必須化する。`commit.message` と同じくコミット本文を取得し、正規表現で検査する。
 
 ### 設定
@@ -310,6 +316,8 @@ ERROR [commit.references]
 
 ## 4. diff.size
 
+<!-- monban:ref ../src/rules/git/diff-size.ts sha256:7a73f9d93ce34f67c87ae2da6a52599e07cb067c157d32618c64c0e02de45b1d -->
+
 PR の変更粒度が大きすぎないかを検査する。`git diff --numstat <base>...<head>` でファイル単位の増減行数を取得する。
 
 ### 設定
@@ -361,6 +369,8 @@ WARN [diff.size]
 
 ## 5. diff.ignored
 
+<!-- monban:ref ../src/rules/git/diff-ignored.ts sha256:cf48531035af87c0e88150c83a308e916df29e87d087c5f4a92c18379de8593e -->
+
 `.gitignore` にパターンが書かれているのに追跡されているファイルを検出する。エージェントが `git add -f` や `git add -A` で意図せず追加する事故への対策。
 
 取得は `git ls-files --cached --ignored --exclude-standard` で行う（Git 標準機能、shallow clone でも動作する）。
@@ -406,6 +416,8 @@ WARN [diff.ignored]
 
 ## 6. branch_name
 
+<!-- monban:ref ../src/rules/git/branch-name.ts sha256:b01ac839f33b3590fca9017cb4cc17bcad0498427c3374e7f778b7ec5d9541a6 -->
+
 現在チェックアウトされているブランチ名が regex に一致するかを検査する。エージェントが作る一時ブランチ命名（例 `claude/foo-bar-XYZ`）を組織規約に揃える用途。
 
 `detached HEAD`（CI の PR イベント等）では何も検査しない。
@@ -440,6 +452,8 @@ ERROR [branch_name] WIP_branch
 ---
 
 ## 7. tag_name
+
+<!-- monban:ref ../src/rules/git/tag-name.ts sha256:fd4ceeddb62edda24d89fefd2f46bc546485b75272535aaf31725991277952fa -->
 
 リポジトリ内のタグ名が regex に一致するかを検査する。SemVer の徹底や、`v` 接頭辞ポリシーの担保に使う。
 
