@@ -1,4 +1,4 @@
-import fg from "../../ports/glob.js";
+import fg from "fast-glob";
 import type { CountRule, RuleResult } from "../../types.js";
 
 export async function checkPathCount(
