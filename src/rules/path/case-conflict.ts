@@ -1,5 +1,5 @@
 import { basename, dirname } from "node:path";
-import fg from "fast-glob";
+import fg from "../../glob.js";
 import type { PathCaseConflictRule, RuleResult } from "../../types.js";
 
 export async function checkPathCaseConflict(

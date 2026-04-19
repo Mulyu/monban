@@ -557,7 +557,7 @@ ERROR [actions.injection] .github/workflows/welcome.yml:greet
 
 ## 13. codeowners.ownership
 
-<!-- monban:ref ../src/rules/github/codeowners.ts sha256:eec767568805cb1ef0c2b061b67751790bb5044a7a8ac89989be6de3a427c649 -->
+<!-- monban:ref ../src/rules/github/codeowners.ts sha256:3d39bb437fd5f23896590535316d029d0acdc15c5fcde215c49cff1b5ee738e6 -->
 
 `CODEOWNERS` の `path → owners` 一方向整合を検証する。
 
