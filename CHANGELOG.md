@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.3](https://github.com/Mulyu/monban/compare/monban-v0.2.2...monban-v0.2.3) (2026-04-19)
+
+
+### Refactoring
+
+* align forbidden/allowed/required vocab and fill pair gaps ([b032aa8](https://github.com/Mulyu/monban/commit/b032aa817b6ab09c6d0f92d9930c494a70aff029))
+* align forbidden/allowed/required vocab and fill pair gaps ([cce9c4b](https://github.com/Mulyu/monban/commit/cce9c4bfeba5469df9f2f28c8efd977d765c8e84))
+
 ## [0.2.2](https://github.com/Mulyu/monban/compare/monban-v0.2.1...monban-v0.2.2) (2026-04-19)
 
 
