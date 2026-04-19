@@ -158,7 +158,7 @@ export interface GithubRequiredRule {
 
 export interface GithubForbiddenRule {
 	path: string;
-	uses: string;
+	uses: string | string[];
 	message?: string;
 	severity?: Severity;
 }
@@ -177,7 +177,8 @@ export interface GithubTriggersRule {
 
 export interface GithubRunnerRule {
 	path: string;
-	allowed: string[];
+	allowed?: string[];
+	forbidden?: string[];
 }
 
 export interface GithubTimeoutRule {
@@ -196,7 +197,8 @@ export interface GithubConsistencyRule {
 
 export interface GithubSecretsRule {
 	path: string;
-	allowed: string[];
+	allowed?: string[];
+	forbidden?: string[];
 }
 
 export interface GithubCodeownersRule {
@@ -296,7 +298,7 @@ export interface DepsForbiddenRule {
 export interface DepsInstallScriptsRule {
 	path: string;
 	exclude?: string[];
-	hooks?: string[];
+	forbidden?: string[];
 	message?: string;
 	severity?: Severity;
 }
@@ -311,6 +313,7 @@ export interface DepsGitDependencyRule {
 export interface DepsFloatingVersionRule {
 	path: string;
 	exclude?: string[];
+	allowed?: string[];
 	message?: string;
 	severity?: Severity;
 }
@@ -407,14 +410,17 @@ export interface GitDiffConfig {
 }
 
 export interface GitBranchNameRule {
-	pattern: string;
+	pattern?: string;
 	allowed?: string[];
+	forbidden?: string[];
 	message?: string;
 	severity?: Severity;
 }
 
 export interface GitTagNameRule {
-	pattern: string;
+	pattern?: string;
+	allowed?: string[];
+	forbidden?: string[];
 	scope?: "all" | "recent";
 	limit?: number;
 	message?: string;
@@ -435,7 +441,7 @@ export interface AgentInstructionsRule {
 	exclude?: string[];
 	required_sections?: string[];
 	max_bytes?: number;
-	frontmatter_keys?: string[];
+	allowed_frontmatter_keys?: string[];
 	message?: string;
 	severity?: Severity;
 }
@@ -455,7 +461,7 @@ export interface AgentMcpRule {
 export interface AgentIgnoreRule {
 	path: string;
 	exclude?: string[];
-	must_cover?: string[];
+	required?: string[];
 	message?: string;
 	severity?: Severity;
 }

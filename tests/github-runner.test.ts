@@ -33,4 +33,33 @@ describe("github/runner", () => {
 		);
 		expect(results).toHaveLength(0);
 	});
+
+	it("reports runner that matches forbidden list", async () => {
+		const results = await checkGithubRunner(
+			[
+				{
+					path: ".github/workflows/runner-self-hosted.yml",
+					forbidden: ["self-hosted"],
+				},
+			],
+			cwd,
+			[],
+		);
+		expect(results).toHaveLength(1);
+		expect(results[0].message).toContain("禁止されたランナー");
+	});
+
+	it("passes when neither allowed nor forbidden matches", async () => {
+		const results = await checkGithubRunner(
+			[
+				{
+					path: ".github/workflows/pinned.yml",
+					forbidden: ["self-hosted"],
+				},
+			],
+			cwd,
+			[],
+		);
+		expect(results).toHaveLength(0);
+	});
 });

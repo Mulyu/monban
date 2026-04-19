@@ -26,7 +26,7 @@ GitHub 関連でも、構造パースが不要なもの（`LICENSE` / `SECURITY.
 |---|--------|------|------|
 | 1 | `actions.pinned` | workflows | `uses` のアクション・reusable workflow・docker image のピン留め |
 | 2 | `actions.required` | workflows | 必須ワークフロー・必須ステップ |
-| 3 | `actions.forbidden` | workflows | 禁止アクション |
+| 3 | `actions.forbidden` | workflows | 禁止アクション（`uses` は単一文字列 / 配列のどちらも可） |
 | 4 | `actions.permissions` | workflows | `permissions:` の宣言必須・禁止スカラー値 |
 | 5 | `actions.triggers` | workflows | `on:` イベントの allow / deny |
 | 6 | `actions.runner` | workflows | `runs-on:` の allowlist |
@@ -57,7 +57,7 @@ github:
 
     forbidden:
       - path: ".github/workflows/**/*.yml"
-        uses: "actions/create-release"
+        uses: ["actions/create-release", "actions/upload-release-asset"]
         message: "release-please を使ってください。"
 
     permissions:
@@ -73,6 +73,7 @@ github:
     runner:
       - path: ".github/workflows/**/*.yml"
         allowed: ["ubuntu-latest", "ubuntu-22.04"]
+        forbidden: ["self-hosted"]
 
     timeout:
       - path: ".github/workflows/**/*.yml"
@@ -88,6 +89,7 @@ github:
     secrets:
       - path: ".github/workflows/**/*.yml"
         allowed: ["NPM_TOKEN", "GITHUB_TOKEN", "SLACK_WEBHOOK"]
+        forbidden: ["LEGACY_DEPLOY_KEY"]
 
   codeowners:
     ownership:
@@ -182,7 +184,7 @@ ERROR [actions.required] .github/workflows/lint.yml
 
 ## 3. actions.forbidden
 
-<!-- monban:ref ../src/rules/github/forbidden.ts sha256:116f52656d6419a8fd4cb7ef9e559473535e9acc6e896e31992c21a1629c6cd1 -->
+<!-- monban:ref ../src/rules/github/forbidden.ts sha256:d52b87a8fe6081b2f202197468e2ede3fb010045c36117302d34ee6e80ec7fc9 -->
 
 使用を禁止するアクションを検出する。
 
@@ -196,6 +198,11 @@ github:
         uses: "actions/create-release"
         message: "release-please を使ってください。"
         severity: warn
+      # 複数禁止は配列でまとめられる
+      - path: ".github/workflows/**/*.yml"
+        uses:
+          - "actions/create-release"
+          - "actions/upload-release-asset"
 ```
 
 ### フィールド
@@ -203,7 +210,7 @@ github:
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | 対象 glob |
-| `uses` | string | Yes | — | 禁止アクション（前方一致） |
+| `uses` | string \| string[] | Yes | — | 禁止アクション（前方一致）。配列で複数指定可 |
 | `message` | string | No | — | エラーメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
 
@@ -289,7 +296,7 @@ github:
 
 ## 6. actions.runner
 
-<!-- monban:ref ../src/rules/github/runner.ts sha256:5ed26ec975abec3574108dba7bd9add351a3e829802cd9a134e16f2e3e8879da -->
+<!-- monban:ref ../src/rules/github/runner.ts sha256:d7d7236d94705ff8bce5df41778e263e66a6d53bc2fa25644c9ee952a8e8506a -->
 
 job の `runs-on:` の allowlist を検証する。
 
@@ -301,8 +308,13 @@ job の `runs-on:` の allowlist を検証する。
 github:
   actions:
     runner:
+      # allowlist のみ（ubuntu-latest 以外は全部違反）
       - path: ".github/workflows/**/*.yml"
         allowed: ["ubuntu-latest", "ubuntu-22.04"]
+
+      # denylist のみ（self-hosted を禁止、それ以外は問わない）
+      - path: ".github/workflows/**/*.yml"
+        forbidden: ["self-hosted"]
 ```
 
 ### フィールド
@@ -310,13 +322,17 @@ github:
 | フィールド | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
 | `path` | string | Yes | 対象 glob |
-| `allowed` | string[] | Yes | 許可するランナーラベル |
+| `allowed` | string[] | No* | 許可するランナーラベル |
+| `forbidden` | string[] | No* | 禁止するランナーラベル |
+
+\* `allowed` / `forbidden` のいずれか 1 つ以上が必須。両方指定した場合は `forbidden` を先に評価する。
 
 ### 判定
 
 1. 各 job の `runs-on:` を抽出（文字列 / 配列）
 2. `${{ ... }}` を含む式はスキップ（静的評価不能のため）
-3. `allowed` に含まれないラベルがあれば違反
+3. `forbidden` に含まれるラベルがあれば違反
+4. `allowed` 指定時、その集合に含まれないラベルがあれば違反
 
 ---
 
@@ -424,7 +440,7 @@ ERROR [actions.consistency] .github/workflows/test.yml
 
 ## 10. actions.secrets
 
-<!-- monban:ref ../src/rules/github/secrets.ts sha256:a7ac0e5c3159d94b5e52238a3efab2636701a84655d462f5c3a1fe9b8a0dc32b -->
+<!-- monban:ref ../src/rules/github/secrets.ts sha256:4e97b007d07dc4a4ba08e4fb327bcc79d06bcc224b9c96117a3dc1cbc4d1ffd6 -->
 
 ワークフロー内の `${{ secrets.X }}` 参照が allowlist 内にあるかを検証する。
 
@@ -436,8 +452,13 @@ ERROR [actions.consistency] .github/workflows/test.yml
 github:
   actions:
     secrets:
+      # allowlist のみ（未知名はタイポ疑い）
       - path: ".github/workflows/**/*.yml"
         allowed: ["NPM_TOKEN", "GITHUB_TOKEN", "SLACK_WEBHOOK"]
+
+      # denylist のみ（退役シークレットの再利用を禁止）
+      - path: ".github/workflows/**/*.yml"
+        forbidden: ["LEGACY_DEPLOY_KEY"]
 ```
 
 ### フィールド
@@ -445,13 +466,17 @@ github:
 | フィールド | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
 | `path` | string | Yes | 対象 glob |
-| `allowed` | string[] | Yes | 許可するシークレット名 |
+| `allowed` | string[] | No* | 許可するシークレット名 |
+| `forbidden` | string[] | No* | 禁止するシークレット名 |
+
+\* `allowed` / `forbidden` のいずれか 1 つ以上が必須。両方指定した場合は `forbidden` を先に評価する。
 
 ### 判定
 
 1. ファイル本文から `${{ secrets.NAME }}` 形式の参照を抽出（正規表現）
-2. `allowed` に含まれない名前があれば違反
-3. `secrets.GITHUB_TOKEN` と `secrets.github_token` は同一扱い（GitHub が大文字小文字を区別しないため）
+2. `forbidden` に含まれる名前があれば違反
+3. `allowed` 指定時、その集合に含まれない名前があれば違反
+4. `secrets.GITHUB_TOKEN` と `secrets.github_token` は同一扱い（GitHub が大文字小文字を区別しないため）
 
 ---
 

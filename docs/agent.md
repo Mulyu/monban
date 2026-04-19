@@ -19,7 +19,7 @@ monban agent --json                 # JSON 出力
 | # | ルール | 対象 | 概要 |
 |---|--------|------|------|
 | 1 | `instructions` | `AGENTS.md` / `CLAUDE.md` | 存在、必須 H2 セクション、サイズ上限、frontmatter の key allowlist |
-| 2 | `mcp` | `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` | `mcpServers` の allow/deny、生シェル禁止、`npx @latest` 禁止、env の直値 secret 検出 |
+| 2 | `mcp` | `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` | `mcpServers` の allowed/forbidden、生シェル禁止、`npx @latest` 禁止、env の直値 secret 検出 |
 | 3 | `ignore` | `.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore` | `.env*` / `*.pem` / `id_rsa` 等の必須カバレッジ |
 
 ---
@@ -33,7 +33,7 @@ agent:
     - path: "AGENTS.md"
       required_sections: [Commands, Testing, Style, Boundaries]
       max_bytes: 12288
-      frontmatter_keys: [description, tags]
+      allowed_frontmatter_keys: [description, tags]
 
   mcp:
     - path: "{.mcp.json,.claude/settings.json,.cursor/mcp.json}"
@@ -43,14 +43,14 @@ agent:
 
   ignore:
     - path: ".llmignore"
-      must_cover: [".env", ".env.*", "*.pem", "id_rsa", "**/secrets/**"]
+      required: [".env", ".env.*", "*.pem", "id_rsa", "**/secrets/**"]
 ```
 
 ---
 
 ## 1. instructions
 
-<!-- monban:ref ../src/rules/agent/instructions.ts sha256:a01f7b88c4dde8ecc74b780f264989120e669d67d59a25d5d8de8d2a026ef25e -->
+<!-- monban:ref ../src/rules/agent/instructions.ts sha256:2ade7a48cff681b5368b896ae6b6bb94f0a4d6e8a27f7dd94c4c1c5c11f1529a -->
 
 エージェント指示書（`AGENTS.md` / `CLAUDE.md`）の構造を検証する。
 
@@ -62,7 +62,7 @@ agent:
     - path: "AGENTS.md"
       required_sections: [Commands, Testing, Style, Boundaries]
       max_bytes: 12288
-      frontmatter_keys: [description, tags]
+      allowed_frontmatter_keys: [description, tags]
       severity: warn
 ```
 
@@ -74,7 +74,7 @@ agent:
 | `exclude` | string[] | No | `[]` | 除外 glob |
 | `required_sections` | string[] | No | — | 必須 H2 見出し（大小無視） |
 | `max_bytes` | integer | No | — | サイズ上限（エージェントはこれを超えると読み飛ばすことがある） |
-| `frontmatter_keys` | string[] | No | — | `---` frontmatter が存在する場合の許可 key |
+| `allowed_frontmatter_keys` | string[] | No | — | `---` frontmatter が存在する場合の許可 key |
 | `message` | string | No | — | カスタムメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
 
@@ -84,7 +84,7 @@ agent:
 2. 各ファイルについて:
    - `max_bytes` が指定されていれば、ファイルサイズを検査
    - `required_sections` が指定されていれば、`^## <name>\s*$` 形式の H2 を抽出し、必須リストとの突き合わせ
-   - `frontmatter_keys` が指定されていれば、先頭の `---\n...\n---` ブロックを YAML としてパースし、許可リスト外の key を flag
+   - `allowed_frontmatter_keys` が指定されていれば、先頭の `---\n...\n---` ブロックを YAML としてパースし、許可リスト外の key を flag
 
 ### 出力例
 
@@ -168,7 +168,7 @@ WARN  [mcp] .mcp.json:hardcoded-secret.env.GITHUB_TOKEN
 
 ## 3. ignore
 
-<!-- monban:ref ../src/rules/agent/ignore.ts sha256:c7423b398c924e892a8bdefe2c11f1c112e395a84d9e09f61d5ed2a4dd035ba8 -->
+<!-- monban:ref ../src/rules/agent/ignore.ts sha256:ff759a122865b1848c4a9aba8bf9bcb6651d9b7a9ad89f401e1243e3f8bcfe35 -->
 
 AI ignore ファイル（`.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore`）が機密ファイルをカバーしているかを検証する。
 
@@ -178,7 +178,7 @@ AI ignore ファイル（`.llmignore` / `.aiexclude` / `.claudeignore` / `.curso
 agent:
   ignore:
     - path: ".llmignore"
-      must_cover:
+      required:
         - ".env"
         - ".env.*"
         - "*.pem"
@@ -193,7 +193,7 @@ agent:
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | 対象ファイルの glob |
 | `exclude` | string[] | No | `[]` | 除外 glob |
-| `must_cover` | string[] | No | 機密ファイル定型 6 種 | 含まれていなければ違反とするパターン |
+| `required` | string[] | No | 機密ファイル定型 6 種 | 含まれていなければ違反とするパターン |
 | `message` | string | No | — | カスタムメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
 
@@ -201,7 +201,7 @@ agent:
 
 1. 対象ファイルを行単位で読み込み、`#` 以降のコメントを除去
 2. 各行を ignore パターンとして集合化（`!negation` は `!` を除いた形で登録）
-3. `must_cover` の各項目が集合に含まれているかを厳密一致で検査
+3. `required` の各項目が集合に含まれているかを厳密一致で検査
 
 ワイルドカードマッチは行わない。「`.env.local` は `.env.*` にマッチするから OK」のような推論はせず、**`.env.*` を設定ファイル側で明示する** ことを要求する。これは「明示的にカバーする」規律を促すため。
 

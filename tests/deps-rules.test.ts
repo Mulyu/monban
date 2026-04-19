@@ -236,9 +236,9 @@ describe("deps/install_scripts", () => {
 		expect(results).toHaveLength(0);
 	});
 
-	it("respects hooks filter", async () => {
+	it("respects forbidden filter", async () => {
 		const results = await checkDepsInstallScripts(
-			[{ path: "package.json", hooks: ["preinstall"] }],
+			[{ path: "package.json", forbidden: ["preinstall"] }],
 			scriptsCwd,
 			[],
 		);
@@ -315,5 +315,18 @@ describe("deps/floating_version", () => {
 		);
 		const names = results.map((r) => r.message.split(":")[0]);
 		expect(names).not.toContain("pinned");
+	});
+
+	it("respects the allowed list (glob)", async () => {
+		const results = await checkDepsFloatingVersion(
+			[{ path: "package.json", allowed: ["caret", "latest"] }],
+			floatingCwd,
+			[],
+		);
+		const names = results.map((r) => r.message.split(":")[0]);
+		expect(names).not.toContain("caret");
+		expect(names).not.toContain("latest");
+		// still flags others
+		expect(names).toContain("tilde");
 	});
 });

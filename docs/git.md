@@ -416,7 +416,7 @@ WARN [diff.ignored]
 
 ## 6. branch_name
 
-<!-- monban:ref ../src/rules/git/branch-name.ts sha256:b01ac839f33b3590fca9017cb4cc17bcad0498427c3374e7f778b7ec5d9541a6 -->
+<!-- monban:ref ../src/rules/git/branch-name.ts sha256:3a622647a3eb08095a1dd5ab595c4886422488420bcad99d93ed17f6fbdb8e1d -->
 
 現在チェックアウトされているブランチ名が regex に一致するかを検査する。エージェントが作る一時ブランチ命名（例 `claude/foo-bar-XYZ`）を組織規約に揃える用途。
 
@@ -429,6 +429,7 @@ git:
   branch_name:
     pattern: "^(feat|fix|chore|docs|claude)/[a-z0-9-]+$"
     allowed: ["main", "develop", "release"]
+    forbidden: ["^wip(/|$)", "^tmp(/|$)"]
     severity: warn
     message: "ブランチ名は <type>/<kebab-case> 形式にしてください。"
 ```
@@ -437,10 +438,13 @@ git:
 
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |---|---|---|---|---|
-| `pattern` | string | Yes | — | 一致を要求する正規表現 |
-| `allowed` | string[] | No | `[]` | regex 検査をスキップする許可名（`main` 等） |
+| `pattern` | string | No* | — | 一致を要求する正規表現（allowlist 的） |
+| `allowed` | string[] | No | `[]` | 検査をスキップする許可名（`main` 等、完全一致） |
+| `forbidden` | string[] | No* | `[]` | 一致したら違反になる正規表現のリスト |
 | `message` | string | No | — | カスタムメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+\* `pattern` / `forbidden` のいずれか 1 つ以上が必須。`allowed` 該当 → `forbidden` 評価 → `pattern` 評価 の順。
 
 ### 出力例
 
@@ -453,7 +457,7 @@ ERROR [branch_name] WIP_branch
 
 ## 7. tag_name
 
-<!-- monban:ref ../src/rules/git/tag-name.ts sha256:fd4ceeddb62edda24d89fefd2f46bc546485b75272535aaf31725991277952fa -->
+<!-- monban:ref ../src/rules/git/tag-name.ts sha256:d9a0a2d9f4105c2d369d0b78b97e47e6bf678acd14c3c5c1cc72b787a34f44a2 -->
 
 リポジトリ内のタグ名が regex に一致するかを検査する。SemVer の徹底や、`v` 接頭辞ポリシーの担保に使う。
 
@@ -465,6 +469,10 @@ ERROR [branch_name] WIP_branch
 git:
   tag_name:
     pattern: "^v\\d+\\.\\d+\\.\\d+(-[a-z0-9.]+)?$"
+    # 既存の非準拠タグを個別免除
+    allowed: ["release-1", "legacy-v2"]
+    # beta/rc をタグとして禁止する例
+    forbidden: ["(beta|rc)\\d*$"]
     scope: recent      # all | recent
     limit: 50
     severity: error
@@ -475,11 +483,15 @@ git:
 
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |---|---|---|---|---|
-| `pattern` | string | Yes | — | 一致を要求する正規表現 |
+| `pattern` | string | No* | — | 一致を要求する正規表現（allowlist 的） |
+| `allowed` | string[] | No | `[]` | 検査をスキップする許可タグ名（完全一致） |
+| `forbidden` | string[] | No* | `[]` | 一致したら違反になる正規表現のリスト |
 | `scope` | `"all"` \| `"recent"` | No | `"all"` | `recent` は creatordate の新しい順で `limit` 件のみ検査 |
 | `limit` | integer | No | `100` | `scope: recent` のときの検査タグ数 |
 | `message` | string | No | — | カスタムメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+
+\* `pattern` / `forbidden` のいずれか 1 つ以上が必須。`allowed` 該当 → `forbidden` 評価 → `pattern` 評価 の順。
 
 ### 出力例
 

@@ -67,10 +67,13 @@ export async function checkAgentInstructions(
 				}
 			}
 
-			if (rule.frontmatter_keys && rule.frontmatter_keys.length > 0) {
+			if (
+				rule.allowed_frontmatter_keys &&
+				rule.allowed_frontmatter_keys.length > 0
+			) {
 				const frontmatter = extractFrontmatter(content);
 				if (frontmatter !== null) {
-					const allowed = new Set(rule.frontmatter_keys);
+					const allowed = new Set(rule.allowed_frontmatter_keys);
 					for (const key of Object.keys(frontmatter)) {
 						if (!allowed.has(key)) {
 							results.push({
@@ -78,7 +81,7 @@ export async function checkAgentInstructions(
 								path: file,
 								message:
 									rule.message ??
-									`frontmatter に未許可のキー: ${key} (許可: ${rule.frontmatter_keys.join(", ")})`,
+									`frontmatter に未許可のキー: ${key} (許可: ${rule.allowed_frontmatter_keys.join(", ")})`,
 								severity,
 							});
 						}

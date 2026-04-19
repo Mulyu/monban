@@ -77,4 +77,36 @@ describe("git/tag_name", () => {
 		expect(results[0].message).toBe("SemVer 形式で。");
 		expect(results[0].severity).toBe("warn");
 	});
+
+	it("respects the allowed list", async () => {
+		const repo = await createGitRepo();
+		await writeAndAdd(repo, "README.md", "init\n");
+		commit(repo, "init");
+		git(repo, ["tag", "release-1"]);
+		git(repo, ["tag", "legacy-v2"]);
+		git(repo, ["tag", "bad"]);
+
+		const results = checkGitTagName(
+			{
+				pattern: "^v\\d+\\.\\d+\\.\\d+$",
+				allowed: ["release-1", "legacy-v2"],
+			},
+			repo,
+		);
+		expect(results).toHaveLength(1);
+		expect(results[0].path).toBe("bad");
+	});
+
+	it("flags tags that match the forbidden list", async () => {
+		const repo = await createGitRepo();
+		await writeAndAdd(repo, "README.md", "init\n");
+		commit(repo, "init");
+		git(repo, ["tag", "v1.0.0-beta1"]);
+		git(repo, ["tag", "v1.0.0"]);
+
+		const results = checkGitTagName({ forbidden: ["(beta|rc)\\d*$"] }, repo);
+		expect(results).toHaveLength(1);
+		expect(results[0].path).toBe("v1.0.0-beta1");
+		expect(results[0].message).toContain("forbidden");
+	});
 });

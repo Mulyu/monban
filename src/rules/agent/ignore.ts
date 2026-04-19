@@ -3,7 +3,7 @@ import { join } from "node:path";
 import fg from "fast-glob";
 import type { AgentIgnoreRule, RuleResult } from "../../types.js";
 
-const DEFAULT_MUST_COVER = [
+const DEFAULT_REQUIRED = [
 	".env",
 	".env.*",
 	"*.pem",
@@ -21,7 +21,7 @@ export async function checkAgentIgnore(
 
 	for (const rule of rules) {
 		const severity = rule.severity ?? "warn";
-		const mustCover = rule.must_cover ?? DEFAULT_MUST_COVER;
+		const required = rule.required ?? DEFAULT_REQUIRED;
 
 		const files = await fg(rule.path, {
 			cwd,
@@ -45,14 +45,14 @@ export async function checkAgentIgnore(
 			const abs = join(cwd, file);
 			const content = await readFile(abs, "utf-8");
 			const patterns = parseIgnore(content);
-			for (const required of mustCover) {
-				if (!patterns.has(required)) {
+			for (const pattern of required) {
+				if (!patterns.has(pattern)) {
 					results.push({
 						rule: "ignore",
 						path: file,
 						message:
 							rule.message ??
-							`必須カバレッジが欠落: ${required} が ignore リストに含まれていません。`,
+							`必須カバレッジが欠落: ${pattern} が ignore リストに含まれていません。`,
 						severity,
 					});
 				}

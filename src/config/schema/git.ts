@@ -59,11 +59,18 @@ function validateBranchNameRule(raw: unknown): GitBranchNameRule {
 	const label = "git.branch_name";
 	assertObject(raw, label);
 
-	const rule: GitBranchNameRule = {
-		pattern: requireString(raw, "pattern", label),
-	};
+	const rule: GitBranchNameRule = {};
+	const pattern = optionalString(raw, "pattern", label);
+	if (pattern !== undefined) rule.pattern = pattern;
 	const allowed = optionalStringArray(raw, "allowed", label);
 	if (allowed !== undefined) rule.allowed = allowed;
+	const forbidden = optionalStringArray(raw, "forbidden", label);
+	if (forbidden !== undefined) rule.forbidden = forbidden;
+	if (!rule.pattern && !rule.forbidden) {
+		throw new Error(
+			`${label} must have at least one of "pattern" or "forbidden"`,
+		);
+	}
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);
@@ -75,9 +82,18 @@ function validateTagNameRule(raw: unknown): GitTagNameRule {
 	const label = "git.tag_name";
 	assertObject(raw, label);
 
-	const rule: GitTagNameRule = {
-		pattern: requireString(raw, "pattern", label),
-	};
+	const rule: GitTagNameRule = {};
+	const pattern = optionalString(raw, "pattern", label);
+	if (pattern !== undefined) rule.pattern = pattern;
+	const allowed = optionalStringArray(raw, "allowed", label);
+	if (allowed !== undefined) rule.allowed = allowed;
+	const forbidden = optionalStringArray(raw, "forbidden", label);
+	if (forbidden !== undefined) rule.forbidden = forbidden;
+	if (!rule.pattern && !rule.forbidden) {
+		throw new Error(
+			`${label} must have at least one of "pattern" or "forbidden"`,
+		);
+	}
 	const scope = optionalString(raw, "scope", label);
 	if (scope !== undefined) {
 		if (!TAG_SCOPES.includes(scope as GitTagNameRule["scope"])) {
