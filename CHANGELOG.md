@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.1](https://github.com/Mulyu/monban/compare/monban-v0.2.0...monban-v0.2.1) (2026-04-19)
+
+
+### Features
+
+* **plugin:** package monban as a Claude Code plugin + marketplace ([63cd476](https://github.com/Mulyu/monban/commit/63cd4762a35f73670156956801164978125661c2))
+* **plugin:** package monban as a Claude Code plugin + marketplace ([b94d186](https://github.com/Mulyu/monban/commit/b94d186a97b3f8f3c768ebd44b34b5b9e64f1428))
+
+
+### Documentation
+
+* **plugin:** pin skill summaries to docs via monban:ref markers ([54c3deb](https://github.com/Mulyu/monban/commit/54c3deb75b6d991c1fab0b907416e996ebb819d5))
+
 ## [0.2.0](https://github.com/Mulyu/monban/compare/monban-v0.1.0...monban-v0.2.0) (2026-04-19)
 
 

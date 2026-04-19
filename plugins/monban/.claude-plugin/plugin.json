@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "monban",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "コーディングエージェントのための番所。monban CLI の使い方スキルと monban.yml の雛形生成コマンドを提供する。",
   "author": {
     "name": "mulyu",
