@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.2](https://github.com/Mulyu/monban/compare/monban-v0.2.1...monban-v0.2.2) (2026-04-19)
+
+
+### Bug Fixes
+
+* **ci:** correct min-release-age unit (days, not minutes) ([778eedc](https://github.com/Mulyu/monban/commit/778eedcdb6f0ad5ebcbe22ca15ffce8cd5c83ada))
+* **ci:** upgrade npm to latest for Trusted Publishing OIDC ([603771f](https://github.com/Mulyu/monban/commit/603771f6e7abdc2f8affdf0f315ef3fa330a93f1))
+* **ci:** upgrade npm to latest for Trusted Publishing OIDC ([67dfe2e](https://github.com/Mulyu/monban/commit/67dfe2e2831331488e79d0df1071678bead2059a))
+
+
+### Refactoring
+
+* move glob.ts into src/ports/ alongside cache/http ([ee08dde](https://github.com/Mulyu/monban/commit/ee08dde1a3d199582bdb740f296c719e6acc482f))
+* replace fast-glob with in-house picomatch-based glob ([52cc16b](https://github.com/Mulyu/monban/commit/52cc16bcd3040516fead8d6f40e200117ff55339))
+* replace fast-glob with in-house picomatch-based glob ([83f7384](https://github.com/Mulyu/monban/commit/83f73849c83aab8578a837d3ae4dc7f31484a6e0))
+
 ## [0.2.1](https://github.com/Mulyu/monban/compare/monban-v0.2.0...monban-v0.2.1) (2026-04-19)
 
 
