@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import fg from "../../ports/glob.js";
+import fg from "fast-glob";
 import type { ContentForbiddenRule, RuleResult } from "../../types.js";
 
 const INVISIBLE_CHARS: [string, number, string][] = [
