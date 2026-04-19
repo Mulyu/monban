@@ -96,9 +96,13 @@ content:
       pattern: '\bdebugger\b'
       message: "debugger を残さないでください。"
     - path: "src/**/*.ts"
-      exclude: ["src/cli.ts", "src/orchestrator.ts", "src/reporter.ts"]
+      exclude:
+        - "src/bin.ts"
+        - "src/cli.ts"
+        - "src/orchestrator.ts"
+        - "src/reporter.ts"
       pattern: 'console\.(log|error|warn)'
-      message: "console 出力は CLI/orchestrator/reporter に限定してください。"
+      message: "console 出力は bin/CLI/orchestrator/reporter に限定してください。"
     - path: "src/**/*.ts"
       pattern: '@ts-(ignore|nocheck)'
       message: "@ts-ignore / @ts-nocheck は禁止。@ts-expect-error + 理由コメントを使ってください。"
