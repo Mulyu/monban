@@ -27,12 +27,12 @@ export async function checkAgentMcp(
 		const forbidden = new Set(
 			rule.forbidden_commands ?? DEFAULT_FORBIDDEN_COMMANDS,
 		);
-		const forbidUnpinnedNpx = rule.forbid_unpinned_npx ?? true;
-		const forbidEnvSecrets = rule.forbid_env_secrets ?? true;
+		const checkUnpinnedNpx = rule.unpinned_npx ?? true;
+		const checkEnvSecrets = rule.env_secrets ?? true;
 		const allowedServers = rule.allowed_servers
 			? new Set(rule.allowed_servers)
 			: null;
-		const deniedServers = new Set(rule.denied_servers ?? []);
+		const forbiddenServers = new Set(rule.forbidden_servers ?? []);
 
 		const files = await fg(rule.path, {
 			cwd,
@@ -61,13 +61,13 @@ export async function checkAgentMcp(
 			if (servers === null) continue; // file does not declare mcpServers; skip silently
 
 			for (const server of servers) {
-				if (deniedServers.has(server.name)) {
+				if (forbiddenServers.has(server.name)) {
 					results.push({
 						rule: "mcp",
 						path: `${file}:${server.name}`,
 						message:
 							rule.message ??
-							`MCP server が denylist にあります: ${server.name}`,
+							`MCP server が forbidden リストにあります: ${server.name}`,
 						severity,
 					});
 				}
@@ -94,7 +94,7 @@ export async function checkAgentMcp(
 				}
 
 				if (
-					forbidUnpinnedNpx &&
+					checkUnpinnedNpx &&
 					server.command &&
 					NPX_UNPINNED.test(server.command)
 				) {
@@ -116,7 +116,7 @@ export async function checkAgentMcp(
 					}
 				}
 
-				if (forbidEnvSecrets && server.env) {
+				if (checkEnvSecrets && server.env) {
 					for (const [key, value] of Object.entries(server.env)) {
 						if (typeof value !== "string") continue;
 						if (value.includes("${")) continue; // 環境変数展開は OK

@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import type { PackageInfo, RegistryClient } from "../src/registry/index.js";
 import { checkDepsAllowed } from "../src/rules/deps/allowed.js";
 import { checkDepsCrossEcosystem } from "../src/rules/deps/cross-ecosystem.js";
-import { checkDepsDenied } from "../src/rules/deps/denied.js";
 import { checkDepsExistence } from "../src/rules/deps/existence.js";
 import { checkDepsFloatingVersion } from "../src/rules/deps/floating-version.js";
+import { checkDepsForbidden } from "../src/rules/deps/forbidden.js";
 import { checkDepsFreshness } from "../src/rules/deps/freshness.js";
 import { checkDepsGitDependency } from "../src/rules/deps/git-dependency.js";
 import { checkDepsInstallScripts } from "../src/rules/deps/install-scripts.js";
@@ -188,9 +188,9 @@ describe("deps/allowed", () => {
 	});
 });
 
-describe("deps/denied", () => {
-	it("flags names that match the denylist", async () => {
-		const results = await checkDepsDenied(
+describe("deps/forbidden", () => {
+	it("flags names that match the forbidden list", async () => {
+		const results = await checkDepsForbidden(
 			[
 				{
 					path: "package.json",

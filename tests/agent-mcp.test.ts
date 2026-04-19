@@ -48,13 +48,13 @@ describe("agent/mcp", () => {
 		expect(results[0].message).toContain("allowlist");
 	});
 
-	it("flags denied servers", async () => {
+	it("flags forbidden servers", async () => {
 		const results = await checkAgentMcp(
-			[{ path: ".mcp.json", denied_servers: ["github"] }],
+			[{ path: ".mcp.json", forbidden_servers: ["github"] }],
 			okCwd,
 			[],
 		);
 		expect(results.length).toBe(1);
-		expect(results[0].message).toContain("denylist");
+		expect(results[0].message).toContain("forbidden");
 	});
 });

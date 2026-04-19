@@ -2,9 +2,9 @@ import type {
 	DepsAllowedRule,
 	DepsConfig,
 	DepsCrossEcosystemRule,
-	DepsDeniedRule,
 	DepsExistenceRule,
 	DepsFloatingVersionRule,
+	DepsForbiddenRule,
 	DepsFreshnessRule,
 	DepsGitDependencyRule,
 	DepsInstallScriptsRule,
@@ -72,11 +72,11 @@ export function validateDepsConfig(raw: unknown): DepsConfig {
 			validateDepsAllowedRule,
 		);
 	}
-	if (obj.denied !== undefined) {
-		config.denied = validateArray(
-			obj.denied,
-			"deps.denied",
-			validateDepsDeniedRule,
+	if (obj.forbidden !== undefined) {
+		config.forbidden = validateArray(
+			obj.forbidden,
+			"deps.forbidden",
+			validateDepsForbiddenRule,
 		);
 	}
 	if (obj.install_scripts !== undefined) {
@@ -216,11 +216,11 @@ function validateDepsAllowedRule(
 	return rule;
 }
 
-function validateDepsDeniedRule(
+function validateDepsForbiddenRule(
 	raw: unknown,
 	index: number,
 	field: string,
-): DepsDeniedRule {
+): DepsForbiddenRule {
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
 
@@ -229,7 +229,7 @@ function validateDepsDeniedRule(
 		throw new Error(`${label}.names must be a non-empty string array`);
 	}
 
-	const rule: DepsDeniedRule = {
+	const rule: DepsForbiddenRule = {
 		path: requireString(raw, "path", label),
 		names,
 	};

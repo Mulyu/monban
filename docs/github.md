@@ -63,7 +63,7 @@ github:
     permissions:
       - path: ".github/workflows/**/*.yml"
         required: true
-        forbid: ["write-all"]
+        forbidden: ["write-all"]
 
     triggers:
       - path: ".github/workflows/**/*.yml"
@@ -101,6 +101,8 @@ github:
 ---
 
 ## 1. actions.pinned
+
+<!-- monban:ref ../src/rules/github/pinned.ts sha256:2bdd15a8cbd7f1951916c5d9d91fddfb6ef311ee9c26abceb735d9ba94452b69 -->
 
 `uses` で指定された参照がコミットハッシュで固定されているかを検証する。
 
@@ -144,6 +146,8 @@ ERROR [actions.pinned] .github/workflows/test.yml
 
 ## 2. actions.required
 
+<!-- monban:ref ../src/rules/github/required.ts sha256:2f2ae5a0de6966983aa3e172b959da82ef95f068ab8b5672fb3baf4ead84c1d9 -->
+
 必須ワークフローファイルの存在と、ワークフロー内の必須ステップを検証する。
 
 ### 設定
@@ -178,6 +182,8 @@ ERROR [actions.required] .github/workflows/lint.yml
 
 ## 3. actions.forbidden
 
+<!-- monban:ref ../src/rules/github/forbidden.ts sha256:116f52656d6419a8fd4cb7ef9e559473535e9acc6e896e31992c21a1629c6cd1 -->
+
 使用を禁止するアクションを検出する。
 
 ### 設定
@@ -205,6 +211,8 @@ github:
 
 ## 4. actions.permissions
 
+<!-- monban:ref ../src/rules/github/permissions.ts sha256:a238f83c5dec9149d26c39ee4c781f17ebd6af87ed104d95f9e8e416e720d5ca -->
+
 ワークフローの `permissions:` 宣言を検証する。GitHub は `permissions:` 未宣言時に `GITHUB_TOKEN` へ広い権限を与えるため、明示宣言が望ましい。
 
 ### 設定
@@ -215,7 +223,7 @@ github:
     permissions:
       - path: ".github/workflows/**/*.yml"
         required: true              # 宣言必須（デフォルト true）
-        forbid: ["write-all"]       # 禁止する権限スカラー値
+        forbidden: ["write-all"]    # 禁止する権限スカラー値
 ```
 
 ### フィールド
@@ -224,12 +232,12 @@ github:
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | 対象 glob |
 | `required` | boolean | No | `true` | `permissions:` の宣言を必須にするか |
-| `forbid` | string[] | No | `[]` | 禁止するスカラー値（`write-all` / `read-all` など） |
+| `forbidden` | string[] | No | `[]` | 禁止するスカラー値（`write-all` / `read-all` など） |
 
 ### 判定
 
 1. `required: true` の場合、workflow トップレベル `permissions:` キーの存在を確認
-2. workflow トップレベル・各 job の `permissions:` がスカラー値で `forbid` に含まれる場合は違反
+2. workflow トップレベル・各 job の `permissions:` がスカラー値で `forbidden` に含まれる場合は違反
 
 ### 出力例
 
@@ -243,6 +251,8 @@ ERROR [actions.permissions] .github/workflows/ci.yml
 ---
 
 ## 5. actions.triggers
+
+<!-- monban:ref ../src/rules/github/triggers.ts sha256:a8f07ca4dcac248b849d193d09767e512cfd4bcd1e5b017c949d2b9426b1447a -->
 
 ワークフローの `on:` イベントを検証する。
 
@@ -279,6 +289,8 @@ github:
 
 ## 6. actions.runner
 
+<!-- monban:ref ../src/rules/github/runner.ts sha256:5ed26ec975abec3574108dba7bd9add351a3e829802cd9a134e16f2e3e8879da -->
+
 job の `runs-on:` の allowlist を検証する。
 
 コストやセキュリティの観点で、特定のランナー（`self-hosted`、`macos-*`）を制限したいケースに使う。
@@ -309,6 +321,8 @@ github:
 ---
 
 ## 7. actions.timeout
+
+<!-- monban:ref ../src/rules/github/timeout.ts sha256:3cbb36eea54b84aa87aae0fe438f2338b6e9944c1ce24b4b6341cce8739c2bbc -->
 
 全 job に `timeout-minutes:` が設定されているか、かつ上限値を超えていないかを検証する。
 
@@ -341,6 +355,8 @@ reusable workflow 呼び出し（job 直下 `uses:`）は job 内でタイムア
 
 ## 8. actions.concurrency
 
+<!-- monban:ref ../src/rules/github/concurrency.ts sha256:c0ee9dae8c1587b34fa4640f4a1f22d9797900a663f4cd2a7e01053fca49ab0b -->
+
 ワークフロー単位の `concurrency:` 宣言を必須化する。
 
 `concurrency` を宣言しないと、同じ PR への push で冗長なビルドが走ってコスト・ランナー枠を無駄にする。
@@ -368,6 +384,8 @@ github:
 ---
 
 ## 9. actions.consistency
+
+<!-- monban:ref ../src/rules/github/consistency.ts sha256:2401bc1fac0b098cb45db13696c2bd67727483e60f3c60c32d93c5bb89d6aa79 -->
 
 同一アクションが複数ファイルで同じバージョン（ref）に揃っているかを検証する。
 
@@ -406,6 +424,8 @@ ERROR [actions.consistency] .github/workflows/test.yml
 
 ## 10. actions.secrets
 
+<!-- monban:ref ../src/rules/github/secrets.ts sha256:a7ac0e5c3159d94b5e52238a3efab2636701a84655d462f5c3a1fe9b8a0dc32b -->
+
 ワークフロー内の `${{ secrets.X }}` 参照が allowlist 内にあるかを検証する。
 
 タイポや未定義シークレットへの参照を静的に検出する。
@@ -436,6 +456,8 @@ github:
 ---
 
 ## 11. actions.danger
+
+<!-- monban:ref ../src/rules/github/danger.ts sha256:8496dd37d92b9da94220c6586bba1d67de30686f399c649a5218b147cfe6c357 -->
 
 ワークフローに含まれる **危険な定型パターン** を検出する。tj-actions/changed-files (CVE-2025-30066) 後に GitHub / OpenSSF が示した Actions ハードニングのうち、以下の 2 点を検査:
 
@@ -473,6 +495,8 @@ ERROR [actions.danger] .github/workflows/pr.yml:build
 
 ## 12. actions.injection
 
+<!-- monban:ref ../src/rules/github/injection.ts sha256:197ae6148a99ce7867f147e2ddc6a7a3ff3364ad722679cd62ec086c63416692 -->
+
 `${{ github.event.*.body }}` などの **信頼できない入力** が `run:` ステップ内に直接埋め込まれていないかを検出する。GitHub の security hardening ガイドが「最も悪用されやすい経路」と明示している script injection 攻撃の検出。
 
 ### 検出対象
@@ -498,7 +522,7 @@ github:
       - path: ".github/workflows/**/*.yml"
         severity: error
         # 例外: 専用に sanitize 済みの run: ステップを許容する
-        allow_contexts:
+        allowed_contexts:
           - "github.event.issue.number"  # number は injection にならない
 ```
 
@@ -508,7 +532,7 @@ github:
 |---|---|---|---|---|
 | `path` | string | Yes | — | 対象 workflow の glob |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
-| `allow_contexts` | string[] | No | `[]` | 検査をスキップするコンテキスト式（完全一致） |
+| `allowed_contexts` | string[] | No | `[]` | 検査をスキップするコンテキスト式（完全一致） |
 
 ### 出力例
 
@@ -532,6 +556,8 @@ ERROR [actions.injection] .github/workflows/welcome.yml:greet
 ---
 
 ## 13. codeowners.ownership
+
+<!-- monban:ref ../src/rules/github/codeowners.ts sha256:eec767568805cb1ef0c2b061b67751790bb5044a7a8ac89989be6de3a427c649 -->
 
 `CODEOWNERS` の `path → owners` 一方向整合を検証する。
 

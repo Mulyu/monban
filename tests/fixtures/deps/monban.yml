@@ -4,7 +4,7 @@ deps:
       names:
         - express
         - eslint
-  denied:
+  forbidden:
     - path: "package.json"
       names:
         - ai-*

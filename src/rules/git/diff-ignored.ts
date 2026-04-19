@@ -11,7 +11,7 @@ export function checkGitDiffIgnored(
 
 	const scope = rule.scope ?? "diff";
 	const severity: Severity = rule.severity ?? "warn";
-	const allowMatchers = (rule.allow ?? []).map((p) => picomatch(p));
+	const allowedMatchers = (rule.allowed ?? []).map((p) => picomatch(p));
 
 	const ignoredTracked = getIgnoredTracked(cwd);
 	if (ignoredTracked.length === 0) return [];
@@ -26,7 +26,7 @@ export function checkGitDiffIgnored(
 	const defaultMsg = rule.message ?? "matches .gitignore but is tracked.";
 
 	return targets
-		.filter((f) => !allowMatchers.some((m) => m(f)))
+		.filter((f) => !allowedMatchers.some((m) => m(f)))
 		.map(
 			(file): RuleResult => ({
 				rule: "diff.ignored",

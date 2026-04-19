@@ -29,12 +29,12 @@ describe("github/actions.injection", () => {
 		expect(results).toHaveLength(0);
 	});
 
-	it("respects allow_contexts", async () => {
+	it("respects allowed_contexts", async () => {
 		const results = await checkGithubActionsInjection(
 			[
 				{
 					path: ".github/workflows/injection-issue-title.yml",
-					allow_contexts: [
+					allowed_contexts: [
 						"github.event.issue.title",
 						"github.event.issue.body",
 					],

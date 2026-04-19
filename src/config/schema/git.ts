@@ -12,9 +12,9 @@ import type {
 	GitDiffIgnoredScope,
 	GitDiffSizeRule,
 	GitTagNameRule,
-	GitTrailerAllowEntry,
-	GitTrailerDenyEntry,
-	GitTrailerRequireEntry,
+	GitTrailerAllowedEntry,
+	GitTrailerForbiddenEntry,
+	GitTrailerRequiredEntry,
 } from "../../types.js";
 import {
 	assertObject,
@@ -62,8 +62,8 @@ function validateBranchNameRule(raw: unknown): GitBranchNameRule {
 	const rule: GitBranchNameRule = {
 		pattern: requireString(raw, "pattern", label),
 	};
-	const allow = optionalStringArray(raw, "allow", label);
-	if (allow !== undefined) rule.allow = allow;
+	const allowed = optionalStringArray(raw, "allowed", label);
+	if (allowed !== undefined) rule.allowed = allowed;
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);
@@ -196,18 +196,26 @@ function validateCommitTrailersRule(raw: unknown): GitCommitTrailersRule {
 
 	const rule: GitCommitTrailersRule = {};
 
-	if (raw.deny !== undefined) {
-		rule.deny = validateArray(raw.deny, `${label}.deny`, validateDenyEntry);
-	}
-	if (raw.require !== undefined) {
-		rule.require = validateArray(
-			raw.require,
-			`${label}.require`,
-			validateRequireEntry,
+	if (raw.forbidden !== undefined) {
+		rule.forbidden = validateArray(
+			raw.forbidden,
+			`${label}.forbidden`,
+			validateForbiddenEntry,
 		);
 	}
-	if (raw.allow !== undefined) {
-		rule.allow = validateArray(raw.allow, `${label}.allow`, validateAllowEntry);
+	if (raw.required !== undefined) {
+		rule.required = validateArray(
+			raw.required,
+			`${label}.required`,
+			validateRequiredEntry,
+		);
+	}
+	if (raw.allowed !== undefined) {
+		rule.allowed = validateArray(
+			raw.allowed,
+			`${label}.allowed`,
+			validateAllowedEntry,
+		);
 	}
 
 	const severity = validateSeverity(raw, label);
@@ -216,14 +224,14 @@ function validateCommitTrailersRule(raw: unknown): GitCommitTrailersRule {
 	return rule;
 }
 
-function validateDenyEntry(
+function validateForbiddenEntry(
 	raw: unknown,
 	index: number,
 	field: string,
-): GitTrailerDenyEntry {
+): GitTrailerForbiddenEntry {
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
-	const entry: GitTrailerDenyEntry = {
+	const entry: GitTrailerForbiddenEntry = {
 		key: requireString(raw, "key", label),
 	};
 	const valuePattern = optionalString(raw, "value_pattern", label);
@@ -233,14 +241,14 @@ function validateDenyEntry(
 	return entry;
 }
 
-function validateRequireEntry(
+function validateRequiredEntry(
 	raw: unknown,
 	index: number,
 	field: string,
-): GitTrailerRequireEntry {
+): GitTrailerRequiredEntry {
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
-	const entry: GitTrailerRequireEntry = {
+	const entry: GitTrailerRequiredEntry = {
 		key: requireString(raw, "key", label),
 	};
 	const message = optionalString(raw, "message", label);
@@ -248,11 +256,11 @@ function validateRequireEntry(
 	return entry;
 }
 
-function validateAllowEntry(
+function validateAllowedEntry(
 	raw: unknown,
 	index: number,
 	field: string,
-): GitTrailerAllowEntry {
+): GitTrailerAllowedEntry {
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
 	return { key: requireString(raw, "key", label) };
@@ -331,8 +339,8 @@ function validateDiffIgnoredRule(raw: unknown): GitDiffIgnoredRule {
 		rule.scope = scope as GitDiffIgnoredScope;
 	}
 
-	const allow = optionalStringArray(raw, "allow", label);
-	if (allow !== undefined) rule.allow = allow;
+	const allowed = optionalStringArray(raw, "allowed", label);
+	if (allowed !== undefined) rule.allowed = allowed;
 
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;

@@ -32,13 +32,16 @@ describe("git/branch_name", () => {
 		expect(results[0].severity).toBe("error");
 	});
 
-	it("respects the allow list", async () => {
+	it("respects the allowed list", async () => {
 		const repo = await createGitRepo();
 		await writeAndAdd(repo, "README.md", "init\n");
 		commit(repo, "init");
 
 		const results = checkGitBranchName(
-			{ pattern: "^(feat|fix|chore)/[a-z0-9-]+$", allow: ["main", "develop"] },
+			{
+				pattern: "^(feat|fix|chore)/[a-z0-9-]+$",
+				allowed: ["main", "develop"],
+			},
 			repo,
 		);
 		expect(results).toHaveLength(0);

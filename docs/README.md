@@ -14,8 +14,8 @@ monban のユーザー向けドキュメント索引。
 | [path.md](path.md) | パス構造（`forbidden` / `required` / `naming` / `depth` / `count`） |
 | [content.md](content.md) | ファイル内容（`forbidden` / `required`、BOM・不可視文字・シークレット） |
 | [doc.md](doc.md) | ドキュメント整合性（`ref` / `link`） |
-| [github.md](github.md) | GitHub（workflows + CODEOWNERS、11 ルール） |
-| [deps.md](deps.md) | 依存パッケージ（`existence` / `freshness` / `popularity` / `cross_ecosystem` / `typosquat` / `allowed` / `denied`） |
+| [github.md](github.md) | GitHub（workflows + CODEOWNERS、13 ルール） |
+| [deps.md](deps.md) | 依存パッケージ（`existence` / `freshness` / `popularity` / `cross_ecosystem` / `typosquat` / `allowed` / `forbidden`） |
 | [git.md](git.md) | Git メタデータ（`commit.message` / `commit.trailers` / `commit.references` / `diff.size` / `diff.ignored` / `branch_name` / `tag_name`） |
 | [agent.md](agent.md) | AI エージェント設定（`instructions` / `mcp` / `ignore`） |
 

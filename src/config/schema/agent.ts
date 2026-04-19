@@ -85,22 +85,22 @@ function validateMcpRule(
 	if (exclude !== undefined) rule.exclude = exclude;
 	const forbidden = optionalStringArray(raw, "forbidden_commands", label);
 	if (forbidden !== undefined) rule.forbidden_commands = forbidden;
-	if (raw.forbid_unpinned_npx !== undefined) {
-		if (typeof raw.forbid_unpinned_npx !== "boolean") {
-			throw new Error(`${label}.forbid_unpinned_npx must be a boolean`);
+	if (raw.unpinned_npx !== undefined) {
+		if (typeof raw.unpinned_npx !== "boolean") {
+			throw new Error(`${label}.unpinned_npx must be a boolean`);
 		}
-		rule.forbid_unpinned_npx = raw.forbid_unpinned_npx;
+		rule.unpinned_npx = raw.unpinned_npx;
 	}
-	if (raw.forbid_env_secrets !== undefined) {
-		if (typeof raw.forbid_env_secrets !== "boolean") {
-			throw new Error(`${label}.forbid_env_secrets must be a boolean`);
+	if (raw.env_secrets !== undefined) {
+		if (typeof raw.env_secrets !== "boolean") {
+			throw new Error(`${label}.env_secrets must be a boolean`);
 		}
-		rule.forbid_env_secrets = raw.forbid_env_secrets;
+		rule.env_secrets = raw.env_secrets;
 	}
 	const allowed = optionalStringArray(raw, "allowed_servers", label);
 	if (allowed !== undefined) rule.allowed_servers = allowed;
-	const denied = optionalStringArray(raw, "denied_servers", label);
-	if (denied !== undefined) rule.denied_servers = denied;
+	const forbiddenServers = optionalStringArray(raw, "forbidden_servers", label);
+	if (forbiddenServers !== undefined) rule.forbidden_servers = forbiddenServers;
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);

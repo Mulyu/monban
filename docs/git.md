@@ -106,6 +106,8 @@ git:
 
 ## 1. commit.message
 
+<!-- monban:ref ../src/rules/git/commit-message.ts sha256:04015849c7ad913c088716b72b94b2ae4ed87a9c94592e60f6b3dde7f109b178 -->
+
 コミットメッセージの形式・長さ・禁止語を検査する。
 
 対象コミットは `git log --no-merges --format='%H%x00%B%x00' <base>..<head>` で取得する。
@@ -178,11 +180,13 @@ ERROR [commit.message] d4e5f6g
 
 ## 2. commit.trailers
 
+<!-- monban:ref ../src/rules/git/commit-trailers.ts sha256:e6d00b467a4d811470b9bb7641a5929ce16d23b7ea84de51f18bcdf519f6f7f9 -->
+
 trailer（`Co-authored-by`、`Signed-off-by`、`AI-Assistant` 等）のポリシーを強制する。
 
 trailer の取得は `git interpret-trailers --parse`（Git 標準コマンド）で行う。
 
-**既定方針**: `deny` / `require` / `allow` のいずれも既定では空。利用者が必要に応じて明示的に設定する。AI 属性 trailer（`Co-authored-by: Claude` 等）の扱いは組織ごとに判断が分かれるため、monban の既定設定は何も禁止しない。
+**既定方針**: `forbidden` / `required` / `allowed` のいずれも既定では空。利用者が必要に応じて明示的に設定する。AI 属性 trailer（`Co-authored-by: Claude` 等）の扱いは組織ごとに判断が分かれるため、monban の既定設定は何も禁止しない。
 
 ### 設定
 
@@ -191,19 +195,19 @@ git:
   commit:
     trailers:
       # 特定の trailer を禁止
-      deny:
+      forbidden:
         - key: "Co-authored-by"
           value_pattern: "(Claude|Copilot|Cursor|ChatGPT|Gemini)"
           message: "AI の Co-authored-by は組織ポリシーで禁止されています"
         - key: "Generated-by"
 
       # 特定の trailer を必須化
-      require:
+      required:
         - key: "Signed-off-by"
           message: "DCO 準拠のため Signed-off-by が必要です"
 
-      # 明示的に許可（deny ルールより優先）
-      allow:
+      # 明示的に許可（forbidden ルールより優先）
+      allowed:
         - key: "AI-Assistant"
 
       severity: error
@@ -211,22 +215,22 @@ git:
 
 ### フィールド
 
-**deny エントリ**
+**forbidden エントリ**
 
 | フィールド | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
 | `key` | string | Yes | trailer キー（大文字小文字を区別しない） |
-| `value_pattern` | string | No | value に対する正規表現（部分一致）。省略時はキーの存在だけで違反 |
+| `value_pattern` | string | No | value に対する正規表現(部分一致)。省略時はキーの存在だけで違反 |
 | `message` | string | No | エラーメッセージ |
 
-**require エントリ**
+**required エントリ**
 
 | フィールド | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
 | `key` | string | Yes | 必須の trailer キー |
 | `message` | string | No | エラーメッセージ |
 
-**allow エントリ**
+**allowed エントリ**
 
 | フィールド | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
@@ -240,9 +244,9 @@ git:
 
 ### 判定
 
-1. `deny` — キーが一致し、`value_pattern` が指定されていれば value に部分一致する場合に違反
-2. `require` — 全コミットにキーが存在しない場合に違反
-3. `allow` — `deny` に一致していても `allow` にも一致する場合は通過
+1. `forbidden` — キーが一致し、`value_pattern` が指定されていれば value に部分一致する場合に違反
+2. `required` — 全コミットにキーが存在しない場合に違反
+3. `allowed` — `forbidden` に一致していても `allowed` にも一致する場合は通過
 
 trailer キーは大文字小文字を区別せず正規化して比較する（`co-authored-by` ≡ `Co-Authored-By`）。
 
@@ -250,13 +254,15 @@ trailer キーは大文字小文字を区別せず正規化して比較する（
 
 ```
 ERROR [commit.trailers] d4e5f6g
-  trailer "Co-authored-by: Claude <noreply@anthropic.com>" is denied by policy
+  trailer "Co-authored-by: Claude <noreply@anthropic.com>" is forbidden by policy
   AI の Co-authored-by は組織ポリシーで禁止されています
 ```
 
 ---
 
 ## 3. commit.references
+
+<!-- monban:ref ../src/rules/git/commit-references.ts sha256:e6199d3565daf0295c41dc0923ec1a8ef18fc16fb9558c5b8d60626ddb01e21b -->
 
 Issue / チケット番号の参照を必須化する。`commit.message` と同じくコミット本文を取得し、正規表現で検査する。
 
@@ -310,6 +316,8 @@ ERROR [commit.references]
 
 ## 4. diff.size
 
+<!-- monban:ref ../src/rules/git/diff-size.ts sha256:7a73f9d93ce34f67c87ae2da6a52599e07cb067c157d32618c64c0e02de45b1d -->
+
 PR の変更粒度が大きすぎないかを検査する。`git diff --numstat <base>...<head>` でファイル単位の増減行数を取得する。
 
 ### 設定
@@ -361,6 +369,8 @@ WARN [diff.size]
 
 ## 5. diff.ignored
 
+<!-- monban:ref ../src/rules/git/diff-ignored.ts sha256:cf48531035af87c0e88150c83a308e916df29e87d087c5f4a92c18379de8593e -->
+
 `.gitignore` にパターンが書かれているのに追跡されているファイルを検出する。エージェントが `git add -f` や `git add -A` で意図せず追加する事故への対策。
 
 取得は `git ls-files --cached --ignored --exclude-standard` で行う（Git 標準機能、shallow clone でも動作する）。
@@ -376,7 +386,7 @@ git:
       scope: diff
 
       # 意図的に追跡している ignore ファイルの例外
-      allow:
+      allowed:
         - ".vscode/settings.json"
 
       message: ".gitignore に一致しますが追跡されています。意図的ですか？"
@@ -388,7 +398,7 @@ git:
 | フィールド | 型 | デフォルト | 説明 |
 |-----------|-----|-----------|------|
 | `scope` | `"diff"` \| `"all"` | `"diff"` | `diff`: 差分スコープ内の新規追加ファイルのみ検査。`all`: リポジトリ全体 |
-| `allow` | string[] | `[]` | 例外として許可するファイルの glob パターン |
+| `allowed` | string[] | `[]` | 例外として許可するファイルの glob パターン |
 | `message` | string | — | 出力メッセージ |
 | `severity` | `"error"` \| `"warn"` | `"warn"` | 重大度 |
 
@@ -406,6 +416,8 @@ WARN [diff.ignored]
 
 ## 6. branch_name
 
+<!-- monban:ref ../src/rules/git/branch-name.ts sha256:b01ac839f33b3590fca9017cb4cc17bcad0498427c3374e7f778b7ec5d9541a6 -->
+
 現在チェックアウトされているブランチ名が regex に一致するかを検査する。エージェントが作る一時ブランチ命名（例 `claude/foo-bar-XYZ`）を組織規約に揃える用途。
 
 `detached HEAD`（CI の PR イベント等）では何も検査しない。
@@ -416,7 +428,7 @@ WARN [diff.ignored]
 git:
   branch_name:
     pattern: "^(feat|fix|chore|docs|claude)/[a-z0-9-]+$"
-    allow: ["main", "develop", "release"]
+    allowed: ["main", "develop", "release"]
     severity: warn
     message: "ブランチ名は <type>/<kebab-case> 形式にしてください。"
 ```
@@ -426,7 +438,7 @@ git:
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |---|---|---|---|---|
 | `pattern` | string | Yes | — | 一致を要求する正規表現 |
-| `allow` | string[] | No | `[]` | regex 検査をスキップする許可名（`main` 等） |
+| `allowed` | string[] | No | `[]` | regex 検査をスキップする許可名（`main` 等） |
 | `message` | string | No | — | カスタムメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
 
@@ -440,6 +452,8 @@ ERROR [branch_name] WIP_branch
 ---
 
 ## 7. tag_name
+
+<!-- monban:ref ../src/rules/git/tag-name.ts sha256:fd4ceeddb62edda24d89fefd2f46bc546485b75272535aaf31725991277952fa -->
 
 リポジトリ内のタグ名が regex に一致するかを検査する。SemVer の徹底や、`v` 接頭辞ポリシーの担保に使う。
 
@@ -491,7 +505,7 @@ $ monban git --diff=main
   d4e5f6g: subject is a forbidden keyword: "fix"
 
 [commit.trailers] 1 error
-  d4e5f6g: trailer "Co-authored-by: Claude <noreply@anthropic.com>" is denied by policy
+  d4e5f6g: trailer "Co-authored-by: Claude <noreply@anthropic.com>" is forbidden by policy
 
 [diff.size] 1 warning
   total insertions 1824 exceeds max 1000

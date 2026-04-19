@@ -22,26 +22,26 @@ describe("git/commit.trailers", () => {
 		expect(results).toHaveLength(0);
 	});
 
-	it("passes when no deny / require rules match", () => {
+	it("passes when no forbidden / required rules match", () => {
 		commit(
 			repo,
 			"feat: add\n\nbody here\n\nSigned-off-by: Alice <alice@example.com>",
 		);
 		const results = checkGitCommitTrailers(
-			{ deny: [{ key: "Co-authored-by" }] },
+			{ forbidden: [{ key: "Co-authored-by" }] },
 			repo,
 			`${base}..HEAD`,
 		);
 		expect(results).toHaveLength(0);
 	});
 
-	it("denies trailer by key only", () => {
+	it("forbids trailer by key only", () => {
 		commit(
 			repo,
 			"feat: add\n\nbody\n\nCo-authored-by: Claude <noreply@anthropic.com>",
 		);
 		const results = checkGitCommitTrailers(
-			{ deny: [{ key: "Co-authored-by" }] },
+			{ forbidden: [{ key: "Co-authored-by" }] },
 			repo,
 			`${base}..HEAD`,
 		);
@@ -49,7 +49,7 @@ describe("git/commit.trailers", () => {
 		expect(results[0].message).toContain("Co-authored-by");
 	});
 
-	it("denies trailer by value pattern", () => {
+	it("forbids trailer by value pattern", () => {
 		commit(
 			repo,
 			"feat: add\n\nbody\n\nCo-authored-by: Alice <alice@example.com>",
@@ -60,7 +60,7 @@ describe("git/commit.trailers", () => {
 		);
 		const results = checkGitCommitTrailers(
 			{
-				deny: [
+				forbidden: [
 					{ key: "Co-authored-by", value_pattern: "(Claude|Copilot|Cursor)" },
 				],
 			},
@@ -71,15 +71,15 @@ describe("git/commit.trailers", () => {
 		expect(results[0].message).toContain("Claude");
 	});
 
-	it("allow overrides deny", () => {
+	it("allowed overrides forbidden", () => {
 		commit(
 			repo,
 			"feat: add\n\nbody\n\nCo-authored-by: Claude <noreply@anthropic.com>",
 		);
 		const results = checkGitCommitTrailers(
 			{
-				deny: [{ key: "Co-authored-by" }],
-				allow: [{ key: "Co-authored-by" }],
+				forbidden: [{ key: "Co-authored-by" }],
+				allowed: [{ key: "Co-authored-by" }],
 			},
 			repo,
 			`${base}..HEAD`,
@@ -87,10 +87,10 @@ describe("git/commit.trailers", () => {
 		expect(results).toHaveLength(0);
 	});
 
-	it("requires missing trailer", () => {
+	it("flags missing required trailer", () => {
 		commit(repo, "feat: add\n\nbody");
 		const results = checkGitCommitTrailers(
-			{ require: [{ key: "Signed-off-by" }] },
+			{ required: [{ key: "Signed-off-by" }] },
 			repo,
 			`${base}..HEAD`,
 		);
@@ -104,7 +104,7 @@ describe("git/commit.trailers", () => {
 			"feat: add\n\nbody\n\nSigned-off-by: Alice <alice@example.com>",
 		);
 		const results = checkGitCommitTrailers(
-			{ require: [{ key: "Signed-off-by" }] },
+			{ required: [{ key: "Signed-off-by" }] },
 			repo,
 			`${base}..HEAD`,
 		);
@@ -114,18 +114,20 @@ describe("git/commit.trailers", () => {
 	it("normalizes trailer keys case-insensitively", () => {
 		commit(repo, "feat: add\n\nbody\n\nco-authored-by: Claude <x@x.com>");
 		const results = checkGitCommitTrailers(
-			{ deny: [{ key: "Co-Authored-By" }] },
+			{ forbidden: [{ key: "Co-Authored-By" }] },
 			repo,
 			`${base}..HEAD`,
 		);
 		expect(results).toHaveLength(1);
 	});
 
-	it("includes custom deny message", () => {
+	it("includes custom forbidden message", () => {
 		commit(repo, "feat: add\n\nbody\n\nCo-authored-by: Claude <x@x.com>");
 		const results = checkGitCommitTrailers(
 			{
-				deny: [{ key: "Co-authored-by", message: "Policy X forbids this." }],
+				forbidden: [
+					{ key: "Co-authored-by", message: "Policy X forbids this." },
+				],
 			},
 			repo,
 			`${base}..HEAD`,

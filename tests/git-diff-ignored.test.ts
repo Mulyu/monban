@@ -38,11 +38,11 @@ describe("git/diff.ignored", () => {
 		expect(results).toHaveLength(0);
 	});
 
-	it("respects allow patterns", async () => {
+	it("respects allowed patterns", async () => {
 		await writeAndAdd(repo, ".env.local", "SECRET=1\n");
 		commit(repo, "chore: add env");
 		const results = checkGitDiffIgnored(
-			{ allow: [".env.local"] },
+			{ allowed: [".env.local"] },
 			repo,
 			`${base}...HEAD`,
 		);
