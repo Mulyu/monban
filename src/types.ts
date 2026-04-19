@@ -205,6 +205,17 @@ export interface GithubCodeownersRule {
 	message?: string;
 }
 
+export interface GithubActionsDangerRule {
+	path: string;
+	severity?: Severity;
+}
+
+export interface GithubActionsInjectionRule {
+	path: string;
+	severity?: Severity;
+	allow_contexts?: string[];
+}
+
 export interface GithubActionsConfig {
 	pinned?: GithubPinnedRule[];
 	required?: GithubRequiredRule[];
@@ -216,6 +227,8 @@ export interface GithubActionsConfig {
 	concurrency?: GithubConcurrencyRule[];
 	consistency?: GithubConsistencyRule[];
 	secrets?: GithubSecretsRule[];
+	danger?: GithubActionsDangerRule[];
+	injection?: GithubActionsInjectionRule[];
 }
 
 export interface GithubCodeownersConfig {

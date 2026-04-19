@@ -43,7 +43,7 @@ path:
     - path: "src/rules/doc"
       max: 10
     - path: "src/rules/github"
-      max: 15
+      max: 18
     - path: "src/rules/git"
       max: 12
 
@@ -164,6 +164,14 @@ github:
     forbidden:
       - path: ".github/workflows/**/*.yml"
         uses: "actions/create-release"
+
+    # フォーク PR からの secret 窃取経路を検出
+    danger:
+      - path: ".github/workflows/**/*.yml"
+
+    # 信頼できない入力を run: に直埋めする script injection を検出
+    injection:
+      - path: ".github/workflows/**/*.yml"
         message: "release-please を使ってください。"
 
 # 依存のサプライチェーン安全性

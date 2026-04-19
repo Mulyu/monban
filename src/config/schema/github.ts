@@ -1,5 +1,7 @@
 import type {
 	GithubActionsConfig,
+	GithubActionsDangerRule,
+	GithubActionsInjectionRule,
 	GithubCodeownersConfig,
 	GithubCodeownersRule,
 	GithubConcurrencyRule,
@@ -121,8 +123,54 @@ function validateGithubActionsConfig(raw: unknown): GithubActionsConfig {
 			validateGithubSecretsRule,
 		);
 	}
+	if (obj.danger !== undefined) {
+		config.danger = validateArray(
+			obj.danger,
+			"github.actions.danger",
+			validateGithubActionsDangerRule,
+		);
+	}
+	if (obj.injection !== undefined) {
+		config.injection = validateArray(
+			obj.injection,
+			"github.actions.injection",
+			validateGithubActionsInjectionRule,
+		);
+	}
 
 	return config;
+}
+
+function validateGithubActionsDangerRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): GithubActionsDangerRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+	const rule: GithubActionsDangerRule = {
+		path: requireString(raw, "path", label),
+	};
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateGithubActionsInjectionRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): GithubActionsInjectionRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+	const rule: GithubActionsInjectionRule = {
+		path: requireString(raw, "path", label),
+	};
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	const allow = optionalStringArray(raw, "allow_contexts", label);
+	if (allow !== undefined) rule.allow_contexts = allow;
+	return rule;
 }
 
 function validateGithubCodeownersConfig(raw: unknown): GithubCodeownersConfig {
