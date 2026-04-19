@@ -45,7 +45,7 @@ path:
     - path: "src/rules/github"
       max: 15
     - path: "src/rules/git"
-      max: 10
+      max: 12
 
 content:
   forbidden:
@@ -236,6 +236,17 @@ git:
     ignored:
       scope: diff
       severity: warn
+
+  # ブランチ命名規約（main / claude/* / feat/* / fix/* / chore/* / docs/*）
+  branch_name:
+    pattern: "^(claude|feat|fix|chore|docs|refactor|test|ci|build)/[A-Za-z0-9._/-]+$"
+    allow: ["main"]
+    severity: warn
+
+  # SemVer 形式のタグのみ許容（過去タグの整理が完了したら scope を all に切替）
+  tag_name:
+    pattern: "^v\\d+\\.\\d+\\.\\d+(-[a-z0-9.]+)?$"
+    severity: warn
 
 doc:
   ref:

@@ -1,4 +1,5 @@
 import type {
+	GitBranchNameRule,
 	GitCommitConfig,
 	GitCommitMessagePreset,
 	GitCommitMessageRule,
@@ -10,6 +11,7 @@ import type {
 	GitDiffIgnoredRule,
 	GitDiffIgnoredScope,
 	GitDiffSizeRule,
+	GitTagNameRule,
 	GitTrailerAllowEntry,
 	GitTrailerDenyEntry,
 	GitTrailerRequireEntry,
@@ -27,6 +29,7 @@ import {
 const PRESETS: GitCommitMessagePreset[] = ["conventional"];
 const IGNORED_SCOPES: GitDiffIgnoredScope[] = ["diff", "all"];
 const REFERENCES_SCOPES: GitCommitReferencesScope[] = ["all", "any"];
+const TAG_SCOPES: GitTagNameRule["scope"][] = ["all", "recent"];
 
 export function validateGitConfig(raw: unknown): GitConfig {
 	if (typeof raw !== "object" || raw === null) {
@@ -42,8 +45,55 @@ export function validateGitConfig(raw: unknown): GitConfig {
 	if (obj.diff !== undefined) {
 		config.diff = validateGitDiffConfig(obj.diff);
 	}
+	if (obj.branch_name !== undefined) {
+		config.branch_name = validateBranchNameRule(obj.branch_name);
+	}
+	if (obj.tag_name !== undefined) {
+		config.tag_name = validateTagNameRule(obj.tag_name);
+	}
 
 	return config;
+}
+
+function validateBranchNameRule(raw: unknown): GitBranchNameRule {
+	const label = "git.branch_name";
+	assertObject(raw, label);
+
+	const rule: GitBranchNameRule = {
+		pattern: requireString(raw, "pattern", label),
+	};
+	const allow = optionalStringArray(raw, "allow", label);
+	if (allow !== undefined) rule.allow = allow;
+	const message = optionalString(raw, "message", label);
+	if (message !== undefined) rule.message = message;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateTagNameRule(raw: unknown): GitTagNameRule {
+	const label = "git.tag_name";
+	assertObject(raw, label);
+
+	const rule: GitTagNameRule = {
+		pattern: requireString(raw, "pattern", label),
+	};
+	const scope = optionalString(raw, "scope", label);
+	if (scope !== undefined) {
+		if (!TAG_SCOPES.includes(scope as GitTagNameRule["scope"])) {
+			throw new Error(
+				`${label}.scope must be one of: ${TAG_SCOPES.join(", ")}`,
+			);
+		}
+		rule.scope = scope as GitTagNameRule["scope"];
+	}
+	const limit = validatePositiveInteger(raw, "limit", label);
+	if (limit !== undefined) rule.limit = limit;
+	const message = optionalString(raw, "message", label);
+	if (message !== undefined) rule.message = message;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
 }
 
 function validateGitCommitConfig(raw: unknown): GitCommitConfig {

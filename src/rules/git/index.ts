@@ -1,10 +1,12 @@
 import type { GitConfig, RuleResult } from "../../types.js";
+import { checkGitBranchName } from "./branch-name.js";
 import { checkGitCommitMessage } from "./commit-message.js";
 import { checkGitCommitReferences } from "./commit-references.js";
 import { checkGitCommitTrailers } from "./commit-trailers.js";
 import { checkGitDiffIgnored } from "./diff-ignored.js";
 import { checkGitDiffSize } from "./diff-size.js";
 import { resolveGitRange } from "./range.js";
+import { checkGitTagName } from "./tag-name.js";
 
 export interface GitRuleResult {
 	name: string;
@@ -21,6 +23,8 @@ export const GIT_RULE_NAMES = [
 	"commit.references",
 	"diff.size",
 	"diff.ignored",
+	"branch_name",
+	"tag_name",
 ];
 
 export async function runGitRules(
@@ -81,6 +85,10 @@ function runSingleRule(
 				cwd,
 				range?.diffRange ?? null,
 			);
+		case "branch_name":
+			return checkGitBranchName(config.branch_name, cwd);
+		case "tag_name":
+			return checkGitTagName(config.tag_name, cwd);
 		default:
 			return [];
 	}
