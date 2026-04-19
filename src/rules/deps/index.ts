@@ -8,7 +8,10 @@ import { checkDepsAllowed } from "./allowed.js";
 import { checkDepsCrossEcosystem } from "./cross-ecosystem.js";
 import { checkDepsDenied } from "./denied.js";
 import { checkDepsExistence } from "./existence.js";
+import { checkDepsFloatingVersion } from "./floating-version.js";
 import { checkDepsFreshness } from "./freshness.js";
+import { checkDepsGitDependency } from "./git-dependency.js";
+import { checkDepsInstallScripts } from "./install-scripts.js";
 import { checkDepsPopularity } from "./popularity.js";
 import { checkDepsTyposquat } from "./typosquat.js";
 
@@ -48,6 +51,12 @@ const RULE_RUNNERS: Record<string, RuleRunner> = {
 	typosquat: (c, cwd, ex) => checkDepsTyposquat(c.typosquat ?? [], cwd, ex),
 	allowed: (c, cwd, ex) => checkDepsAllowed(c.allowed ?? [], cwd, ex),
 	denied: (c, cwd, ex) => checkDepsDenied(c.denied ?? [], cwd, ex),
+	install_scripts: (c, cwd, ex) =>
+		checkDepsInstallScripts(c.install_scripts ?? [], cwd, ex),
+	git_dependency: (c, cwd, ex) =>
+		checkDepsGitDependency(c.git_dependency ?? [], cwd, ex),
+	floating_version: (c, cwd, ex) =>
+		checkDepsFloatingVersion(c.floating_version ?? [], cwd, ex),
 };
 
 export const DEPS_RULE_NAMES = Object.keys(RULE_RUNNERS);

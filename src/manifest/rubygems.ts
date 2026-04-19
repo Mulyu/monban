@@ -1,6 +1,6 @@
 import type { ManifestEntry } from "./index.js";
 
-const GEM_LINE = /^\s*gem\s+["']([^"']+)["']/;
+const GEM_LINE = /^\s*gem\s+["']([^"']+)["'](.*)$/;
 
 export function parseGemfile(content: string): ManifestEntry[] {
 	const entries: ManifestEntry[] = [];
@@ -9,7 +9,12 @@ export function parseGemfile(content: string): ManifestEntry[] {
 		const stripped = lines[i].split("#")[0];
 		const m = stripped.match(GEM_LINE);
 		if (m) {
-			entries.push({ name: m[1], ecosystem: "rubygems", line: i + 1 });
+			entries.push({
+				name: m[1],
+				ecosystem: "rubygems",
+				line: i + 1,
+				version: m[2].replace(/^,\s*/, "").trim() || undefined,
+			});
 		}
 	}
 	return entries;

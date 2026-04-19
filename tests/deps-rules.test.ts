@@ -5,7 +5,10 @@ import { checkDepsAllowed } from "../src/rules/deps/allowed.js";
 import { checkDepsCrossEcosystem } from "../src/rules/deps/cross-ecosystem.js";
 import { checkDepsDenied } from "../src/rules/deps/denied.js";
 import { checkDepsExistence } from "../src/rules/deps/existence.js";
+import { checkDepsFloatingVersion } from "../src/rules/deps/floating-version.js";
 import { checkDepsFreshness } from "../src/rules/deps/freshness.js";
+import { checkDepsGitDependency } from "../src/rules/deps/git-dependency.js";
+import { checkDepsInstallScripts } from "../src/rules/deps/install-scripts.js";
 import { checkDepsPopularity } from "../src/rules/deps/popularity.js";
 import { checkDepsTyposquat } from "../src/rules/deps/typosquat.js";
 import type { DepsEcosystem } from "../src/types.js";
@@ -202,5 +205,115 @@ describe("deps/denied", () => {
 		expect(results.every((r) => r.message.includes("hallucinated dep"))).toBe(
 			true,
 		);
+	});
+});
+
+const scriptsCwd = resolve(import.meta.dirname, "fixtures/deps-scripts");
+const sourcesCwd = resolve(import.meta.dirname, "fixtures/deps-sources");
+const floatingCwd = resolve(import.meta.dirname, "fixtures/deps-floating");
+
+describe("deps/install_scripts", () => {
+	it("detects lifecycle hooks in package.json", async () => {
+		const results = await checkDepsInstallScripts(
+			[{ path: "package.json" }],
+			scriptsCwd,
+			[],
+		);
+		const hooks = results.map((r) => r.message);
+		expect(hooks.some((m) => m.includes("preinstall"))).toBe(true);
+		expect(hooks.some((m) => m.includes("postinstall"))).toBe(true);
+		expect(hooks.some((m) => m.includes("prepare"))).toBe(true);
+		// `test` is not a lifecycle hook
+		expect(hooks.some((m) => m.includes("test"))).toBe(false);
+	});
+
+	it("does not flag manifests without lifecycle hooks", async () => {
+		const results = await checkDepsInstallScripts(
+			[{ path: "package.json" }],
+			cwd,
+			[],
+		);
+		expect(results).toHaveLength(0);
+	});
+
+	it("respects hooks filter", async () => {
+		const results = await checkDepsInstallScripts(
+			[{ path: "package.json", hooks: ["preinstall"] }],
+			scriptsCwd,
+			[],
+		);
+		expect(results).toHaveLength(1);
+		expect(results[0].message).toContain("preinstall");
+	});
+
+	it("defaults to warn severity", async () => {
+		const results = await checkDepsInstallScripts(
+			[{ path: "package.json" }],
+			scriptsCwd,
+			[],
+		);
+		expect(results[0].severity).toBe("warn");
+	});
+});
+
+describe("deps/git_dependency", () => {
+	it("flags git / file / URL sources", async () => {
+		const results = await checkDepsGitDependency(
+			[{ path: "package.json" }],
+			sourcesCwd,
+			[],
+		);
+		const names = results.map((r) => r.message.split(":")[0]);
+		expect(names).toContain("my-fork");
+		expect(names).toContain("ssh-dep");
+		expect(names).toContain("local-lib");
+		expect(names).toContain("gh-short");
+		expect(names).toContain("url-tgz");
+	});
+
+	it("does not flag registry-version dependencies", async () => {
+		const results = await checkDepsGitDependency(
+			[{ path: "package.json" }],
+			sourcesCwd,
+			[],
+		);
+		const names = results.map((r) => r.message.split(":")[0]);
+		expect(names).not.toContain("express");
+	});
+
+	it("respects per-rule exclude", async () => {
+		const results = await checkDepsGitDependency(
+			[{ path: "package.json", exclude: ["package.json"] }],
+			sourcesCwd,
+			[],
+		);
+		expect(results).toHaveLength(0);
+	});
+});
+
+describe("deps/floating_version", () => {
+	it("flags caret / tilde / star / latest / x-range / unbounded", async () => {
+		const results = await checkDepsFloatingVersion(
+			[{ path: "package.json" }],
+			floatingCwd,
+			[],
+		);
+		const names = results.map((r) => r.message.split(":")[0]);
+		expect(names).toContain("caret");
+		expect(names).toContain("tilde");
+		expect(names).toContain("star");
+		expect(names).toContain("latest");
+		expect(names).toContain("xrange");
+		expect(names).toContain("unbounded");
+	});
+
+	it("does not flag pinned exact versions", async () => {
+		const results = await checkDepsFloatingVersion(
+			[{ path: "package.json" }],
+			floatingCwd,
+			[],
+		);
+		const names = results.map((r) => r.message.split(":")[0]);
+		expect(names).not.toContain("pinned");
 	});
 });

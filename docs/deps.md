@@ -29,6 +29,9 @@ monban deps --json             # JSON 出力
 | 5 | `typosquat` | 人気パッケージと編集距離が近い類似名を検出する |
 | 6 | `allowed` | allowlist（指定名のみ許可） |
 | 7 | `denied` | denylist（指定名を禁止） |
+| 8 | `install_scripts` | npm lifecycle hooks（preinstall / install / postinstall / prepare）の宣言を検出する |
+| 9 | `git_dependency` | レジストリ外のソース（git+ / file: / URL 直指定）の依存を検出する |
+| 10 | `floating_version` | `^` / `~` / `*` / `latest` / 上限なし `>=` の浮動バージョンを検出する |
 
 ---
 
@@ -94,6 +97,19 @@ deps:
         - event-stream
         - flatmap-stream
       message: "過去に compromise されたパッケージです。"
+
+  install_scripts:
+    - path: "**/package.json"
+      severity: warn
+      message: "npm lifecycle hook はサプライチェーン攻撃の主要ベクトル。正当性を PR でレビュー。"
+
+  git_dependency:
+    - path: "**/package.json"
+      severity: warn
+
+  floating_version:
+    - path: "**/package.json"
+      severity: warn
 ```
 
 ---
@@ -330,6 +346,129 @@ deps:
 ERROR [denied] package.json:9 event-stream
   過去に compromise されたパッケージです。
 ```
+
+---
+
+## 8. install_scripts
+
+npm の lifecycle hooks（`preinstall` / `install` / `postinstall` / `prepare`）が `scripts:` に宣言されていることを検出する。任意コード実行の攻撃面で、2025 年の npm 攻撃の 72% がこの経路を悪用している（Shai-Hulud ほか）。
+
+正当な用途（monorepo bootstrap、Husky 設定など）もあるため既定は `warn`。PR レビューで個別に正当性を判断する前提で使う。
+
+### 設定
+
+```yaml
+deps:
+  install_scripts:
+    - path: "**/package.json"
+      severity: warn
+      message: "npm lifecycle hook はサプライチェーン攻撃の主要ベクトル。"
+
+    # prepare のみ許容（Husky / husky-init などに限定したい場合）
+    - path: "**/package.json"
+      hooks: ["preinstall", "install", "postinstall"]
+      severity: error
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|
+| `path` | string | Yes | — | 対象マニフェストの glob |
+| `exclude` | string[] | No | — | 除外 glob |
+| `hooks` | string[] | No | `[preinstall, install, postinstall, prepare]` | 検出するフック名 |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
+
+### 出力例
+
+```
+WARN  [install_scripts] package.json:5
+  preinstall ライフサイクルフックが宣言されています (任意コード実行の攻撃面)。
+```
+
+### 対応エコシステム
+
+現時点では **npm のみ**（package.json の `scripts.{preinstall,install,postinstall,prepare}`）。PyPI の `[tool.poetry.build]`、Gemfile の `post_install_message` などは攻撃面がより狭いため将来拡張の候補。
+
+---
+
+## 9. git_dependency
+
+レジストリ外のソース（git URL、ローカルパス、HTTP 直 tarball）から取得される依存を検出する。`slopsquat` / PhantomRaven（Remote Dynamic Dependencies）の典型パターンで、レジストリ監査が効かないため警戒対象。
+
+### 検出対象
+
+| パターン | 例 |
+|---------|-----|
+| `git+` / `git:` / `git@` / `ssh://` | `git+https://github.com/evil/x.git` |
+| `file:` / `./` / `../` / `/` | `file:../local-lib` |
+| `github:` / `gitlab:` / `bitbucket:` ショートハンド | `github:evil/x` |
+| `http://` / `https://` | `https://example.com/pkg.tgz` |
+
+### 設定
+
+```yaml
+deps:
+  git_dependency:
+    - path: "**/package.json"
+      severity: warn
+      exclude: ["tests/fixtures/**"]
+    - path: "**/pyproject.toml"
+      severity: warn
+    - path: "**/Cargo.toml"
+      severity: warn
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|
+| `path` | string | Yes | — | 対象マニフェストの glob |
+| `exclude` | string[] | No | — | 除外 glob |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
+
+### 対応エコシステム
+
+npm / PyPI (pyproject.toml) / Cargo / RubyGems。Go modules と GitHub Actions は別の仕組みでバージョン管理されているため対象外。
+
+---
+
+## 10. floating_version
+
+上限のないバージョン指定を検出する。`freshness` が「未来に公開された新規パッケージ」を検査するのに対し、こちらは「未来のバージョンを許容する設定そのもの」を検査する。
+
+### 検出対象
+
+| パターン | 例 | エコシステム |
+|---------|-----|---|
+| wildcard | `*` | 全般 |
+| `latest` | `latest` | 全般 |
+| caret range | `^1.2.3` | npm / cargo / rubygems |
+| tilde range | `~1.2.3` | npm / cargo / rubygems |
+| x-range | `1.2.x` | npm / cargo / rubygems |
+| unbounded lower | `>=1.0` | 全般 |
+
+### 設定
+
+```yaml
+deps:
+  floating_version:
+    - path: "**/package.json"
+      severity: warn
+    - path: "**/requirements.txt"
+      severity: error
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|
+| `path` | string | Yes | — | 対象マニフェストの glob |
+| `exclude` | string[] | No | — | 除外 glob |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
 
 ---
 

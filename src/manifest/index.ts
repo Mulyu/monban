@@ -12,12 +12,21 @@ export interface ManifestEntry {
 	name: string;
 	ecosystem: DepsEcosystem;
 	line?: number;
+	/** Raw version or source specifier as written in the manifest. */
+	version?: string;
+}
+
+export interface InstallScript {
+	hook: string;
+	line?: number;
 }
 
 export interface Manifest {
 	file: string;
 	ecosystem: DepsEcosystem;
 	entries: ManifestEntry[];
+	/** npm lifecycle hooks (preinstall/install/postinstall/prepare) when present. */
+	installScripts?: InstallScript[];
 }
 
 export function detectEcosystem(file: string): DepsEcosystem | null {
@@ -34,6 +43,11 @@ export function detectEcosystem(file: string): DepsEcosystem | null {
 	return null;
 }
 
+export interface ParseResult {
+	entries: ManifestEntry[];
+	installScripts?: InstallScript[];
+}
+
 export async function loadManifest(
 	file: string,
 	cwd: string,
@@ -44,22 +58,32 @@ export async function loadManifest(
 	const abs = join(cwd, file);
 	const content = await readFile(abs, "utf-8");
 
-	let entries: ManifestEntry[] = [];
+	let result: ParseResult = { entries: [] };
 	try {
-		if (ecosystem === "npm") entries = parseNpmPackage(content);
-		else if (ecosystem === "go") entries = parseGoMod(content);
-		else if (ecosystem === "rubygems") entries = parseGemfile(content);
-		else if (ecosystem === "cargo") entries = parseCargoToml(content);
-		else if (ecosystem === "github-actions") entries = parseWorkflow(content);
+		if (ecosystem === "npm") result = parseNpmPackage(content);
+		else if (ecosystem === "go") result = { entries: parseGoMod(content) };
+		else if (ecosystem === "rubygems")
+			result = { entries: parseGemfile(content) };
+		else if (ecosystem === "cargo")
+			result = { entries: parseCargoToml(content) };
+		else if (ecosystem === "github-actions")
+			result = { entries: parseWorkflow(content) };
 		else if (ecosystem === "pypi") {
-			entries = file.endsWith("pyproject.toml")
-				? parsePyproject(content)
-				: parseRequirementsTxt(content);
+			result = {
+				entries: file.endsWith("pyproject.toml")
+					? parsePyproject(content)
+					: parseRequirementsTxt(content),
+			};
 		}
 	} catch {
 		// Unparseable manifest — treat as empty.
 		return { file, ecosystem, entries: [] };
 	}
 
-	return { file, ecosystem, entries };
+	return {
+		file,
+		ecosystem,
+		entries: result.entries,
+		installScripts: result.installScripts,
+	};
 }

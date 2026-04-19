@@ -10,11 +10,24 @@ export function parseCargoToml(content: string): ManifestEntry[] {
 	for (const table of DEP_TABLES) {
 		const section = doc[table];
 		if (section && typeof section === "object") {
-			for (const name of Object.keys(section as Record<string, unknown>)) {
-				entries.set(name, { name, ecosystem: "cargo" });
+			for (const [name, spec] of Object.entries(
+				section as Record<string, unknown>,
+			)) {
+				const version =
+					typeof spec === "string" ? spec : stringifyCargoSpec(spec);
+				entries.set(name, { name, ecosystem: "cargo", version });
 			}
 		}
 	}
 
 	return [...entries.values()];
+}
+
+function stringifyCargoSpec(spec: unknown): string | undefined {
+	if (!spec || typeof spec !== "object") return undefined;
+	const obj = spec as Record<string, unknown>;
+	if (typeof obj.git === "string") return `git+${obj.git}`;
+	if (typeof obj.path === "string") return `file:${obj.path}`;
+	if (typeof obj.version === "string") return obj.version;
+	return undefined;
 }

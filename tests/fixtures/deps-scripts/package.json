@@ -1,0 +1,13 @@
+{
+	"name": "has-lifecycle-hooks",
+	"version": "1.0.0",
+	"scripts": {
+		"preinstall": "echo owned",
+		"postinstall": "node bootstrap.js",
+		"test": "vitest",
+		"prepare": "husky install"
+	},
+	"dependencies": {
+		"express": "^4.18.0"
+	}
+}
