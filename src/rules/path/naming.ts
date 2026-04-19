@@ -1,5 +1,5 @@
 import { parse as parsePath } from "node:path";
-import fg from "fast-glob";
+import fg from "../../ports/glob.js";
 import type { NamingRule, NamingStyle, RuleResult } from "../../types.js";
 
 const STYLE_VALIDATORS: Record<NamingStyle, (name: string) => boolean> = {

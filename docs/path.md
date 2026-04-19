@@ -74,7 +74,7 @@ path:
 
 ## 1. forbidden
 
-<!-- monban:ref ../src/rules/path/forbidden.ts sha256:550b88f8a963672c732389404fe13f4d039513e5eff20d980830f80659a24276 -->
+<!-- monban:ref ../src/rules/path/forbidden.ts sha256:e04ac21b7494ec75c8de3226bb73d991a29f32921c7cd017b33e276f0d9a8099 -->
 
 存在してはならないファイル・ディレクトリを定義する。
 
@@ -141,7 +141,7 @@ WARN  [forbidden] tmp/draft.temp.md
 
 ## 2. required
 
-<!-- monban:ref ../src/rules/path/required.ts sha256:c8830437421369adad6bb499bef67c371685e1f7a0414b7aa917406648a9237b -->
+<!-- monban:ref ../src/rules/path/required.ts sha256:60bd271b59ab2c051250d9ea3db13cf591c9744127c7098588c9957a7ce6e903 -->
 
 特定のディレクトリやファイルに対し、存在すべきファイルを定義する。2つのモードがある。
 
@@ -243,7 +243,7 @@ WARN  [required] src/components/UserProfile.tsx
 
 ## 3. naming
 
-<!-- monban:ref ../src/rules/path/naming.ts sha256:075159c15f5f19fd51d089d8dcb250692f3b53f96a5f4bd5ca5a9ceac3b38a13 -->
+<!-- monban:ref ../src/rules/path/naming.ts sha256:e2166a813877c400d771f15f9f96c551020087a80cecedfec811a99f3cd9fadb -->
 
 ファイル名・ディレクトリ名の命名スタイルを強制する。場所を起点として、そこにあるファイル/ディレクトリの名前をチェックする。
 
@@ -303,7 +303,7 @@ ERROR [naming] src/hooks/auth.ts
 
 ## 4. depth
 
-<!-- monban:ref ../src/rules/path/depth.ts sha256:f10e9e5c4c142e578c2a6af296dddede8ab934a3662ce30109c3c0e5a3fa04a9 -->
+<!-- monban:ref ../src/rules/path/depth.ts sha256:2c1ed31d97409892bfd1c97eb29021f56c6aa2338b4e58cce4d2293b0a09e54f -->
 
 ディレクトリのネスト深度に上限を設ける。
 
@@ -344,7 +344,7 @@ ERROR [depth] src/domain/user/profile/settings/theme.ts
 
 ## 5. count
 
-<!-- monban:ref ../src/rules/path/count.ts sha256:6596f61566e4ca8af19628768eb1a744deaeed64b2b5033dde038db0ef7654e4 -->
+<!-- monban:ref ../src/rules/path/count.ts sha256:aa12c9187baa0554129697a55d95a904dca7ef07fcc484c2b4966898269774b2 -->
 
 1ディレクトリに置けるファイル数に上限を設ける。
 
@@ -388,7 +388,7 @@ ERROR [count] src/rules/
 
 ## 6. hash
 
-<!-- monban:ref ../src/rules/path/hash.ts sha256:5427e3c0b0222579544c2d206c19d781c4774a535d8740014af9240e1563b7c3 -->
+<!-- monban:ref ../src/rules/path/hash.ts sha256:4f66736a8d10f0e090bc5b85dc2ff24e7277359e52ba71a4c1071cbe767cb73e -->
 
 単一ファイルの SHA256 を固定する。LICENSE のテンプレ、ベンダ済みファイル、生成成果物の改竄を検出する。
 
@@ -430,7 +430,7 @@ ERROR [hash] LICENSE
 
 ## 7. size
 
-<!-- monban:ref ../src/rules/path/size.ts sha256:f54d72a23a1edde734b5f895d3caee71f8ca7f940706244da9cde15ae7f058ee -->
+<!-- monban:ref ../src/rules/path/size.ts sha256:81c70f508d7dbf45ec557082140d61734d697f9ca744056dbaafdf19b0509106 -->
 
 ファイルサイズ（バイト数）の上限を検査する。`content.size` が行数を見るのに対し、こちらはバイナリ・画像・バンドル成果物などを対象にできる。
 
@@ -470,7 +470,7 @@ WARN  [size] assets/banner.png
 
 ## 8. case_conflict
 
-<!-- monban:ref ../src/rules/path/case-conflict.ts sha256:0f66bf1e1692fc004b5db2bd206df0714e54cef8b351ad4ea0fbc18c59db71c5 -->
+<!-- monban:ref ../src/rules/path/case-conflict.ts sha256:7b8565ae8d772231bbe3d2042627bf11c5afb546016ee7640e052f6368e08aa3 -->
 
 同一ディレクトリ内で大文字小文字違いのみで衝突するファイル名を検出する。case-insensitive ファイルシステム（macOS / Windows）でリポジトリを開いたときに片方が消えるバグを防ぐ。
 

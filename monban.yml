@@ -9,6 +9,10 @@ path:
       message: "utils/ は使用禁止。適切なモジュールに配置してください。"
     - path: "**/helpers/**"
       message: "helpers/ は使用禁止。"
+    - path: "**/lib/**"
+      message: "lib/ は使用禁止。FS・HTTP などの外部リソース抽象は src/ports/ に、個別責務は専用ディレクトリに置いてください。"
+    - path: "**/misc/**"
+      message: "misc/ は使用禁止。"
     - path: "src/**/*.js"
       message: "src/ 内に .js は配置できません。TypeScript を使用してください。"
     - path: "src/**/utils.ts"
@@ -19,6 +23,8 @@ path:
       message: "schema.ts は schema/ ディレクトリと共存させず、schema/index.ts に統合してください。"
     - path: "src/registry/client.ts"
       message: "client.ts は registry/ ディレクトリと共存させず、registry/index.ts または責務別ファイル (ecosysteme.ts, offline.ts など) に分割してください。"
+    - path: "src/glob.ts"
+      message: "FS 抽象は src/ports/ に置いてください (例: src/ports/glob.ts)。"
 
   required:
     - path: "src/rules/*"
