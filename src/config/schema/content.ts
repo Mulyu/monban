@@ -85,9 +85,30 @@ function validateContentForbiddenRule(
 		rule.secret = raw.secret;
 	}
 
-	if (!rule.pattern && !rule.bom && !rule.invisible && !rule.secret) {
+	if (raw.injection !== undefined) {
+		if (typeof raw.injection !== "boolean") {
+			throw new Error(`${label}.injection must be a boolean`);
+		}
+		rule.injection = raw.injection;
+	}
+
+	if (raw.conflict !== undefined) {
+		if (typeof raw.conflict !== "boolean") {
+			throw new Error(`${label}.conflict must be a boolean`);
+		}
+		rule.conflict = raw.conflict;
+	}
+
+	if (
+		!rule.pattern &&
+		!rule.bom &&
+		!rule.invisible &&
+		!rule.secret &&
+		!rule.injection &&
+		!rule.conflict
+	) {
 		throw new Error(
-			`${label} must have at least one of: pattern, bom, invisible, secret`,
+			`${label} must have at least one of: pattern, bom, invisible, secret, injection, conflict`,
 		);
 	}
 
@@ -121,6 +142,16 @@ function validateContentRequiredRule(
 			);
 		}
 		rule.scope = scope as ContentRequiredScope;
+	}
+
+	const withinLines = validatePositiveInteger(raw, "within_lines", label);
+	if (withinLines !== undefined) {
+		if (rule.scope !== undefined && rule.scope !== "file") {
+			throw new Error(
+				`${label}.within_lines cannot be combined with scope: ${rule.scope}`,
+			);
+		}
+		rule.within_lines = withinLines;
 	}
 
 	rule.message = optionalString(raw, "message", label);

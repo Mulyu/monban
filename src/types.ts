@@ -66,6 +66,8 @@ export interface ContentForbiddenRule {
 	bom?: boolean;
 	invisible?: boolean;
 	secret?: boolean;
+	injection?: boolean;
+	conflict?: boolean;
 	message?: string;
 	severity?: Severity;
 }
@@ -77,6 +79,7 @@ export interface ContentRequiredRule {
 	exclude?: string[];
 	pattern: string;
 	scope?: ContentRequiredScope;
+	within_lines?: number;
 	message?: string;
 }
 
