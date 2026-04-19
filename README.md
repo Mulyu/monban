@@ -103,6 +103,21 @@ git:     { ... }   # docs/git.md
 コードを変更したあとは必ず `npx @mulyu/monban all` を実行し、すべてのチェックがパスすることを確認すること。
 ```
 
+#### プラグインとしての導入（推奨）
+
+Claude Code のマーケットプレイス機能で monban スキルと `/monban:init` コマンドを導入できます。
+
+```text
+/plugin marketplace add Mulyu/monban
+/plugin install monban@mulyu
+/reload-plugins
+```
+
+- `monban` スキル: コマンド対応表・出力の読み方・修正ワークフロー・`monban.yml` の書き方をエージェントに供給
+- `/monban:init`: 既存プロジェクトを調査して `monban.yml` の雛形を生成
+
+マーケットプレイス manifest は [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json)、プラグイン本体は [plugins/monban/](plugins/monban/)。
+
 ### GitHub Actions
 
 ```yaml
