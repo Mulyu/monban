@@ -1,5 +1,5 @@
+import fg from "fast-glob";
 import { loadManifest, type Manifest } from "../../manifest/index.js";
-import fg from "../../ports/glob.js";
 
 export async function loadManifests(
 	path: string,

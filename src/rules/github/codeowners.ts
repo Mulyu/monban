@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import fg from "fast-glob";
 import picomatch from "picomatch";
-import fg from "../../ports/glob.js";
 import type { GithubCodeownersRule, RuleResult } from "../../types.js";
 
 interface CodeownersEntry {

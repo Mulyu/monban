@@ -1,5 +1,5 @@
 import { relative } from "node:path";
-import fg from "../../ports/glob.js";
+import fg from "fast-glob";
 import type { DepthRule, RuleResult } from "../../types.js";
 
 export async function checkPathDepth(
