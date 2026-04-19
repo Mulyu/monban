@@ -8,6 +8,15 @@ export class RuleExecutionError extends Error {
 	}
 }
 
+export class ConfigError extends Error {
+	readonly cause?: unknown;
+	constructor(message: string, cause?: unknown) {
+		super(message);
+		this.name = "ConfigError";
+		this.cause = cause;
+	}
+}
+
 export function networkWarning(
 	rule: string,
 	path: string,
