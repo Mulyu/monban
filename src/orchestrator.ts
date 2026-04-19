@@ -1,5 +1,6 @@
 import { applyDiffFilter, computeDiffScope } from "./diff.js";
 import type { CategoryGroup, CategoryRuleResult } from "./reporter.js";
+import { runAgentRules } from "./rules/agent/index.js";
 import { runContentRules } from "./rules/content/index.js";
 import { runDepsRules } from "./rules/deps/index.js";
 import { runDocRules } from "./rules/doc/index.js";
@@ -8,7 +9,14 @@ import { runGithubRules } from "./rules/github/index.js";
 import { runPathRules } from "./rules/path/index.js";
 import type { DiffGranularity, DiffScope, MonbanConfig } from "./types.js";
 
-export type Category = "path" | "content" | "doc" | "github" | "deps" | "git";
+export type Category =
+	| "path"
+	| "content"
+	| "doc"
+	| "github"
+	| "deps"
+	| "git"
+	| "agent";
 
 export const ALL_CATEGORIES: Category[] = [
 	"path",
@@ -17,6 +25,7 @@ export const ALL_CATEGORIES: Category[] = [
 	"github",
 	"deps",
 	"git",
+	"agent",
 ];
 
 export interface OrchestratorOpts {
@@ -81,6 +90,9 @@ async function execute(
 		case "git":
 			if (!config.git) return null;
 			return runGitRules(config.git, cwd, opts.rule, { diff: opts.diff });
+		case "agent":
+			if (!config.agent) return null;
+			return runAgentRules(config.agent, cwd, globalExclude, opts.rule);
 	}
 }
 

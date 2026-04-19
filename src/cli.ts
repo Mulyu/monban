@@ -12,6 +12,7 @@ import {
 	reportAllResults,
 	reportCategory,
 } from "./reporter.js";
+import { AGENT_RULE_NAMES } from "./rules/agent/index.js";
 import { CONTENT_RULE_NAMES } from "./rules/content/index.js";
 import { DEPS_RULE_NAMES } from "./rules/deps/index.js";
 import { DOC_RULE_NAMES } from "./rules/doc/index.js";
@@ -30,6 +31,7 @@ const RULE_NAMES_BY_CATEGORY: Record<Category, readonly string[]> = {
 	github: GITHUB_RULE_NAMES,
 	deps: DEPS_RULE_NAMES,
 	git: GIT_RULE_NAMES,
+	agent: AGENT_RULE_NAMES,
 };
 
 async function runSingle(category: Category, opts: CommonOpts): Promise<void> {
@@ -136,6 +138,11 @@ export function createCli(): Command {
 		program,
 		"git",
 		"Git チェック: コミットメッセージ・trailer・Issue 参照・変更粒度・ignore すり抜けを検証",
+	);
+	addCategoryCommand(
+		program,
+		"agent",
+		"エージェントチェック: AGENTS.md / .mcp.json / AI ignore ファイルの構造を検証",
 	);
 
 	return program;

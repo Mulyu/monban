@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.*
+*.pem
+id_rsa
+id_rsa.*
+**/secrets/**
+dist/

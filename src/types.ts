@@ -428,6 +428,44 @@ export interface GitConfig {
 	tag_name?: GitTagNameRule;
 }
 
+// --- Agent config types ---
+
+export interface AgentInstructionsRule {
+	path: string;
+	exclude?: string[];
+	required_sections?: string[];
+	max_bytes?: number;
+	frontmatter_keys?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface AgentMcpRule {
+	path: string;
+	exclude?: string[];
+	forbidden_commands?: string[];
+	forbid_unpinned_npx?: boolean;
+	forbid_env_secrets?: boolean;
+	allowed_servers?: string[];
+	denied_servers?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface AgentIgnoreRule {
+	path: string;
+	exclude?: string[];
+	must_cover?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface AgentConfig {
+	instructions?: AgentInstructionsRule[];
+	mcp?: AgentMcpRule[];
+	ignore?: AgentIgnoreRule[];
+}
+
 // --- Extends types ---
 
 export interface ExtendsLocal {
@@ -453,6 +491,7 @@ export interface MonbanConfig {
 	github?: GithubConfig;
 	deps?: DepsConfig;
 	git?: GitConfig;
+	agent?: AgentConfig;
 }
 
 // --- Diff scope types ---

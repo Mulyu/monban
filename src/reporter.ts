@@ -1,3 +1,4 @@
+import type { AgentRuleResult } from "./rules/agent/index.js";
 import type { ContentRuleResult } from "./rules/content/index.js";
 import type { DepsRuleResult } from "./rules/deps/index.js";
 import type { DocRuleResult } from "./rules/doc/index.js";
@@ -11,7 +12,8 @@ export type CategoryRuleResult =
 	| DocRuleResult
 	| GithubRuleResult
 	| DepsRuleResult
-	| GitRuleResult;
+	| GitRuleResult
+	| AgentRuleResult;
 
 export interface CategoryGroup {
 	category: string;
@@ -25,6 +27,7 @@ const CATEGORY_TITLES: Record<string, string> = {
 	github: "monban github — GitHub チェック",
 	deps: "monban deps — 依存チェック",
 	git: "monban git — Git チェック",
+	agent: "monban agent — エージェントチェック",
 };
 
 export function reportCategory(
