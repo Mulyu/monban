@@ -196,6 +196,24 @@ deps:
         - flatmap-stream
       message: "過去に compromise されたパッケージです。"
 
+  # npm lifecycle hook は任意コード実行の攻撃面（Shai-Hulud 等）
+  install_scripts:
+    - path: "package.json"
+      severity: warn
+      message: "npm lifecycle hook はサプライチェーン攻撃の主要ベクトル。正当性を PR でレビュー。"
+
+  # レジストリ外依存はレジストリ監査が効かない
+  git_dependency:
+    - path: "package.json"
+      severity: warn
+
+  # 浮動バージョンは新規パッケージ侵害時に自動的に被弾する
+  floating_version:
+    - path: "package.json"
+      severity: warn
+      exclude:
+        - "tests/fixtures/**"
+
 # コミット品質 / 誤コミット検出
 git:
   commit:

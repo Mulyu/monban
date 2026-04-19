@@ -5,12 +5,13 @@ export async function loadManifests(
 	path: string,
 	cwd: string,
 	globalExclude: string[],
+	ruleExclude?: string[],
 ): Promise<Manifest[]> {
 	const files = await fg(path, {
 		cwd,
 		dot: true,
 		onlyFiles: true,
-		ignore: globalExclude,
+		ignore: [...globalExclude, ...(ruleExclude ?? [])],
 	});
 
 	const manifests: Manifest[] = [];

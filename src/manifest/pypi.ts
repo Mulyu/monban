@@ -13,7 +13,8 @@ export function parseRequirementsTxt(content: string): ManifestEntry[] {
 		if (stripped.startsWith("-")) continue; // -r other.txt, -e ./local
 		const token = stripped.split(REQ_SPLIT)[0].trim();
 		if (token.length === 0) continue;
-		entries.push({ name: token, ecosystem: "pypi", line: i + 1 });
+		const version = stripped.slice(token.length).trim() || undefined;
+		entries.push({ name: token, ecosystem: "pypi", line: i + 1, version });
 	}
 	return entries;
 }
@@ -28,7 +29,9 @@ export function parsePyproject(content: string): ManifestEntry[] {
 		for (const item of pep621) {
 			if (typeof item !== "string") continue;
 			const name = item.split(REQ_SPLIT)[0].trim();
-			if (name) entries.set(name, { name, ecosystem: "pypi" });
+			if (!name) continue;
+			const version = item.slice(name.length).trim() || undefined;
+			entries.set(name, { name, ecosystem: "pypi", version });
 		}
 	}
 
@@ -37,11 +40,25 @@ export function parsePyproject(content: string): ManifestEntry[] {
 		| undefined;
 	const poetryDeps = poetry?.dependencies;
 	if (poetryDeps && typeof poetryDeps === "object") {
-		for (const name of Object.keys(poetryDeps as Record<string, unknown>)) {
+		for (const [name, spec] of Object.entries(
+			poetryDeps as Record<string, unknown>,
+		)) {
 			if (name === "python") continue;
-			entries.set(name, { name, ecosystem: "pypi" });
+			const version =
+				typeof spec === "string" ? spec : stringifyPoetrySpec(spec);
+			entries.set(name, { name, ecosystem: "pypi", version });
 		}
 	}
 
 	return [...entries.values()];
+}
+
+function stringifyPoetrySpec(spec: unknown): string | undefined {
+	if (!spec || typeof spec !== "object") return undefined;
+	const obj = spec as Record<string, unknown>;
+	if (typeof obj.git === "string") return `git+${obj.git}`;
+	if (typeof obj.path === "string") return `file:${obj.path}`;
+	if (typeof obj.url === "string") return String(obj.url);
+	if (typeof obj.version === "string") return obj.version;
+	return undefined;
 }

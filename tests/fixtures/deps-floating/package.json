@@ -1,0 +1,13 @@
+{
+	"name": "has-floating-versions",
+	"version": "1.0.0",
+	"dependencies": {
+		"pinned": "1.2.3",
+		"caret": "^1.2.3",
+		"tilde": "~1.2.3",
+		"star": "*",
+		"latest": "latest",
+		"xrange": "1.2.x",
+		"unbounded": ">=1.0"
+	}
+}

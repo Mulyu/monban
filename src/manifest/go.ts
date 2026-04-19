@@ -10,9 +10,14 @@ export function parseGoMod(content: string): ManifestEntry[] {
 		const line = raw.split("//")[0].trim();
 
 		if (!inBlock) {
-			const single = line.match(/^require\s+(\S+)\s+v\S+/);
+			const single = line.match(/^require\s+(\S+)\s+(v\S+)/);
 			if (single) {
-				entries.push({ name: single[1], ecosystem: "go", line: i + 1 });
+				entries.push({
+					name: single[1],
+					ecosystem: "go",
+					line: i + 1,
+					version: single[2],
+				});
 				continue;
 			}
 			if (/^require\s*\(/.test(line)) {
@@ -23,9 +28,14 @@ export function parseGoMod(content: string): ManifestEntry[] {
 				inBlock = false;
 				continue;
 			}
-			const m = line.match(/^(\S+)\s+v\S+/);
+			const m = line.match(/^(\S+)\s+(v\S+)/);
 			if (m) {
-				entries.push({ name: m[1], ecosystem: "go", line: i + 1 });
+				entries.push({
+					name: m[1],
+					ecosystem: "go",
+					line: i + 1,
+					version: m[2],
+				});
 			}
 		}
 	}

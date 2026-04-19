@@ -251,6 +251,28 @@ export interface DepsDeniedRule {
 	severity?: Severity;
 }
 
+export interface DepsInstallScriptsRule {
+	path: string;
+	exclude?: string[];
+	hooks?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface DepsGitDependencyRule {
+	path: string;
+	exclude?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface DepsFloatingVersionRule {
+	path: string;
+	exclude?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
 export interface DepsConfig {
 	existence?: DepsExistenceRule[];
 	freshness?: DepsFreshnessRule[];
@@ -259,6 +281,9 @@ export interface DepsConfig {
 	typosquat?: DepsTyposquatRule[];
 	allowed?: DepsAllowedRule[];
 	denied?: DepsDeniedRule[];
+	install_scripts?: DepsInstallScriptsRule[];
+	git_dependency?: DepsGitDependencyRule[];
+	floating_version?: DepsFloatingVersionRule[];
 }
 
 // --- Git config types ---

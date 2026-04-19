@@ -1,0 +1,12 @@
+{
+	"name": "has-non-registry-sources",
+	"version": "1.0.0",
+	"dependencies": {
+		"express": "^4.18.0",
+		"my-fork": "git+https://github.com/evil/my-fork.git",
+		"ssh-dep": "git@github.com:evil/ssh-dep.git",
+		"local-lib": "file:../local-lib",
+		"gh-short": "github:evil/gh-short",
+		"url-tgz": "https://example.com/pkg.tgz"
+	}
+}

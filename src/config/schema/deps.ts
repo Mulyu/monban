@@ -4,7 +4,10 @@ import type {
 	DepsCrossEcosystemRule,
 	DepsDeniedRule,
 	DepsExistenceRule,
+	DepsFloatingVersionRule,
 	DepsFreshnessRule,
+	DepsGitDependencyRule,
+	DepsInstallScriptsRule,
 	DepsPopularityRule,
 	DepsTyposquatRule,
 } from "../../types.js";
@@ -74,6 +77,27 @@ export function validateDepsConfig(raw: unknown): DepsConfig {
 			obj.denied,
 			"deps.denied",
 			validateDepsDeniedRule,
+		);
+	}
+	if (obj.install_scripts !== undefined) {
+		config.install_scripts = validateArray(
+			obj.install_scripts,
+			"deps.install_scripts",
+			validateDepsInstallScriptsRule,
+		);
+	}
+	if (obj.git_dependency !== undefined) {
+		config.git_dependency = validateArray(
+			obj.git_dependency,
+			"deps.git_dependency",
+			validateDepsGitDependencyRule,
+		);
+	}
+	if (obj.floating_version !== undefined) {
+		config.floating_version = validateArray(
+			obj.floating_version,
+			"deps.floating_version",
+			validateDepsFloatingVersionRule,
 		);
 	}
 
@@ -209,6 +233,73 @@ function validateDepsDeniedRule(
 		path: requireString(raw, "path", label),
 		names,
 	};
+	const message = optionalString(raw, "message", label);
+	if (message !== undefined) rule.message = message;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateDepsInstallScriptsRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DepsInstallScriptsRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: DepsInstallScriptsRule = {
+		path: requireString(raw, "path", label),
+	};
+	const exclude = optionalStringArray(raw, "exclude", label);
+	if (exclude !== undefined) rule.exclude = exclude;
+	const hooks = optionalStringArray(raw, "hooks", label);
+	if (hooks !== undefined) {
+		if (hooks.length === 0) {
+			throw new Error(`${label}.hooks must be a non-empty string array`);
+		}
+		rule.hooks = hooks;
+	}
+	const message = optionalString(raw, "message", label);
+	if (message !== undefined) rule.message = message;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateDepsGitDependencyRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DepsGitDependencyRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: DepsGitDependencyRule = {
+		path: requireString(raw, "path", label),
+	};
+	const exclude = optionalStringArray(raw, "exclude", label);
+	if (exclude !== undefined) rule.exclude = exclude;
+	const message = optionalString(raw, "message", label);
+	if (message !== undefined) rule.message = message;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateDepsFloatingVersionRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DepsFloatingVersionRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: DepsFloatingVersionRule = {
+		path: requireString(raw, "path", label),
+	};
+	const exclude = optionalStringArray(raw, "exclude", label);
+	if (exclude !== undefined) rule.exclude = exclude;
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);
