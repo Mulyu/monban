@@ -50,7 +50,7 @@ agent:
 
 ## 1. instructions
 
-<!-- monban:ref ../src/rules/agent/instructions.ts sha256:6664cbad8eec5dd6f69af38146f611bf0669b6258aed42b8af1fe22565f711cd -->
+<!-- monban:ref ../src/rules/agent/instructions.ts sha256:8448ea3144b732ab7689fd7a868909d53889ee1f69e77c6750b5c08194ec3ed7 -->
 
 エージェント指示書（`AGENTS.md` / `CLAUDE.md`）の構造を検証する。
 
@@ -100,7 +100,7 @@ WARN  [instructions] AGENTS.md
 
 ## 2. mcp
 
-<!-- monban:ref ../src/rules/agent/mcp.ts sha256:49829ed9d7864722be62509f36494dd76e0bde97d74378eeec1fd7a6b2af6fcf -->
+<!-- monban:ref ../src/rules/agent/mcp.ts sha256:29bbba153a2dce6bd621459792ee88b5a2d2ce98ad51bb34f07a1762d5a091f3 -->
 
 MCP（Model Context Protocol）設定ファイルの構造と安全性を検証する。`.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` が対象。
 
@@ -168,7 +168,7 @@ WARN  [mcp] .mcp.json:hardcoded-secret.env.GITHUB_TOKEN
 
 ## 3. ignore
 
-<!-- monban:ref ../src/rules/agent/ignore.ts sha256:44bbea6c10cb90a00c3f1069f755bfed6237eec7e3fd2e414446a29f2240e0b1 -->
+<!-- monban:ref ../src/rules/agent/ignore.ts sha256:843bb38120d34932391ef53207362b8686b8dd8638aca26313b972205b9953e4 -->
 
 AI ignore ファイル（`.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore`）が機密ファイルをカバーしているかを検証する。
 

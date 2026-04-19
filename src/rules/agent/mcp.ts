@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import fg from "../../glob.js";
+import fg from "../../ports/glob.js";
 import type { AgentMcpRule, RuleResult } from "../../types.js";
 
 const DEFAULT_FORBIDDEN_COMMANDS = ["curl", "wget", "sh", "bash", "zsh"];

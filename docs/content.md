@@ -60,7 +60,7 @@ content:
 
 ## 1. forbidden
 
-<!-- monban:ref ../src/rules/content/forbidden.ts sha256:641cfd8d12a07c096bfc2755ea7acd24c146e8d96c6b4bc309001cc10c26ae1e -->
+<!-- monban:ref ../src/rules/content/forbidden.ts sha256:b04ee2c2b791aaed893d54d13ddfde140b24505fb0e471b936069e3d28e3799c -->
 
 ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字、シークレット、プロンプトインジェクション、マージコンフリクトマーカーの 6 種類を同じルールで扱う。
 
@@ -246,7 +246,7 @@ ERROR [forbidden] src/legacy/module.ts:12
 
 ## 2. required
 
-<!-- monban:ref ../src/rules/content/required.ts sha256:a43e5c3249300fbfd9ed4e8bfd4156b8154254397e9e36a21f573423d70149f1 -->
+<!-- monban:ref ../src/rules/content/required.ts sha256:091be3702e013bdd6c4a8e9fbb37e760c6b205b6d888f5f408bd5b4552887e1b -->
 
 ファイル内に含まれるべきテキストパターンを定義する。
 
@@ -306,7 +306,7 @@ ERROR [required] src/generated/api.ts
 
 ## 3. size
 
-<!-- monban:ref ../src/rules/content/size.ts sha256:77db6c787df0ec37531d4eb02a4ed035c1d9062e4ee947476eb3207a3676d013 -->
+<!-- monban:ref ../src/rules/content/size.ts sha256:58ba63a33e16af52537c3f27506097c0848c824e45fdfe6f814585c28684e8b3 -->
 
 ファイルの行数（line count）が閾値以内に収まっているかを検証する。AIエージェントは 1 ファイルに機能を詰め込みがちで、可読性や責務分割の観点で肥大化を検出したい場面がある。
 

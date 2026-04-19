@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parse } from "yaml";
-import fg from "../../glob.js";
+import fg from "../../ports/glob.js";
 
 export interface WorkflowFile {
 	file: string;

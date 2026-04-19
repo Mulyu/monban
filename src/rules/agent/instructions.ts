@@ -1,7 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
-import fg from "../../glob.js";
+import fg from "../../ports/glob.js";
 import type { AgentInstructionsRule, RuleResult } from "../../types.js";
 
 const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---\n?/;

@@ -1,4 +1,4 @@
-import fg from "../../glob.js";
+import fg from "../../ports/glob.js";
 import type { CountRule, RuleResult } from "../../types.js";
 
 export async function checkPathCount(
