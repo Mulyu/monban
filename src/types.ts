@@ -9,8 +9,11 @@ export interface RuleResult {
 
 // --- Path config types ---
 
+export type PathEntryType = "file" | "directory" | "symlink";
+
 export interface ForbiddenRule {
 	path: string;
+	type?: PathEntryType;
 	message?: string;
 	severity?: Severity;
 }
@@ -45,8 +48,31 @@ export interface DepthRule {
 
 export interface CountRule {
 	path: string;
-	max: number;
+	max?: number;
+	min?: number;
 	exclude?: string[];
+}
+
+export interface PathHashRule {
+	path: string;
+	sha256: string;
+	message?: string;
+	severity?: Severity;
+}
+
+export interface PathSizeRule {
+	path: string;
+	exclude?: string[];
+	max_bytes: number;
+	message?: string;
+	severity?: Severity;
+}
+
+export interface PathCaseConflictRule {
+	path: string;
+	exclude?: string[];
+	message?: string;
+	severity?: Severity;
 }
 
 export interface PathConfig {
@@ -55,6 +81,9 @@ export interface PathConfig {
 	naming?: NamingRule[];
 	depth?: DepthRule[];
 	count?: CountRule[];
+	hash?: PathHashRule[];
+	size?: PathSizeRule[];
+	case_conflict?: PathCaseConflictRule[];
 }
 
 // --- Content config types ---

@@ -5,7 +5,11 @@ import type {
 	ForbiddenRule,
 	NamingRule,
 	NamingStyle,
+	PathCaseConflictRule,
 	PathConfig,
+	PathEntryType,
+	PathHashRule,
+	PathSizeRule,
 	RequiredRule,
 } from "../../types.js";
 import {
@@ -15,8 +19,11 @@ import {
 	optionalStringArray,
 	requireString,
 	validateArray,
+	validatePositiveInteger,
 	validateSeverity,
 } from "./common.js";
+
+const PATH_ENTRY_TYPES: PathEntryType[] = ["file", "directory", "symlink"];
 
 export function validatePathConfig(raw: unknown): PathConfig {
 	if (typeof raw !== "object" || raw === null) {
@@ -53,6 +60,19 @@ export function validatePathConfig(raw: unknown): PathConfig {
 	if (obj.count !== undefined) {
 		config.count = validateArray(obj.count, "path.count", validateCountRule);
 	}
+	if (obj.hash !== undefined) {
+		config.hash = validateArray(obj.hash, "path.hash", validateHashRule);
+	}
+	if (obj.size !== undefined) {
+		config.size = validateArray(obj.size, "path.size", validateSizeRule);
+	}
+	if (obj.case_conflict !== undefined) {
+		config.case_conflict = validateArray(
+			obj.case_conflict,
+			"path.case_conflict",
+			validateCaseConflictRule,
+		);
+	}
 
 	return config;
 }
@@ -69,6 +89,16 @@ function validateForbiddenRule(
 		path: requireString(raw, "path", label),
 	};
 	rule.message = optionalString(raw, "message", label);
+
+	const type = optionalString(raw, "type", label);
+	if (type !== undefined) {
+		if (!PATH_ENTRY_TYPES.includes(type as PathEntryType)) {
+			throw new Error(
+				`${label}.type must be one of: ${PATH_ENTRY_TYPES.join(", ")}`,
+			);
+		}
+		rule.type = type as PathEntryType;
+	}
 
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
@@ -184,15 +214,98 @@ function validateCountRule(
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
 
-	if (typeof raw.max !== "number" || !Number.isInteger(raw.max)) {
-		throw new Error(`${label}.max must be an integer`);
-	}
-
 	const rule: CountRule = {
 		path: requireString(raw, "path", label),
-		max: raw.max,
 	};
+
+	if (raw.max !== undefined) {
+		if (typeof raw.max !== "number" || !Number.isInteger(raw.max)) {
+			throw new Error(`${label}.max must be an integer`);
+		}
+		rule.max = raw.max;
+	}
+
+	if (raw.min !== undefined) {
+		if (
+			typeof raw.min !== "number" ||
+			!Number.isInteger(raw.min) ||
+			raw.min < 0
+		) {
+			throw new Error(`${label}.min must be a non-negative integer`);
+		}
+		rule.min = raw.min;
+	}
+
+	if (rule.max === undefined && rule.min === undefined) {
+		throw new Error(`${label} must have at least one of: max, min`);
+	}
+
 	rule.exclude = optionalStringArray(raw, "exclude", label);
 
+	return rule;
+}
+
+function validateHashRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): PathHashRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const sha256 = requireString(raw, "sha256", label);
+	if (!/^[0-9a-fA-F]{64}$/.test(sha256)) {
+		throw new Error(`${label}.sha256 must be a 64-char hex string`);
+	}
+
+	const rule: PathHashRule = {
+		path: requireString(raw, "path", label),
+		sha256,
+	};
+	rule.message = optionalString(raw, "message", label);
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateSizeRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): PathSizeRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const maxBytes = validatePositiveInteger(raw, "max_bytes", label);
+	if (maxBytes === undefined) {
+		throw new Error(`${label}.max_bytes is required`);
+	}
+
+	const rule: PathSizeRule = {
+		path: requireString(raw, "path", label),
+		max_bytes: maxBytes,
+	};
+	rule.exclude = optionalStringArray(raw, "exclude", label);
+	rule.message = optionalString(raw, "message", label);
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateCaseConflictRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): PathCaseConflictRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: PathCaseConflictRule = {
+		path: requireString(raw, "path", label),
+	};
+	rule.exclude = optionalStringArray(raw, "exclude", label);
+	rule.message = optionalString(raw, "message", label);
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
 	return rule;
 }
