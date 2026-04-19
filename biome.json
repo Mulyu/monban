@@ -1,16 +1,8 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
 	"files": {
-		"includes": ["src/**", "tests/**", "*.ts"]
+		"includes": ["src/**", "tests/**", "*.ts", "!tests/fixtures"]
 	},
-	"overrides": [
-		{
-			"includes": ["tests/fixtures/**"],
-			"linter": {
-				"enabled": false
-			}
-		}
-	],
 	"formatter": {
 		"indentStyle": "tab"
 	},

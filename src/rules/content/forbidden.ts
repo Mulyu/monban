@@ -21,6 +21,39 @@ const INVISIBLE_REGEX = new RegExp(
 	"g",
 );
 
+const BIDI_CONTROLS: [number, string][] = [
+	[0x202a, "Left-to-Right Embedding"],
+	[0x202b, "Right-to-Left Embedding"],
+	[0x202c, "Pop Directional Formatting"],
+	[0x202d, "Left-to-Right Override"],
+	[0x202e, "Right-to-Left Override"],
+	[0x2066, "Left-to-Right Isolate"],
+	[0x2067, "Right-to-Left Isolate"],
+	[0x2068, "First Strong Isolate"],
+	[0x2069, "Pop Directional Isolate"],
+];
+
+const BIDI_REGEX = new RegExp(
+	`[${BIDI_CONTROLS.map(([c]) => `\\u${c.toString(16).padStart(4, "0")}`).join("")}]`,
+	"g",
+);
+
+const TAG_BLOCK_REGEX = /[\u{E0000}-\u{E007F}]/gu;
+
+const INJECTION_PHRASES: RegExp[] = [
+	/\bignore\s+(?:all\s+)?(?:previous|prior|above|preceding)\s+instructions?\b/i,
+	/\bdisregard\s+(?:all\s+)?(?:previous|prior|above|the\s+system)\s+(?:instructions?|prompt|rules?)\b/i,
+	/\byou\s+are\s+now\s+(?:a\s+|an\s+)?[a-z]/i,
+	/\bforget\s+(?:everything|all)\s+(?:you\s+)?(?:know|were\s+told)\b/i,
+	/\b(?:new|updated)\s+(?:system\s+)?(?:prompt|instructions?)[:\s]/i,
+];
+
+const CONFLICT_MARKERS: [RegExp, string][] = [
+	[/^<{7}(?:\s|$)/, "start marker (<<<<<<<)"],
+	[/^={7}$/, "separator (=======)"],
+	[/^>{7}(?:\s|$)/, "end marker (>>>>>>>)"],
+];
+
 const SECRET_DETECTORS: { name: string; pattern: RegExp }[] = [
 	{ name: "AWS Access Key ID", pattern: /\bAKIA[0-9A-Z]{16}\b/ },
 	{ name: "GitHub Personal Access Token", pattern: /\bghp_[0-9A-Za-z]{36}\b/ },
@@ -78,7 +111,13 @@ export async function checkContentForbidden(
 				}
 			}
 
-			if (rule.pattern || rule.invisible || rule.secret) {
+			if (
+				rule.pattern ||
+				rule.invisible ||
+				rule.secret ||
+				rule.injection ||
+				rule.conflict
+			) {
 				const content = await readFile(abs, "utf-8");
 				const lines = content.split("\n");
 
@@ -127,6 +166,63 @@ export async function checkContentForbidden(
 									message: rule.message ?? `シークレット検出: ${detector.name}`,
 									severity: rule.severity ?? "error",
 								});
+							}
+						}
+					}
+
+					if (rule.injection) {
+						for (const m of line.matchAll(TAG_BLOCK_REGEX)) {
+							const code = m[0].codePointAt(0) ?? 0;
+							const hex = code.toString(16).toUpperCase().padStart(4, "0");
+							results.push({
+								rule: "forbidden",
+								path: `${file}:${lineNum}`,
+								message:
+									rule.message ??
+									`プロンプトインジェクション疑い: Unicode Tag 文字 U+${hex}`,
+								severity: rule.severity ?? "error",
+							});
+						}
+						for (const m of line.matchAll(BIDI_REGEX)) {
+							const code = m[0].codePointAt(0) ?? 0;
+							const info = BIDI_CONTROLS.find(([c]) => c === code);
+							const name = info?.[1] ?? "Bidi Control";
+							const hex = code.toString(16).toUpperCase().padStart(4, "0");
+							results.push({
+								rule: "forbidden",
+								path: `${file}:${lineNum}`,
+								message:
+									rule.message ??
+									`プロンプトインジェクション疑い: 双方向制御文字 U+${hex} (${name})`,
+								severity: rule.severity ?? "error",
+							});
+						}
+						for (const phrase of INJECTION_PHRASES) {
+							if (phrase.test(line)) {
+								results.push({
+									rule: "forbidden",
+									path: `${file}:${lineNum}`,
+									message:
+										rule.message ??
+										`プロンプトインジェクション疑い: 指示上書きフレーズを検出`,
+									severity: rule.severity ?? "error",
+								});
+								break;
+							}
+						}
+					}
+
+					if (rule.conflict) {
+						for (const [marker, label_] of CONFLICT_MARKERS) {
+							if (marker.test(line)) {
+								results.push({
+									rule: "forbidden",
+									path: `${file}:${lineNum}`,
+									message:
+										rule.message ?? `マージコンフリクトマーカー検出: ${label_}`,
+									severity: rule.severity ?? "error",
+								});
+								break;
 							}
 						}
 					}

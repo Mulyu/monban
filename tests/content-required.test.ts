@@ -94,6 +94,54 @@ describe("content/required", () => {
 		});
 	});
 
+	describe("within_lines", () => {
+		it("passes when pattern matches within the first N lines", async () => {
+			const results = await checkContentRequired(
+				[
+					{
+						path: "generated-with-header.ts",
+						pattern: "DO NOT EDIT",
+						within_lines: 3,
+					},
+				],
+				cwd,
+				[],
+			);
+			expect(results).toHaveLength(0);
+		});
+
+		it("reports when pattern appears after the window", async () => {
+			const results = await checkContentRequired(
+				[
+					{
+						path: "generated-missing-header.ts",
+						pattern: "DO NOT EDIT",
+						within_lines: 1,
+					},
+				],
+				cwd,
+				[],
+			);
+			expect(results).toHaveLength(1);
+			expect(results[0].message).toContain("within first 1 lines");
+		});
+
+		it("uses within_lines: 1 equivalent to first_line scope", async () => {
+			const results = await checkContentRequired(
+				[
+					{
+						path: "has-copyright.ts",
+						pattern: "^// Copyright \\d{4}",
+						within_lines: 1,
+					},
+				],
+				cwd,
+				[],
+			);
+			expect(results).toHaveLength(0);
+		});
+	});
+
 	describe("custom message", () => {
 		it("uses custom message", async () => {
 			const results = await checkContentRequired(

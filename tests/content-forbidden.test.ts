@@ -182,6 +182,83 @@ describe("content/forbidden", () => {
 		});
 	});
 
+	describe("injection", () => {
+		it("detects Unicode tag block characters", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "has-tag-block.ts", injection: true }],
+				cwd,
+				[],
+			);
+			expect(results.length).toBeGreaterThan(0);
+			expect(results[0].message).toContain("Tag");
+			expect(results[0].message).toContain("U+E0041");
+			expect(results[0].path).toMatch(/has-tag-block\.ts:\d+/);
+		});
+
+		it("detects bidi control characters", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "has-bidi.ts", injection: true }],
+				cwd,
+				[],
+			);
+			expect(results.length).toBeGreaterThan(0);
+			expect(results[0].message).toContain("双方向");
+			expect(results[0].message).toContain("U+202E");
+		});
+
+		it("detects injection phrases in docs", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "has-injection.md", injection: true }],
+				cwd,
+				[],
+			);
+			const phrase = results.find((r) => r.message.includes("指示上書き"));
+			expect(phrase).toBeDefined();
+		});
+
+		it("does not flag clean files", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "clean.ts", injection: true }],
+				cwd,
+				[],
+			);
+			expect(results).toHaveLength(0);
+		});
+	});
+
+	describe("conflict", () => {
+		it("detects merge conflict markers", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "has-conflict.ts", conflict: true }],
+				cwd,
+				[],
+			);
+			expect(results.length).toBe(3);
+			const markers = results.map((r) => r.message);
+			expect(markers.some((m) => m.includes("<<<<<<<"))).toBe(true);
+			expect(markers.some((m) => m.includes("======="))).toBe(true);
+			expect(markers.some((m) => m.includes(">>>>>>>"))).toBe(true);
+		});
+
+		it("does not flag clean files", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "clean.ts", conflict: true }],
+				cwd,
+				[],
+			);
+			expect(results).toHaveLength(0);
+		});
+
+		it("does not flag 7-equals inside a longer line", async () => {
+			const results = await checkContentForbidden(
+				[{ path: "has-copyright.ts", conflict: true }],
+				cwd,
+				[],
+			);
+			expect(results).toHaveLength(0);
+		});
+	});
+
 	describe("globalExclude", () => {
 		it("respects global exclude patterns", async () => {
 			const results = await checkContentForbidden(

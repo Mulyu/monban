@@ -33,12 +33,20 @@ export async function checkContentRequired(
 			} else if (scope === "last_line") {
 				const lastNonEmpty = findLastNonEmptyLine(lines);
 				matched = lastNonEmpty !== undefined && re.test(lastNonEmpty);
+			} else if (rule.within_lines !== undefined) {
+				const window = lines.slice(0, rule.within_lines);
+				matched = window.some((line) => re.test(line));
 			} else {
 				matched = lines.some((line) => re.test(line));
 			}
 
 			if (!matched) {
-				const scopeLabel = scope !== "file" ? ` (${scope})` : "";
+				const scopeLabel =
+					scope !== "file"
+						? ` (${scope})`
+						: rule.within_lines !== undefined
+							? ` (within first ${rule.within_lines} lines)`
+							: "";
 				results.push({
 					rule: "required",
 					path: file,

@@ -58,6 +58,20 @@ content:
     - path: "src/**/*.ts"
       secret: true
       message: "シークレットらしき文字列が検出されました。"
+
+    # マージコンフリクトマーカーの残置を検出
+    - path: "**/*.{ts,md,yml,yaml,json}"
+      exclude: ["tests/fixtures/**"]
+      conflict: true
+      message: "未解決のマージコンフリクトが残っています。"
+
+    # AI エージェント向けドキュメントに混入したプロンプトインジェクションを検出
+    - path: "**/*.md"
+      exclude:
+        - "tests/fixtures/**"
+        - "docs/content.md"   # injection ルール自身の説明例を含む
+      injection: true
+      message: "ドキュメントに不審な指示や不可視文字が含まれています。"
     - path: "src/rules/path/*.ts"
       pattern: '^export (async )?function check(?!Path)[A-Z]'
       message: "src/rules/path/ の check 関数は checkPath* と命名してください (例: checkPathRequired)。他カテゴリと一貫させる。"
