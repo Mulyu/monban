@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseTrailers } from "../src/rules/git/commits.js";
 
-describe("git/commits parseTrailers", () => {
+describe("git/parseTrailers", () => {
 	it("returns empty for empty body", () => {
 		expect(parseTrailers("")).toEqual([]);
 	});

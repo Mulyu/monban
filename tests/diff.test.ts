@@ -1,6 +1,12 @@
-import { describe, expect, it } from "vitest";
-import { applyDiffFilter } from "../src/diff.js";
+import { rm } from "node:fs/promises";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+	applyDiffFilter,
+	computeDiffScope,
+	resolveDiffBase,
+} from "../src/diff.js";
 import type { DiffScope, RuleResult } from "../src/types.js";
+import { commit, createGitRepo, git, writeAndAdd } from "./git-helpers.js";
 
 function makeScope(
 	files: string[],
@@ -53,5 +59,112 @@ describe("applyDiffFilter", () => {
 			{ rule: "r", path: "src/a.ts", message: "m", severity: error },
 		];
 		expect(applyDiffFilter(results, scope)).toHaveLength(1);
+	});
+});
+
+describe("resolveDiffBase", () => {
+	let repo: string;
+	let savedBaseRef: string | undefined;
+
+	beforeEach(async () => {
+		savedBaseRef = process.env.GITHUB_BASE_REF;
+		delete process.env.GITHUB_BASE_REF;
+		repo = await createGitRepo();
+		await writeAndAdd(repo, "README.md", "base\n");
+		commit(repo, "init");
+	});
+
+	afterEach(async () => {
+		await rm(repo, { recursive: true });
+		if (savedBaseRef === undefined) {
+			delete process.env.GITHUB_BASE_REF;
+		} else {
+			process.env.GITHUB_BASE_REF = savedBaseRef;
+		}
+	});
+
+	it("returns the explicit base when provided", () => {
+		expect(resolveDiffBase(repo, "HEAD")).toBe("HEAD");
+	});
+
+	it("uses GITHUB_BASE_REF when no explicit base is given", () => {
+		process.env.GITHUB_BASE_REF = "feature-x";
+		expect(resolveDiffBase(repo)).toBe("origin/feature-x");
+	});
+
+	it("falls back to main when available", () => {
+		expect(resolveDiffBase(repo)).toBe("main");
+	});
+
+	it("returns null when no base can be resolved", async () => {
+		const orphan = await createGitRepo();
+		try {
+			git(orphan, ["checkout", "-q", "-b", "other"]);
+			expect(resolveDiffBase(orphan)).toBeNull();
+		} finally {
+			await rm(orphan, { recursive: true });
+		}
+	});
+});
+
+describe("computeDiffScope", () => {
+	let repo: string;
+
+	beforeEach(async () => {
+		repo = await createGitRepo();
+		await writeAndAdd(repo, "README.md", "base\n");
+		commit(repo, "init");
+	});
+
+	afterEach(async () => {
+		await rm(repo, { recursive: true });
+	});
+
+	it("collects files changed between base and HEAD", async () => {
+		await writeAndAdd(repo, "src/a.ts", "a\n");
+		commit(repo, "feat: a");
+		const scope = computeDiffScope(repo, { base: "HEAD~1" });
+		expect(scope).not.toBeNull();
+		expect(scope?.files.has("src/a.ts")).toBe(true);
+	});
+
+	it("returns null when the base cannot be resolved", () => {
+		expect(computeDiffScope(repo, { base: "nonexistent-ref" })).toBeNull();
+	});
+
+	it("includes staged and untracked files in addition to committed diff", async () => {
+		await writeAndAdd(repo, "tracked.ts", "x\n");
+		// staged only (not committed)
+		// untracked file
+		await writeAndAdd(repo, "staged.ts", "s\n");
+		const { writeFile } = await import("node:fs/promises");
+		const { join } = await import("node:path");
+		await writeFile(join(repo, "untracked.ts"), "u\n");
+
+		const scope = computeDiffScope(repo, { base: "HEAD" });
+		expect(scope?.files.has("staged.ts")).toBe(true);
+		expect(scope?.files.has("untracked.ts")).toBe(true);
+	});
+
+	it("collects added line numbers when granularity is line", async () => {
+		await writeAndAdd(repo, "src/a.ts", "l1\nl2\nl3\n");
+		commit(repo, "feat: a");
+		const scope = computeDiffScope(repo, {
+			base: "HEAD~1",
+			granularity: "line",
+		});
+		expect(scope?.granularity).toBe("line");
+		const added = scope?.addedLines.get("src/a.ts");
+		expect(added).toBeDefined();
+		expect(added?.has(1)).toBe(true);
+		expect(added?.has(3)).toBe(true);
+	});
+
+	it("defaults granularity to file", async () => {
+		await writeAndAdd(repo, "src/a.ts", "x\n");
+		commit(repo, "feat");
+		const scope = computeDiffScope(repo, { base: "HEAD~1" });
+		expect(scope?.granularity).toBe("file");
+		expect(scope?.addedLines.size).toBe(0);
 	});
 });

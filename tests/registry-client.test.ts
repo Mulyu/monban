@@ -7,6 +7,7 @@ import {
 } from "../src/ports/http.js";
 import {
 	EcosystemeClient,
+	OfflineRegistryClient,
 	RegistryLookupError,
 } from "../src/registry/index.js";
 
@@ -88,5 +89,21 @@ describe("EcosystemeClient", () => {
 		await expect(client.lookup("pkg", "npm")).rejects.toBeInstanceOf(
 			RegistryLookupError,
 		);
+	});
+});
+
+describe("OfflineRegistryClient", () => {
+	it("treats every package as existing without network access", async () => {
+		const client = new OfflineRegistryClient();
+		const info = await client.lookup("anything", "npm");
+		expect(info).toEqual({ name: "anything", ecosystem: "npm", exists: true });
+	});
+
+	it("returns a single npm entry from lookupAcross", async () => {
+		const client = new OfflineRegistryClient();
+		const results = await client.lookupAcross("anything");
+		expect(results).toEqual([
+			{ name: "anything", ecosystem: "npm", exists: true },
+		]);
 	});
 });
