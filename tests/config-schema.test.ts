@@ -165,12 +165,12 @@ describe("config/schema/deps", () => {
 		).toThrow(/min_downloads/);
 	});
 
-	it("requires non-empty names on allowed/denied", () => {
+	it("requires non-empty names on allowed/forbidden", () => {
 		expect(() =>
 			validateDepsConfig({ allowed: [{ path: "package.json", names: [] }] }),
 		).toThrow(/names/);
 		expect(() =>
-			validateDepsConfig({ denied: [{ path: "package.json", names: [] }] }),
+			validateDepsConfig({ forbidden: [{ path: "package.json", names: [] }] }),
 		).toThrow(/names/);
 	});
 });
@@ -276,9 +276,9 @@ describe("config/schema/git", () => {
 					severity: "error",
 				},
 				trailers: {
-					deny: [{ key: "Co-authored-by", value_pattern: "Claude" }],
-					require: [{ key: "Signed-off-by" }],
-					allow: [{ key: "AI-Assistant" }],
+					forbidden: [{ key: "Co-authored-by", value_pattern: "Claude" }],
+					required: [{ key: "Signed-off-by" }],
+					allowed: [{ key: "AI-Assistant" }],
 					severity: "error",
 				},
 				references: {
@@ -299,14 +299,14 @@ describe("config/schema/git", () => {
 				},
 				ignored: {
 					scope: "diff",
-					allow: [".vscode/settings.json"],
+					allowed: [".vscode/settings.json"],
 					severity: "warn",
 				},
 			},
 		};
 		const config = validateGitConfig(raw);
 		expect(config.commit?.message?.preset).toBe("conventional");
-		expect(config.commit?.trailers?.deny).toHaveLength(1);
+		expect(config.commit?.trailers?.forbidden).toHaveLength(1);
 		expect(config.commit?.references?.scope).toBe("any");
 		expect(config.commit?.references?.patterns).toEqual(["#\\d+", "PROJ-\\d+"]);
 		expect(config.diff?.size?.max_total_lines).toBe(1500);
@@ -337,9 +337,9 @@ describe("config/schema/git", () => {
 		).toThrow(/non-negative/);
 	});
 
-	it("requires key on trailer deny entries", () => {
+	it("requires key on trailer forbidden entries", () => {
 		expect(() =>
-			validateGitConfig({ commit: { trailers: { deny: [{}] } } }),
+			validateGitConfig({ commit: { trailers: { forbidden: [{}] } } }),
 		).toThrow(/key/);
 	});
 

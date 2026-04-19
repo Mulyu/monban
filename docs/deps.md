@@ -10,7 +10,7 @@
 ```bash
 monban deps                    # 全ルール実行
 monban deps --rule existence   # 特定ルールのみ
-monban deps --offline          # 外部 API を叩かず allowed / denied のみ実行
+monban deps --offline          # 外部 API を叩かず allowed / forbidden のみ実行
 monban deps --json             # JSON 出力
 ```
 
@@ -28,7 +28,7 @@ monban deps --json             # JSON 出力
 | 4 | `cross_ecosystem` | 別エコシステムにしか存在しない名前の要求を検出する |
 | 5 | `typosquat` | 人気パッケージと編集距離が近い類似名を検出する |
 | 6 | `allowed` | allowlist（指定名のみ許可） |
-| 7 | `denied` | denylist（指定名を禁止） |
+| 7 | `forbidden` | denylist（指定名を禁止） |
 | 8 | `install_scripts` | npm lifecycle hooks（preinstall / install / postinstall / prepare）の宣言を検出する |
 | 9 | `git_dependency` | レジストリ外のソース（git+ / file: / URL 直指定）の依存を検出する |
 | 10 | `floating_version` | `^` / `~` / `*` / `latest` / 上限なし `>=` の浮動バージョンを検出する |
@@ -91,7 +91,7 @@ deps:
         - "@myorg/*"
         - my-internal-package
 
-  denied:
+  forbidden:
     - path: "package.json"
       names:
         - event-stream
@@ -315,7 +315,7 @@ ERROR [allowed] package.json:6 some-random-lib
 
 ---
 
-## 7. denied
+## 7. forbidden
 
 denylist。指定した名前を禁止する。過去に compromise されたパッケージや、内部的に置き換え済みのパッケージに使う。
 
@@ -323,7 +323,7 @@ denylist。指定した名前を禁止する。過去に compromise されたパ
 
 ```yaml
 deps:
-  denied:
+  forbidden:
     - path: "package.json"
       names:
         - event-stream
@@ -343,7 +343,7 @@ deps:
 ### 出力例
 
 ```
-ERROR [denied] package.json:9 event-stream
+ERROR [forbidden] package.json:9 event-stream
   過去に compromise されたパッケージです。
 ```
 
@@ -474,7 +474,7 @@ deps:
 
 ## オフラインモード
 
-`--offline` を指定した場合、ネットワーク通信を要するルール（`existence` / `freshness` / `popularity` / `cross_ecosystem` / `typosquat`）はスキップされ、`allowed` / `denied` のみ実行される。エアギャップ環境や、外部 API への依存を避けたい CI 設定で使う。
+`--offline` を指定した場合、ネットワーク通信を要するルール（`existence` / `freshness` / `popularity` / `cross_ecosystem` / `typosquat`）はスキップされ、`allowed` / `forbidden` のみ実行される。エアギャップ環境や、外部 API への依存を避けたい CI 設定で使う。
 
 ```bash
 monban deps --offline
@@ -520,7 +520,7 @@ monban deps — 依存チェック
   ✓ cross_ecosystem
   ✓ typosquat
   ✓ allowed
-  ✓ denied
+  ✓ forbidden
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

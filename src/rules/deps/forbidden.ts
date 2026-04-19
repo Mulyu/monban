@@ -1,9 +1,9 @@
-import type { DepsDeniedRule, RuleResult } from "../../types.js";
+import type { DepsForbiddenRule, RuleResult } from "../../types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
 import { matchAny } from "./match.js";
 
-export async function checkDepsDenied(
-	rules: DepsDeniedRule[],
+export async function checkDepsForbidden(
+	rules: DepsForbiddenRule[],
 	cwd: string,
 	globalExclude: string[],
 ): Promise<RuleResult[]> {
@@ -17,9 +17,10 @@ export async function checkDepsDenied(
 			for (const entry of manifest.entries) {
 				if (!matchAny(entry.name, rule.names)) continue;
 				results.push({
-					rule: "denied",
+					rule: "forbidden",
 					path: formatLocation(manifest.file, entry.line),
-					message: rule.message ?? `${entry.name}: denylist に含まれています。`,
+					message:
+						rule.message ?? `${entry.name}: forbidden リストに含まれています。`,
 					severity,
 				});
 			}

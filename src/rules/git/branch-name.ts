@@ -10,7 +10,7 @@ export function checkGitBranchName(
 	const branch = currentBranch(cwd);
 	if (branch === null) return [];
 
-	const allowed = new Set(rule.allow ?? []);
+	const allowed = new Set(rule.allowed ?? []);
 	if (allowed.has(branch)) return [];
 
 	const re = new RegExp(rule.pattern);

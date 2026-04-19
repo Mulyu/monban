@@ -6,9 +6,9 @@ import {
 import type { DepsConfig, RuleResult } from "../../types.js";
 import { checkDepsAllowed } from "./allowed.js";
 import { checkDepsCrossEcosystem } from "./cross-ecosystem.js";
-import { checkDepsDenied } from "./denied.js";
 import { checkDepsExistence } from "./existence.js";
 import { checkDepsFloatingVersion } from "./floating-version.js";
+import { checkDepsForbidden } from "./forbidden.js";
 import { checkDepsFreshness } from "./freshness.js";
 import { checkDepsGitDependency } from "./git-dependency.js";
 import { checkDepsInstallScripts } from "./install-scripts.js";
@@ -50,7 +50,7 @@ const RULE_RUNNERS: Record<string, RuleRunner> = {
 		checkDepsCrossEcosystem(c.cross_ecosystem ?? [], cwd, ex, reg),
 	typosquat: (c, cwd, ex) => checkDepsTyposquat(c.typosquat ?? [], cwd, ex),
 	allowed: (c, cwd, ex) => checkDepsAllowed(c.allowed ?? [], cwd, ex),
-	denied: (c, cwd, ex) => checkDepsDenied(c.denied ?? [], cwd, ex),
+	forbidden: (c, cwd, ex) => checkDepsForbidden(c.forbidden ?? [], cwd, ex),
 	install_scripts: (c, cwd, ex) =>
 		checkDepsInstallScripts(c.install_scripts ?? [], cwd, ex),
 	git_dependency: (c, cwd, ex) =>

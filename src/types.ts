@@ -166,7 +166,7 @@ export interface GithubForbiddenRule {
 export interface GithubPermissionsRule {
 	path: string;
 	required?: boolean;
-	forbid?: string[];
+	forbidden?: string[];
 }
 
 export interface GithubTriggersRule {
@@ -213,7 +213,7 @@ export interface GithubActionsDangerRule {
 export interface GithubActionsInjectionRule {
 	path: string;
 	severity?: Severity;
-	allow_contexts?: string[];
+	allowed_contexts?: string[];
 }
 
 export interface GithubActionsConfig {
@@ -286,7 +286,7 @@ export interface DepsAllowedRule {
 	severity?: Severity;
 }
 
-export interface DepsDeniedRule {
+export interface DepsForbiddenRule {
 	path: string;
 	names: string[];
 	message?: string;
@@ -322,7 +322,7 @@ export interface DepsConfig {
 	cross_ecosystem?: DepsCrossEcosystemRule[];
 	typosquat?: DepsTyposquatRule[];
 	allowed?: DepsAllowedRule[];
-	denied?: DepsDeniedRule[];
+	forbidden?: DepsForbiddenRule[];
 	install_scripts?: DepsInstallScriptsRule[];
 	git_dependency?: DepsGitDependencyRule[];
 	floating_version?: DepsFloatingVersionRule[];
@@ -344,25 +344,25 @@ export interface GitCommitMessageRule {
 	severity?: Severity;
 }
 
-export interface GitTrailerDenyEntry {
+export interface GitTrailerForbiddenEntry {
 	key: string;
 	value_pattern?: string;
 	message?: string;
 }
 
-export interface GitTrailerRequireEntry {
+export interface GitTrailerRequiredEntry {
 	key: string;
 	message?: string;
 }
 
-export interface GitTrailerAllowEntry {
+export interface GitTrailerAllowedEntry {
 	key: string;
 }
 
 export interface GitCommitTrailersRule {
-	deny?: GitTrailerDenyEntry[];
-	require?: GitTrailerRequireEntry[];
-	allow?: GitTrailerAllowEntry[];
+	forbidden?: GitTrailerForbiddenEntry[];
+	required?: GitTrailerRequiredEntry[];
+	allowed?: GitTrailerAllowedEntry[];
 	severity?: Severity;
 }
 
@@ -379,7 +379,7 @@ export type GitDiffIgnoredScope = "diff" | "all";
 
 export interface GitDiffIgnoredRule {
 	scope?: GitDiffIgnoredScope;
-	allow?: string[];
+	allowed?: string[];
 	message?: string;
 	severity?: Severity;
 }
@@ -408,7 +408,7 @@ export interface GitDiffConfig {
 
 export interface GitBranchNameRule {
 	pattern: string;
-	allow?: string[];
+	allowed?: string[];
 	message?: string;
 	severity?: Severity;
 }
@@ -444,10 +444,10 @@ export interface AgentMcpRule {
 	path: string;
 	exclude?: string[];
 	forbidden_commands?: string[];
-	forbid_unpinned_npx?: boolean;
-	forbid_env_secrets?: boolean;
+	unpinned_npx?: boolean;
+	env_secrets?: boolean;
 	allowed_servers?: string[];
-	denied_servers?: string[];
+	forbidden_servers?: string[];
 	message?: string;
 	severity?: Severity;
 }

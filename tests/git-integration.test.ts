@@ -36,7 +36,7 @@ describe("git/runGitRules", () => {
 			{
 				commit: {
 					message: { preset: "conventional" },
-					trailers: { deny: [{ key: "Co-authored-by" }] },
+					trailers: { forbidden: [{ key: "Co-authored-by" }] },
 				},
 				diff: {
 					size: { max_total_lines: 1 },

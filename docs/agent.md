@@ -38,8 +38,8 @@ agent:
   mcp:
     - path: "{.mcp.json,.claude/settings.json,.cursor/mcp.json}"
       forbidden_commands: [curl, wget, sh, bash, zsh]
-      forbid_unpinned_npx: true
-      forbid_env_secrets: true
+      unpinned_npx: true
+      env_secrets: true
 
   ignore:
     - path: ".llmignore"
@@ -107,8 +107,8 @@ agent:
   mcp:
     - path: "{.mcp.json,.claude/settings.json,.cursor/mcp.json}"
       forbidden_commands: [curl, wget, sh, bash, zsh]
-      forbid_unpinned_npx: true
-      forbid_env_secrets: true
+      unpinned_npx: true
+      env_secrets: true
       allowed_servers: [github, filesystem]
       severity: error
 ```
@@ -120,10 +120,10 @@ agent:
 | `path` | string | Yes | — | 対象ファイルの glob |
 | `exclude` | string[] | No | `[]` | 除外 glob |
 | `forbidden_commands` | string[] | No | `[curl, wget, sh, bash, zsh]` | 禁止する生シェルコマンド |
-| `forbid_unpinned_npx` | boolean | No | `true` | `npx pkg@latest` / 無指定を禁止 |
-| `forbid_env_secrets` | boolean | No | `true` | env の直値が secret 形式なら flag（`${VAR}` 展開は OK） |
+| `unpinned_npx` | boolean | No | `true` | `npx pkg@latest` / 無指定を禁止 |
+| `env_secrets` | boolean | No | `true` | env の直値が secret 形式なら flag（`${VAR}` 展開は OK） |
 | `allowed_servers` | string[] | No | — | 指定時、この名前のみ許可 |
-| `denied_servers` | string[] | No | `[]` | 明示的に禁止する server 名 |
+| `forbidden_servers` | string[] | No | `[]` | 明示的に禁止する server 名 |
 | `message` | string | No | — | カスタムメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
 
@@ -132,9 +132,9 @@ agent:
 対象ファイルを JSON としてパースし、`mcpServers` オブジェクトの各 server に対して検査する。
 
 - **forbidden_commands**: `command` フィールドがリストに含まれていれば違反（`"command": "bash"` 等）
-- **forbid_unpinned_npx**: `command` が `npx` または `npx.cmd` で、かつ `args` 内のパッケージ名にバージョン指定がない／`@latest` なら違反
-- **forbid_env_secrets**: `env` 内の文字列値が `${...}` を含まず、key 名に `token/secret/key/password/api_key/credential` を含み、値が 16 文字以上なら違反
-- **allowed_servers / denied_servers**: server 名の allow/deny
+- **unpinned_npx**: `command` が `npx` または `npx.cmd` で、かつ `args` 内のパッケージ名にバージョン指定がない／`@latest` なら違反
+- **env_secrets**: `env` 内の文字列値が `${...}` を含まず、key 名に `token/secret/key/password/api_key/credential` を含み、値が 16 文字以上なら違反
+- **allowed_servers / forbidden_servers**: server 名の allowlist / forbidden list
 
 ### 出力例
 

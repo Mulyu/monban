@@ -129,7 +129,7 @@ github:
     permissions:
       - path: ".github/workflows/**/*.yml"
         required: true
-        forbid: ["write-all", "read-all"]
+        forbidden: ["write-all", "read-all"]
 
     # 暴走ジョブによるコスト流出を防ぐ
     timeout:
@@ -206,7 +206,7 @@ deps:
       severity: warn
 
   # 既知の compromise 事例を明示的に拒否
-  denied:
+  forbidden:
     - path: "package.json"
       names:
         - event-stream
@@ -257,7 +257,7 @@ git:
   # ブランチ命名規約（main / claude/* / feat/* / fix/* / chore/* / docs/*）
   branch_name:
     pattern: "^(claude|feat|fix|chore|docs|refactor|test|ci|build)/[A-Za-z0-9._/-]+$"
-    allow: ["main"]
+    allowed: ["main"]
     severity: warn
 
   # SemVer 形式のタグのみ許容（過去タグの整理が完了したら scope を all に切替）
@@ -277,6 +277,6 @@ agent:
   # .mcp.json は存在しない場合は当然スキップされる（glob が 0 マッチ）
   mcp:
     - path: "{.mcp.json,.claude/settings.json,.cursor/mcp.json}"
-      forbid_unpinned_npx: true
-      forbid_env_secrets: true
+      unpinned_npx: true
+      env_secrets: true
       severity: warn

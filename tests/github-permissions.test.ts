@@ -29,7 +29,7 @@ describe("github/permissions", () => {
 			[
 				{
 					path: ".github/workflows/permissions-write-all.yml",
-					forbid: ["write-all"],
+					forbidden: ["write-all"],
 				},
 			],
 			cwd,

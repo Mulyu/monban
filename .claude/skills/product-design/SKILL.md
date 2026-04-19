@@ -5,6 +5,8 @@ description: monban のプロダクト設計原則。機能追加、ルール設
 
 # monban プロダクトデザイン
 
+このスキルには「考え方」だけを置く。現行のコマンド・ルールの具体仕様は `README.md` と `docs/` を単一のソースとする。過去の採否判断は [`decisions.md`](./decisions.md) を参照。
+
 ## 設計原則
 
 ### 言語非依存
@@ -21,94 +23,57 @@ description: monban のプロダクト設計原則。機能追加、ルール設
 
 ### チェックの方向は一方向
 
-- 1つのルールで双方向のチェックをしない
+- 1 つのルールで双方向のチェックをしない
 - 例: naming は「場所 → 名前」のみ。「名前 → 場所」はやらない
+- 例: codeowners は「path → owners」のみ。「owner → 担当範囲」はやらない
 
 ### 重複の排除
 
 - 同じことを別の書き方で表現できるルールは統合する
 - 独立ルールを増やすより、既存ルールのフィールドで表現する
-- 例: extension_guard → forbidden の `path: "src/**/*.js"` で表現
-- 例: co_location → required の companions モードで表現
+- 同じセマンティクスに別名を与えない（例: `denied` と `forbidden` を分けない）
 
 ### diff はスコープフィルタ、判定条件ではない
 
 - `--diff` は対象ファイルを絞るフィルタであって、判定ロジックの条件にはしない
 - 「差分に N 個以上新規追加されたら警告」のような差分前提のルールは作らない
 - 同じルールがフル走査でも差分走査でも同じ意味を持つように設計する
-- 差分で初めて成立する判定（差分内の新規追加数上限など）は不採用
-
-## コマンド体系
-
-| コマンド | 対象 | 判定手段 |
-|---------|------|---------|
-| `monban path` | パス構造（存在、命名、深度、数） | glob / パス文字列 |
-| `monban content` | ファイル内容（禁止・必須パターン・行数） | 正規表現 / 行カウント |
-| `monban doc` | ドキュメントとコードのハッシュ整合 | SHA256 |
-| `monban github` | GitHub 特有ファイル（workflows / CODEOWNERS） | YAML パース / 独自構文 |
-| `monban deps` | 依存パッケージの実在・鮮度・人気度・類似性 | マニフェスト構造パース + 外部レジストリ API 照合 |
-
-全コマンドに共通する `--diff` フラグで PR 差分にスコープを限定する（`git merge-base` による対象ファイル列挙）。新ルール・新コマンドではなく、既存コマンドのスコープフィルタとして実装する。
-
-### monban path のルール
-
-| ルール | 概要 |
-|--------|------|
-| `forbidden` | 存在してはならないパス |
-| `required` | 存在しなければならないファイル（files / companions） |
-| `naming` | 命名規則（場所 → 名前の一方向） |
-| `depth` | ネスト深度制限 |
-| `count` | ファイル数制限 |
-
-### monban content のルール
-
-| ルール | 概要 |
-|--------|------|
-| `forbidden` | 禁止テキストパターン・BOM・不可視文字・シークレット |
-| `required` | 必須テキストパターン |
-| `size` | ファイル行数上限 |
-
-### monban github のルール
-
-| ルール | 対象 | 概要 |
-|--------|------|------|
-| `pinned` | workflows | `uses` のピン留め（action / reusable / docker） |
-| `required` | workflows | 必須ワークフロー・必須ステップ |
-| `forbidden` | workflows | 禁止アクション |
-| `permissions` | workflows | `permissions:` の宣言必須・最小権限 |
-| `triggers` | workflows | `on:` イベントの allow/deny |
-| `runner` | workflows | `runs-on:` の allowlist |
-| `timeout` | workflows | job に `timeout-minutes:` 必須 |
-| `concurrency` | workflows | `concurrency:` 宣言必須 |
-| `consistency` | workflows | 同一アクションのバージョン一貫性 |
-| `secrets` | workflows | `${{ secrets.X }}` の allowlist |
-| `codeowners` | CODEOWNERS | path → owners の一方向整合 |
-
-GitHub 関連でも、構造パースが不要なもの（LICENSE / SECURITY.md の存在、PR テンプレートの必須セクション、`.gitignore` の必須パターン、`continue-on-error: true` 禁止 など）は `path.required` / `content.required` / `content.forbidden` で表現し、`github` に取り込まない。
-
-### monban deps のルール
-
-| ルール | 概要 |
-|--------|------|
-| `existence` | レジストリに該当パッケージが存在しない（hallucination / slopsquat 検出） |
-| `freshness` | 公開から閾値以内の新規パッケージ |
-| `popularity` | 週間ダウンロード数が閾値未満 |
-| `cross_ecosystem` | 別エコシステムにしか存在しない名前の要求 |
-| `typosquat` | 人気パッケージと編集距離が近い類似名 |
-| `allowed` | allowlist（指定名のみ許可） |
-| `denied` | denylist（指定名を禁止） |
-
-対象マニフェストは `package.json` / `requirements.txt` / `pyproject.toml` / `go.mod` / `Gemfile` / `Cargo.toml` / `.github/workflows/**/*.yml`。エコシステムはファイル名から自動判定する。
 
 ## 設定フォーマット
+
+### セレクタ
 
 - 全ルールのセレクタは `path`（glob パターン）で統一する
 - `pattern` ではなく `path` を使う（「パターン」ではなく「場所」起点）
 - content ルールのみ、対象ファイル選択に `path`、テキスト検査に `pattern` を使う
 
+### 命名規約
+
+ルール名・フィールド名で「許可／禁止／必須」を表す語彙は、次の 3 つに統一する。動詞形（`allow` / `deny` / `forbid` / `require`）は使わない。
+
+| 語彙 | 意味 | セマンティクス |
+|---|---|---|
+| `required` | 必須 | 「なきゃ NG」。0 個だと違反 |
+| `forbidden` | 禁止 | 「一致したら NG」。denylist もこちらに統合する |
+| `allowed` | allowlist | 「リスト外は NG」。列挙した値のみ許可 |
+
+- `denied` は使わない。`forbidden` に統合する（どちらも「一致したら NG」で同じ意味）
+- 単独で意味が通るなら単語のまま使う（例: `allowed` / `forbidden`）
+- 対象が非自明なら `<形容詞>_<名詞>` で修飾する（例: `allowed_servers`, `forbidden_commands`, `required_sections`）
+- ブール値フラグは **名詞のみ** で表現する（例: `bom`, `invisible`, `secret`, `unpinned_npx`）。動詞接頭辞（`forbid_X`）は使わない
+
+### サブルールとフィールドの使い分け
+
+- トップレベルのサブルール名には、同じ語彙（`required` / `forbidden` / `allowed`）を原則として使う
+  - 存在制約（0 vs 1+）: `required` / `forbidden`（例: `path.required`, `path.forbidden`, `content.required`, `content.forbidden`）
+  - 値リスト照合（allowlist / denylist）: `allowed` / `forbidden`（例: `deps.allowed`, `deps.forbidden`）
+- ルール内フィールドでも同じ語彙を使う
+  - 同一対象に allowlist と denylist の両方を持てる場合は `allowed` / `forbidden` のペア
+  - 片方だけを持つ場合は単独で使う
+
 ## 機能追加の進め方
 
-新機能を検討するときは以下の手順で進める。採否にかかわらず判断の根拠を `decisions.md` に残す。
+新機能を検討するときは以下の手順で進める。採否にかかわらず判断の根拠を [`decisions.md`](./decisions.md) に残す。
 
 ### 1. ブレスト（広く列挙）
 
@@ -118,10 +83,10 @@ GitHub 関連でも、構造パースが不要なもの（LICENSE / SECURITY.md 
 
 以下の順で評価し、早い段階で済ませられるならそこで止める。
 
-1. **既存ルールで表現可能か**（例: `path.required`, `content.forbidden`）
+1. **既存ルールで表現可能か**
    → 可能なら独立ルール化せず、docs の設定例として掲載する
 2. **既存ルールのフィールド拡張で表現可能か**
-   → 可能なら既存ルールにフィールドを追加する（`content.forbidden` に `max`、`actions.pinned` に `targets` など）
+   → 可能なら既存ルールにフィールドを追加する
 3. **既存コマンドに新ルールを追加するのが妥当か**
    → 対象ファイル群と判定手段が既存コマンドと合致する場合
 4. **新コマンドを立てるのが妥当か**
@@ -131,14 +96,13 @@ GitHub 関連でも、構造パースが不要なもの（LICENSE / SECURITY.md 
 
 「A があれば B があるべき」が片方向に還元できているかを確認する。双方向になるものは不採用。
 
-- 例: `naming` は「場所 → 名前」のみ。「名前 → 場所」はやらない
-- 例: `codeowners` は「path → owners」のみ。「owner → 担当範囲」はやらない
+### 4. 命名規約の確認
 
-### 4. 判断記録
+新設するルール名・フィールド名が上記「命名規約」に沿っているかを確認する。動詞形が混じっていないか、`denied` を誤って採用していないかを必ず見る。
 
-候補名、採否、理由、既存ルールでの代替方法を `decisions.md` に追記する。不採用にしたものも必ず残す（あとで再検討するときの根拠になる）。
+### 5. 判断記録
 
-詳細な判断履歴は [`decisions.md`](./decisions.md) を参照。
+候補名、採否、理由、既存ルールでの代替方法を [`decisions.md`](./decisions.md) に追記する。不採用にしたものも必ず残す（あとで再検討するときの根拠になる）。
 
 ## ドキュメント構成
 

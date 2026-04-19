@@ -168,8 +168,8 @@ function validateGithubActionsInjectionRule(
 	};
 	const severity = validateSeverity(raw, label);
 	if (severity !== undefined) rule.severity = severity;
-	const allow = optionalStringArray(raw, "allow_contexts", label);
-	if (allow !== undefined) rule.allow_contexts = allow;
+	const allowed = optionalStringArray(raw, "allowed_contexts", label);
+	if (allowed !== undefined) rule.allowed_contexts = allowed;
 	return rule;
 }
 
@@ -277,8 +277,8 @@ function validateGithubPermissionsRule(
 		}
 		rule.required = raw.required;
 	}
-	const forbid = optionalStringArray(raw, "forbid", label);
-	if (forbid !== undefined) rule.forbid = forbid;
+	const forbidden = optionalStringArray(raw, "forbidden", label);
+	if (forbidden !== undefined) rule.forbidden = forbidden;
 
 	return rule;
 }

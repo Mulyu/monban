@@ -10,7 +10,7 @@ export async function checkGithubPermissions(
 
 	for (const rule of rules) {
 		const required = rule.required ?? true;
-		const forbid = rule.forbid ?? [];
+		const forbidden = rule.forbidden ?? [];
 		const workflows = await loadWorkflows(rule.path, cwd, globalExclude);
 
 		for (const wf of workflows) {
@@ -27,7 +27,7 @@ export async function checkGithubPermissions(
 				});
 			}
 
-			if (typeof topLevel === "string" && forbid.includes(topLevel)) {
+			if (typeof topLevel === "string" && forbidden.includes(topLevel)) {
 				results.push({
 					rule: "actions.permissions",
 					path: wf.file,
@@ -38,7 +38,7 @@ export async function checkGithubPermissions(
 
 			for (const [jobName, job] of Object.entries(getJobs(wf.doc))) {
 				const jobPerm = job.permissions;
-				if (typeof jobPerm === "string" && forbid.includes(jobPerm)) {
+				if (typeof jobPerm === "string" && forbidden.includes(jobPerm)) {
 					results.push({
 						rule: "actions.permissions",
 						path: wf.file,

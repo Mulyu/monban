@@ -63,7 +63,7 @@ github:
     permissions:
       - path: ".github/workflows/**/*.yml"
         required: true
-        forbid: ["write-all"]
+        forbidden: ["write-all"]
 
     triggers:
       - path: ".github/workflows/**/*.yml"
@@ -215,7 +215,7 @@ github:
     permissions:
       - path: ".github/workflows/**/*.yml"
         required: true              # 宣言必須（デフォルト true）
-        forbid: ["write-all"]       # 禁止する権限スカラー値
+        forbidden: ["write-all"]    # 禁止する権限スカラー値
 ```
 
 ### フィールド
@@ -224,12 +224,12 @@ github:
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | 対象 glob |
 | `required` | boolean | No | `true` | `permissions:` の宣言を必須にするか |
-| `forbid` | string[] | No | `[]` | 禁止するスカラー値（`write-all` / `read-all` など） |
+| `forbidden` | string[] | No | `[]` | 禁止するスカラー値（`write-all` / `read-all` など） |
 
 ### 判定
 
 1. `required: true` の場合、workflow トップレベル `permissions:` キーの存在を確認
-2. workflow トップレベル・各 job の `permissions:` がスカラー値で `forbid` に含まれる場合は違反
+2. workflow トップレベル・各 job の `permissions:` がスカラー値で `forbidden` に含まれる場合は違反
 
 ### 出力例
 
@@ -498,7 +498,7 @@ github:
       - path: ".github/workflows/**/*.yml"
         severity: error
         # 例外: 専用に sanitize 済みの run: ステップを許容する
-        allow_contexts:
+        allowed_contexts:
           - "github.event.issue.number"  # number は injection にならない
 ```
 
@@ -508,7 +508,7 @@ github:
 |---|---|---|---|---|
 | `path` | string | Yes | — | 対象 workflow の glob |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
-| `allow_contexts` | string[] | No | `[]` | 検査をスキップするコンテキスト式（完全一致） |
+| `allowed_contexts` | string[] | No | `[]` | 検査をスキップするコンテキスト式（完全一致） |
 
 ### 出力例
 

@@ -87,7 +87,7 @@ export function createCli(): Command {
 		.description("全チェック: すべてのチェックを一括実行")
 		.option(
 			"--offline",
-			"deps は allowed/denied のみ実行（ネットワーク通信なし）",
+			"deps は allowed/forbidden のみ実行（ネットワーク通信なし）",
 		);
 	addDiffOptions(all).action(async (opts: CommonOpts) => {
 		const cwd = process.cwd();
@@ -130,7 +130,7 @@ export function createCli(): Command {
 		(cmd) => {
 			cmd.option(
 				"--offline",
-				"ネットワーク通信をせず allowed / denied のみ実行",
+				"ネットワーク通信をせず allowed / forbidden のみ実行",
 			);
 		},
 	);

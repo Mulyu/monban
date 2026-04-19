@@ -33,7 +33,7 @@ export async function checkGithubActionsInjection(
 
 	for (const rule of rules) {
 		const severity = rule.severity ?? "error";
-		const allow = new Set(rule.allow_contexts ?? []);
+		const allowed = new Set(rule.allowed_contexts ?? []);
 		const workflows = await loadWorkflows(rule.path, cwd, globalExclude);
 
 		for (const wf of workflows) {
@@ -49,7 +49,7 @@ export async function checkGithubActionsInjection(
 
 					for (const m of run.matchAll(EXPRESSION)) {
 						const expr = m[1].trim();
-						if (allow.has(expr)) continue;
+						if (allowed.has(expr)) continue;
 						const matched = matchDangerous(expr);
 						if (!matched) continue;
 						results.push({
