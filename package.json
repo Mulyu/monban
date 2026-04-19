@@ -1,6 +1,6 @@
 {
   "name": "@mulyu/monban",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "コーディングエージェントのための番所。プロジェクト構造の一貫性を検証するCLI。",
   "type": "module",
   "bin": {
