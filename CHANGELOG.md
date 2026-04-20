@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.4](https://github.com/Mulyu/monban/compare/monban-v0.2.3...monban-v0.2.4) (2026-04-20)
+
+
+### Documentation
+
+* unify decisions.md into single 4-col table and reorder rules ([ad8e221](https://github.com/Mulyu/monban/commit/ad8e221d449f798cfacbda753a8dd0651b4b8ca8))
+* unify decisions.md into single 4-col table and reorder rules ([0930c6f](https://github.com/Mulyu/monban/commit/0930c6f6f17df497fd80a0e0d60d4ddccbd2cc8e))
+
 ## [0.2.3](https://github.com/Mulyu/monban/compare/monban-v0.2.2...monban-v0.2.3) (2026-04-19)
 
 

@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "mulyu のツール群を Claude Code プラグインとして配布するマーケットプレイス。現在は monban を提供。",
-    "version": "0.2.3"
+    "version": "0.2.4"
   },
   "plugins": [
     {
       "name": "monban",
       "source": "./plugins/monban",
       "description": "monban CLI (@mulyu/monban) の使い方スキルと monban.yml 雛形生成コマンド。プロジェクト構造の一貫性を検証する言語非依存のハーネス。",
-      "version": "0.2.3",
+      "version": "0.2.4",
       "homepage": "https://github.com/Mulyu/monban",
       "license": "MIT",
       "keywords": [
