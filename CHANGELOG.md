@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.5](https://github.com/Mulyu/monban/compare/monban-v0.2.4...monban-v0.2.5) (2026-04-20)
+
+
+### Bug Fixes
+
+* honor severity config in 5 rules ([88c1c5c](https://github.com/Mulyu/monban/commit/88c1c5c892dacbbc3b2d0875a692512bbc94308e))
+* honor severity config in 5 rules (naming/link/permissions/timeout/concurrency) ([d1475aa](https://github.com/Mulyu/monban/commit/d1475aa7213e53640210df686cb25715929fe28b))
+* update SKILL.md doc refs for severity doc changes ([ea95d06](https://github.com/Mulyu/monban/commit/ea95d067b8bb15bd3301d3ec46b6cf5b7c2e9a10))
+
 ## [0.2.4](https://github.com/Mulyu/monban/compare/monban-v0.2.3...monban-v0.2.4) (2026-04-20)
 
 
