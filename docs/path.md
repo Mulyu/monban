@@ -243,7 +243,7 @@ WARN  [forbidden] tmp/draft.temp.md
 
 ## 3. naming
 
-<!-- monban:ref ../src/rules/path/naming.ts sha256:075159c15f5f19fd51d089d8dcb250692f3b53f96a5f4bd5ca5a9ceac3b38a13 -->
+<!-- monban:ref ../src/rules/path/naming.ts sha256:940d7a1d664ab9829783bafaa3d880669aa40162c72be4f9ce63bee9ef8d213a -->
 
 ファイル名・ディレクトリ名の命名スタイルを強制する。場所を起点として、そこにあるファイル/ディレクトリの名前をチェックする。
 
@@ -282,6 +282,7 @@ path:
 | `style` | NamingStyle | Yes | — | 命名スタイル |
 | `prefix` | string | No | — | 必須プレフィックス |
 | `suffix` | string | No | — | 必須サフィックス（拡張子を除いた部分に対して） |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
 
 **NamingStyle:**
 

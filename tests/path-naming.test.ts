@@ -66,4 +66,30 @@ describe("path/naming", () => {
 		// handlers, components, hooks, domain, utils -> all lowercase, no hyphens needed for single words
 		expect(results).toHaveLength(0);
 	});
+
+	it("defaults severity to error", async () => {
+		const results = await checkPathNaming(
+			[{ path: "src/components/**/*.tsx", style: "pascal" }],
+			cwd,
+			[],
+		);
+		expect(results.length).toBeGreaterThan(0);
+		expect(results.every((r) => r.severity === "error")).toBe(true);
+	});
+
+	it("respects severity: warn", async () => {
+		const results = await checkPathNaming(
+			[
+				{
+					path: "src/components/**/*.tsx",
+					style: "pascal",
+					severity: "warn",
+				},
+			],
+			cwd,
+			[],
+		);
+		expect(results.length).toBeGreaterThan(0);
+		expect(results.every((r) => r.severity === "warn")).toBe(true);
+	});
 });

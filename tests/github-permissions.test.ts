@@ -52,4 +52,29 @@ describe("github/permissions", () => {
 		);
 		expect(results).toHaveLength(0);
 	});
+
+	it("defaults severity to error", async () => {
+		const results = await checkGithubPermissions(
+			[{ path: ".github/workflows/permissions-missing.yml" }],
+			cwd,
+			[],
+		);
+		expect(results.length).toBeGreaterThan(0);
+		expect(results.every((r) => r.severity === "error")).toBe(true);
+	});
+
+	it("respects severity: warn", async () => {
+		const results = await checkGithubPermissions(
+			[
+				{
+					path: ".github/workflows/permissions-missing.yml",
+					severity: "warn",
+				},
+			],
+			cwd,
+			[],
+		);
+		expect(results.length).toBeGreaterThan(0);
+		expect(results.every((r) => r.severity === "warn")).toBe(true);
+	});
 });

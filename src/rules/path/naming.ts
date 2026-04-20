@@ -51,7 +51,7 @@ function validateName(
 			rule: "naming",
 			path: entryPath,
 			message: `prefix "${rule.prefix}" が期待されています。\n  現在: ${parsePath(entryPath).base}`,
-			severity: "error",
+			severity: rule.severity ?? "error",
 		});
 		return results;
 	}
@@ -61,7 +61,7 @@ function validateName(
 			rule: "naming",
 			path: entryPath,
 			message: `suffix "${rule.suffix}" が期待されています。\n  現在: ${parsePath(entryPath).base}`,
-			severity: "error",
+			severity: rule.severity ?? "error",
 		});
 		return results;
 	}
@@ -83,7 +83,7 @@ function validateName(
 			rule: "naming",
 			path: entryPath,
 			message: `${rule.style} が期待されています。\n  現在: ${parsePath(entryPath).base}`,
-			severity: "error",
+			severity: rule.severity ?? "error",
 		});
 	}
 

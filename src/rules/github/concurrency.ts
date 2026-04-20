@@ -19,7 +19,7 @@ export async function checkGithubConcurrency(
 					rule: "actions.concurrency",
 					path: wf.file,
 					message: "concurrency: が宣言されていません。",
-					severity: "error",
+					severity: rule.severity ?? "error",
 				});
 			}
 		}
