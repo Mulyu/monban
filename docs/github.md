@@ -218,7 +218,7 @@ ERROR [actions.pinned] .github/workflows/test.yml
 
 ## 4. actions.permissions
 
-<!-- monban:ref ../src/rules/github/permissions.ts sha256:a238f83c5dec9149d26c39ee4c781f17ebd6af87ed104d95f9e8e416e720d5ca -->
+<!-- monban:ref ../src/rules/github/permissions.ts sha256:804e2a3db48a047b84bb3cfba25bbd09aea3d71a624d597a7f1a0f49353fb1d3 -->
 
 ワークフローの `permissions:` 宣言を検証する。GitHub は `permissions:` 未宣言時に `GITHUB_TOKEN` へ広い権限を与えるため、明示宣言が望ましい。
 
@@ -240,6 +240,7 @@ github:
 | `path` | string | Yes | — | 対象 glob |
 | `required` | boolean | No | `true` | `permissions:` の宣言を必須にするか |
 | `forbidden` | string[] | No | `[]` | 禁止するスカラー値（`write-all` / `read-all` など） |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
 
 ### 判定
 
@@ -338,7 +339,7 @@ github:
 
 ## 7. actions.timeout
 
-<!-- monban:ref ../src/rules/github/timeout.ts sha256:3cbb36eea54b84aa87aae0fe438f2338b6e9944c1ce24b4b6341cce8739c2bbc -->
+<!-- monban:ref ../src/rules/github/timeout.ts sha256:083121fda708eaa894666cee9857642085fa6a999cc1fb5e1e5c16894822d732 -->
 
 全 job に `timeout-minutes:` が設定されているか、かつ上限値を超えていないかを検証する。
 
@@ -354,10 +355,11 @@ github:
 
 ### フィールド
 
-| フィールド | 型 | 必須 | 説明 |
-|-----------|-----|------|------|
-| `path` | string | Yes | 対象 glob |
-| `max` | number | Yes | 許容する最大分数 |
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象 glob |
+| `max` | number | Yes | — | 許容する最大分数 |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
 
 ### 判定
 
@@ -371,7 +373,7 @@ reusable workflow 呼び出し（job 直下 `uses:`）は job 内でタイムア
 
 ## 8. actions.concurrency
 
-<!-- monban:ref ../src/rules/github/concurrency.ts sha256:c0ee9dae8c1587b34fa4640f4a1f22d9797900a663f4cd2a7e01053fca49ab0b -->
+<!-- monban:ref ../src/rules/github/concurrency.ts sha256:3b30195589ab48181f9c02835bf45a8b6f0ecdf3e2390e7eba357039a46523b5 -->
 
 ワークフロー単位の `concurrency:` 宣言を必須化する。
 
@@ -388,9 +390,10 @@ github:
 
 ### フィールド
 
-| フィールド | 型 | 必須 | 説明 |
-|-----------|-----|------|------|
-| `path` | string | Yes | 対象 glob |
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象 glob |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
 
 ### 判定
 

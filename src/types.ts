@@ -39,6 +39,7 @@ export interface NamingRule {
 	style: NamingStyle;
 	prefix?: string;
 	suffix?: string;
+	severity?: Severity;
 }
 
 export interface DepthRule {
@@ -134,6 +135,7 @@ export interface DocRefRule {
 
 export interface DocLinkRule {
 	path: string;
+	severity?: Severity;
 }
 
 export interface DocConfig {
@@ -167,6 +169,7 @@ export interface GithubPermissionsRule {
 	path: string;
 	required?: boolean;
 	forbidden?: string[];
+	severity?: Severity;
 }
 
 export interface GithubTriggersRule {
@@ -184,10 +187,12 @@ export interface GithubRunnerRule {
 export interface GithubTimeoutRule {
 	path: string;
 	max: number;
+	severity?: Severity;
 }
 
 export interface GithubConcurrencyRule {
 	path: string;
+	severity?: Severity;
 }
 
 export interface GithubConsistencyRule {

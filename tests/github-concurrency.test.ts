@@ -23,4 +23,29 @@ describe("github/concurrency", () => {
 		);
 		expect(results).toHaveLength(0);
 	});
+
+	it("defaults severity to error", async () => {
+		const results = await checkGithubConcurrency(
+			[{ path: ".github/workflows/concurrency-missing.yml" }],
+			cwd,
+			[],
+		);
+		expect(results.length).toBeGreaterThan(0);
+		expect(results.every((r) => r.severity === "error")).toBe(true);
+	});
+
+	it("respects severity: warn", async () => {
+		const results = await checkGithubConcurrency(
+			[
+				{
+					path: ".github/workflows/concurrency-missing.yml",
+					severity: "warn",
+				},
+			],
+			cwd,
+			[],
+		);
+		expect(results.length).toBeGreaterThan(0);
+		expect(results.every((r) => r.severity === "warn")).toBe(true);
+	});
 });

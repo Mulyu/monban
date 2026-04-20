@@ -1,5 +1,10 @@
 import type { DocConfig, DocLinkRule, DocRefRule } from "../../types.js";
-import { assertObject, requireString, validateArray } from "./common.js";
+import {
+	assertObject,
+	requireString,
+	validateArray,
+	validateSeverity,
+} from "./common.js";
 
 export function validateDocConfig(raw: unknown): DocConfig {
 	if (typeof raw !== "object" || raw === null) {
@@ -36,5 +41,8 @@ function validateDocLinkRule(
 ): DocLinkRule {
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
-	return { path: requireString(raw, "path", label) };
+	const rule: DocLinkRule = { path: requireString(raw, "path", label) };
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
 }

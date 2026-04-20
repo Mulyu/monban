@@ -89,7 +89,7 @@ ERROR [ref] docs/api.md:8
 
 ## 2. link
 
-<!-- monban:ref ../src/rules/doc/link.ts sha256:fb6862cffaf489d1f08c097646a1df2fd6b2f4a4b87ac7148bf2838727fb729b -->
+<!-- monban:ref ../src/rules/doc/link.ts sha256:9f4442bb0bb2df56d102ad59e5d061217aa93f2780676f557426387c1dd9e401 -->
 
 Markdown 内の相対リンクが実在するファイルを指しているかを検証する。
 
@@ -106,9 +106,10 @@ doc:
 
 ### フィールド
 
-| フィールド | 型 | 必須 | 説明 |
-|-----------|-----|------|------|
-| `path` | string | Yes | 対象 Markdown ファイルの glob パターン |
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象 Markdown ファイルの glob パターン |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
 
 ### 判定
 

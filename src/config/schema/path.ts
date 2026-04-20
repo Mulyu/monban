@@ -185,6 +185,9 @@ function validateNamingRule(
 	rule.prefix = optionalString(raw, "prefix", label);
 	rule.suffix = optionalString(raw, "suffix", label);
 
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+
 	return rule;
 }
 

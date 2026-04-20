@@ -298,6 +298,9 @@ function validateGithubPermissionsRule(
 	const forbidden = optionalStringArray(raw, "forbidden", label);
 	if (forbidden !== undefined) rule.forbidden = forbidden;
 
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+
 	return rule;
 }
 
@@ -373,10 +376,13 @@ function validateGithubTimeoutRule(
 		throw new Error(`${label}.max must be a positive integer`);
 	}
 
-	return {
+	const rule: GithubTimeoutRule = {
 		path: requireString(raw, "path", label),
 		max: raw.max,
 	};
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
 }
 
 function validateGithubConcurrencyRule(
@@ -386,7 +392,12 @@ function validateGithubConcurrencyRule(
 ): GithubConcurrencyRule {
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
-	return { path: requireString(raw, "path", label) };
+	const rule: GithubConcurrencyRule = {
+		path: requireString(raw, "path", label),
+	};
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
 }
 
 function validateGithubConsistencyRule(
