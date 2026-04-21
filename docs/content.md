@@ -62,7 +62,7 @@ content:
 
 ## 1. required
 
-<!-- monban:ref ../src/rules/content/required.ts sha256:98f26028c52b78cfbb147f4687ce354d4ba786c120fae979f593e0e650bda0ef -->
+<!-- monban:ref ../src/rules/content/required.ts sha256:e63e65945a1cfcc349914a9516379c52419c04d58d5d4b078d6903723d753c73 -->
 
 Declare text patterns that a file must contain.
 
@@ -100,11 +100,23 @@ content:
 | `path` | string | Yes | — | Glob pattern for target files |
 | `exclude` | string[] | No | `[]` | Glob patterns to exclude from targets |
 | `pattern` | string | Yes | — | Required regex pattern |
+| `json_key` | string | No | — | Dot-delimited key path into a JSON file. When set, requires the key to exist and its value to match `pattern` (cannot be combined with `scope` / `within_lines`) |
 | `scope` | `"file"` \| `"first_line"` \| `"last_line"` | No | `"file"` | Match scope |
 | `within_lines` | integer | No | — | Restrict the match to the first N lines (only meaningful when `scope` is `"file"`) |
 | `message` | string | No | — | Error message |
 
 `scope: "first_line"` is equivalent to `within_lines: 1`. Use `within_lines` when you want a multi-line header (for example, a `@generated` / `DO NOT EDIT` marker that may appear anywhere in the first 2–3 lines).
+
+When `json_key` is set, the target file is parsed as JSON; the rule requires the key to exist and its value to match `pattern`. If the key is missing or the value does not match, it is a violation. Example:
+
+```yaml
+content:
+  required:
+    # package.json must declare a license
+    - path: "package.json"
+      json_key: "license"
+      pattern: ".+"
+```
 
 ### Example output
 
@@ -122,11 +134,11 @@ ERROR [required] src/generated/api.ts
 
 ## 2. forbidden
 
-<!-- monban:ref ../src/rules/content/forbidden.ts sha256:662d943a5e611479896d237df99ad00389d527dfee920321c9f0d7f2b8635627 -->
+<!-- monban:ref ../src/rules/content/forbidden.ts sha256:71b92106e4fef145863246b77d05a07b41dbd53f90c84263bc2efb5a144d65ff -->
 
-Declare things that must not appear in a file. A single rule shape handles six kinds: text patterns, BOM, invisible Unicode characters, secrets, prompt injection, and merge-conflict markers.
+Declare things that must not appear in a file. A single rule shape handles six kinds: text patterns, BOM, invisible Unicode characters, secrets, prompt injection, and merge-conflict markers. In addition, the `json_key` modifier lets you target a specific key inside a JSON file and pattern-match its value.
 
-Specify at least one of `pattern`, `bom`, `invisible`, `secret`, `injection`, `conflict`.
+Specify at least one of `pattern`, `json_key`, `bom`, `invisible`, `secret`, `injection`, `conflict`. `json_key` cannot be combined with byte-level flags (`bom` / `invisible` / `secret` / `injection` / `conflict`).
 
 ### Configuration
 
@@ -185,6 +197,19 @@ content:
     - path: "**"
       conflict: true
       message: "Unresolved merge conflict markers remain."
+
+    # --- JSON specific keys (json_key) ---
+
+    # Forbid curl | sh / rm -rf in any lifecycle script of package.json
+    - path: "package.json"
+      json_key: "scripts.*"
+      pattern: "curl|wget|\\brm\\s+-rf"
+      message: "Do not include dangerous shell operations in lifecycle scripts."
+
+    # Forbid the mere existence of a specific key (pattern omitted)
+    - path: "package.json"
+      json_key: "scripts.preinstall"
+      message: "A preinstall script is not needed."
 ```
 
 ### Fields
@@ -193,7 +218,8 @@ content:
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | Glob pattern for target files |
 | `exclude` | string[] | No | `[]` | Glob patterns to exclude (for exempting specific directories) |
-| `pattern` | string | No* | — | Forbidden regex pattern (matched per line) |
+| `pattern` | string | No* | — | Forbidden regex pattern (matched per line, or against the value when combined with `json_key`) |
+| `json_key` | string | No* | — | Dot-delimited key path into a JSON file. A trailing `*` expands one level as a wildcard. When set, the rule does not do line-level matching |
 | `bom` | boolean | No* | — | `true` to forbid BOM |
 | `invisible` | boolean | No* | — | `true` to forbid invisible Unicode characters |
 | `secret` | boolean | No* | — | `true` to forbid known secret formats |
@@ -202,13 +228,26 @@ content:
 | `message` | string | No | — | Error message |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-\* At least one of `pattern`, `bom`, `invisible`, `secret`, `injection`, `conflict` is required.
+\* At least one of `pattern`, `json_key`, `bom`, `invisible`, `secret`, `injection`, `conflict` is required. `json_key` cannot be combined with byte-level flags (`bom` / `invisible` / `secret` / `injection` / `conflict`).
 
 ### pattern algorithm
 
 1. Read the target file line by line
 2. Match each line against `new RegExp(pattern)`
 3. Report matching lines (with line numbers)
+
+### json_key algorithm
+
+1. Parse the target file as JSON (parse failures are reported as findings with `severity`, not raised as execution errors)
+2. Traverse `json_key` as a dot-delimited path
+   - Example: `scripts.postinstall` → look up `doc.scripts.postinstall`
+   - `*` is a one-level wildcard. Example: `scripts.*` expands to every child key under `scripts`
+3. For each resolved key:
+   - If `pattern` is set and the value is a string, match it against the regex
+   - If `pattern` is omitted, the **mere existence of the key is a violation**
+4. Report matches in `<file>:<key>` form
+
+Use `json_key` for checks like "ensure no dangerous shell operations appear in `package.json` scripts.*", "the URL hosts in a lockfile are in an allowlist", or specific-key checks on config files such as `renovate.json` / `dependabot.yml` (YAML is not yet supported).
 
 ### bom algorithm
 

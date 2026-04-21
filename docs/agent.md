@@ -22,7 +22,8 @@ monban agent --json                 # JSON output
 |---|--------|------|------|
 | 1 | `instructions` | `AGENTS.md` / `CLAUDE.md` | Existence, required H2 sections, size cap, frontmatter key allowlist |
 | 2 | `mcp` | `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` | allowed/forbidden under `mcpServers`, raw-shell ban, `npx @latest` ban, raw-value secret detection in env |
-| 3 | `ignore` | `.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore` | Required coverage of `.env*` / `*.pem` / `id_rsa` etc. |
+| 3 | `settings` | `.claude/settings.json` / `.claude/settings.local.json` | Detects broad `permissions.allow` grants, dangerous shell in `hooks.*.command`, and unpinned `npx @latest` on the harness itself |
+| 4 | `ignore` | `.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore` | Required coverage of `.env*` / `*.pem` / `id_rsa` etc. |
 
 ---
 
@@ -42,6 +43,16 @@ agent:
       forbidden_commands: [curl, wget, sh, bash, zsh]
       unpinned_npx: true
       env_secrets: true
+
+  settings:
+    - path: "{.claude/settings.json,.claude/settings.local.json}"
+      forbidden_permissions:
+        - "^Bash\\(\\*\\)$"
+        - "^Bash\\(sudo"
+        - "^Bash\\(rm"
+        - "^WebFetch\\(\\*\\)$"
+      forbidden_hook_commands: [curl, wget, sh, bash, zsh, sudo]
+      unpinned_npx: true
 
   ignore:
     - path: ".llmignore"
@@ -168,7 +179,94 @@ Many of these make the configuration file itself an attack surface. This rule ai
 
 ---
 
-## 3. ignore
+## 3. settings
+
+<!-- monban:ref ../src/rules/agent/settings.ts sha256:41f982b587f1a072c191e491c69757d155c40d5fc14142c11d3ee3207e3183a8 -->
+
+Validates the `permissions` and `hooks` blocks of Claude Code harness settings (`.claude/settings.json` / `.claude/settings.local.json`). While `agent.mcp` targets only `mcpServers`, this rule inspects the harness itself — the permission grants and the event-driven hooks.
+
+### Configuration
+
+```yaml
+agent:
+  settings:
+    - path: "{.claude/settings.json,.claude/settings.local.json}"
+      forbidden_permissions:
+        - "^Bash\\(\\*\\)$"
+        - "^Bash\\(\\*:\\*\\)$"
+        - "^Bash\\(sudo"
+        - "^Bash\\(rm"
+        - "^Bash\\(curl"
+        - "^Bash\\(wget"
+        - "^WebFetch\\(\\*\\)$"
+      allowed_permissions:
+        - "^Bash\\(npm "
+        - "^Bash\\(git "
+        - "^Read"
+      forbidden_hook_commands: [curl, wget, sh, bash, zsh, sudo]
+      unpinned_npx: true
+      severity: warn
+```
+
+### Fields
+
+| Field | Type | Required | Default | Description |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | Glob for target files |
+| `exclude` | string[] | No | `[]` | Exclude glob |
+| `forbidden_permissions` | string[] | No | see below | Regexes applied to each `permissions.allow` entry; a match is a violation |
+| `allowed_permissions` | string[] | No | — | When set, each `permissions.allow` entry that matches none is a violation |
+| `forbidden_hook_commands` | string[] | No | `[curl, wget, sh, bash, zsh, sudo]` | Tokens forbidden inside `hooks.*.hooks[].command` |
+| `unpinned_npx` | boolean | No | `true` | Forbid `npx pkg` / `npx pkg@latest` inside hook commands |
+| `message` | string | No | — | Custom message |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | Severity |
+
+Default `forbidden_permissions`:
+
+```
+^Bash\(\*\)$      # allow-all Bash (arbitrary code execution)
+^Bash\(\*:\*\)$   # sub-command form of the same
+^Bash\(sudo      # privilege escalation
+^Bash\(rm        # destructive delete
+^Bash\(curl      # fetch-then-execute pipeline
+^Bash\(wget      # same
+^WebFetch\(\*\)$  # arbitrary URL context ingestion
+```
+
+### Algorithm
+
+Parse the target file as JSON, then inspect:
+
+- **permissions.allow**: For each entry, report if it matches any `forbidden_permissions`. If `allowed_permissions` is set, also report entries that match none of them.
+- **hooks.`<event>`[].hooks[].command**:
+  - Tokenize the command string (split on whitespace, pipe, `;`, `&`, etc.; compare by path basename). Report if any token is in `forbidden_hook_commands`.
+  - With `unpinned_npx: true`, report any `npx <pkg>` invocation that lacks `@<version>` or uses `@latest`.
+
+### Example output
+
+```
+WARN  [settings] .claude/settings.json:permissions.allow
+  dangerous permission: Bash(*) (broad grants open a path to arbitrary code execution)
+
+WARN  [settings] .claude/settings.json:hooks.PostToolUse
+  forbidden token in hooks command: curl (path to arbitrary code execution)
+
+WARN  [settings] .claude/settings.json:hooks.SessionStart
+  hooks npx command is not version-pinned: some-pkg@latest (auto-impacted by supply-chain compromise)
+```
+
+### Boundary with `agent.mcp`
+
+| Rule | Target | Role |
+|---|---|---|
+| `agent.mcp` | `mcpServers` block in the JSON | Inspects individual MCP server command / args / env |
+| `agent.settings` | `permissions` and `hooks` blocks in the JSON | Inspects the harness's permission grants and event hooks |
+
+Both may target the same `.claude/settings.json`, but they look at different parts of the JSON so they don't overlap. Configuring both is recommended.
+
+---
+
+## 4. ignore
 
 <!-- monban:ref ../src/rules/agent/ignore.ts sha256:ff759a122865b1848c4a9aba8bf9bcb6651d9b7a9ad89f401e1243e3f8bcfe35 -->
 

@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
 import type { ContentRequiredRule, RuleResult } from "../../types.js";
+import { resolveJsonKey } from "./forbidden.js";
 
 export async function checkContentRequired(
 	rules: ContentRequiredRule[],
@@ -23,6 +24,48 @@ export async function checkContentRequired(
 
 		for (const file of files) {
 			const abs = join(cwd, file);
+
+			if (rule.json_key) {
+				const raw = await readFile(abs, "utf-8");
+				let parsed: unknown;
+				try {
+					parsed = JSON.parse(raw);
+				} catch {
+					results.push({
+						rule: "required",
+						path: file,
+						message: rule.message ?? `${file}: JSON パースに失敗しました。`,
+						severity: "error",
+					});
+					continue;
+				}
+				const matches = resolveJsonKey(parsed, rule.json_key);
+				if (matches.length === 0) {
+					results.push({
+						rule: "required",
+						path: file,
+						message:
+							rule.message ?? `必須キーが見つかりません: ${rule.json_key}`,
+						severity: "error",
+					});
+					continue;
+				}
+				const satisfied = matches.some(
+					({ value }) => typeof value === "string" && re.test(value),
+				);
+				if (!satisfied) {
+					results.push({
+						rule: "required",
+						path: `${file}:${rule.json_key}`,
+						message:
+							rule.message ??
+							`必須パターンが見つかりません: ${rule.pattern} (${rule.json_key})`,
+						severity: "error",
+					});
+				}
+				continue;
+			}
+
 			const content = await readFile(abs, "utf-8");
 			const lines = content.split("\n");
 

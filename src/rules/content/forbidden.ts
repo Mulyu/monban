@@ -111,6 +111,46 @@ export async function checkContentForbidden(
 				}
 			}
 
+			if (rule.json_key) {
+				const raw = await readFile(abs, "utf-8");
+				let parsed: unknown;
+				try {
+					parsed = JSON.parse(raw);
+				} catch {
+					results.push({
+						rule: "forbidden",
+						path: file,
+						message: rule.message ?? `${file}: JSON パースに失敗しました。`,
+						severity: rule.severity ?? "error",
+					});
+					continue;
+				}
+				const re = rule.pattern ? new RegExp(rule.pattern) : null;
+				for (const { key, value } of resolveJsonKey(parsed, rule.json_key)) {
+					if (re === null) {
+						results.push({
+							rule: "forbidden",
+							path: `${file}:${key}`,
+							message: rule.message ?? `禁止キー検出: ${key}`,
+							severity: rule.severity ?? "error",
+						});
+						continue;
+					}
+					if (typeof value !== "string") continue;
+					if (re.test(value)) {
+						results.push({
+							rule: "forbidden",
+							path: `${file}:${key}`,
+							message:
+								rule.message ??
+								`禁止パターン検出: ${rule.pattern} (${key} = ${truncate(value)})`,
+							severity: rule.severity ?? "error",
+						});
+					}
+				}
+				continue;
+			}
+
 			if (
 				rule.pattern ||
 				rule.invisible ||
@@ -232,4 +272,43 @@ export async function checkContentForbidden(
 	}
 
 	return results;
+}
+
+interface JsonKeyMatch {
+	key: string;
+	value: unknown;
+}
+
+export function resolveJsonKey(doc: unknown, path: string): JsonKeyMatch[] {
+	const segments = path.split(".");
+	return walk(doc, segments, []);
+}
+
+function walk(
+	node: unknown,
+	segments: string[],
+	visited: string[],
+): JsonKeyMatch[] {
+	if (segments.length === 0) {
+		return [{ key: visited.join("."), value: node }];
+	}
+	const [head, ...rest] = segments;
+	if (head === "*") {
+		if (!node || typeof node !== "object" || Array.isArray(node)) return [];
+		const out: JsonKeyMatch[] = [];
+		for (const [childKey, childValue] of Object.entries(
+			node as Record<string, unknown>,
+		)) {
+			out.push(...walk(childValue, rest, [...visited, childKey]));
+		}
+		return out;
+	}
+	if (!node || typeof node !== "object" || Array.isArray(node)) return [];
+	const next = (node as Record<string, unknown>)[head];
+	if (next === undefined) return [];
+	return walk(next, rest, [...visited, head]);
+}
+
+function truncate(value: string): string {
+	return value.length > 60 ? `${value.slice(0, 57)}...` : value;
 }

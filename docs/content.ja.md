@@ -62,7 +62,7 @@ content:
 
 ## 1. required
 
-<!-- monban:ref ../src/rules/content/required.ts sha256:98f26028c52b78cfbb147f4687ce354d4ba786c120fae979f593e0e650bda0ef -->
+<!-- monban:ref ../src/rules/content/required.ts sha256:e63e65945a1cfcc349914a9516379c52419c04d58d5d4b078d6903723d753c73 -->
 
 ファイル内に含まれるべきテキストパターンを定義する。
 
@@ -100,11 +100,23 @@ content:
 | `path` | string | Yes | — | 対象ファイルの glob パターン |
 | `exclude` | string[] | No | `[]` | 対象から除外する glob パターン |
 | `pattern` | string | Yes | — | 必須の正規表現パターン |
+| `json_key` | string | No | — | JSON 内のドット区切りキーパス。指定時はキーの存在 + 値が `pattern` にマッチすることを要求する（`scope` / `within_lines` と併用不可） |
 | `scope` | `"file"` \| `"first_line"` \| `"last_line"` | No | `"file"` | マッチ範囲 |
 | `within_lines` | integer | No | — | 先頭 N 行に限定してマッチする（`scope` が `"file"` のときのみ指定可） |
 | `message` | string | No | — | エラーメッセージ |
 
 `scope: "first_line"` は `within_lines: 1` と同等。複数行のヘッダ（generated マーカーのように `@generated` / `DO NOT EDIT` が先頭 2–3 行のどこかに現れる）を許容したい場合は `within_lines` を使う。
+
+`json_key` を指定すると、対象ファイルを JSON としてパースし、そのキーが存在し、かつ値が `pattern` にマッチすることを要求する。キーが見つからない／値がマッチしない場合に違反。例:
+
+```yaml
+content:
+  required:
+    # package.json に license が宣言されていること
+    - path: "package.json"
+      json_key: "license"
+      pattern: ".+"
+```
 
 ### 出力例
 
@@ -122,11 +134,11 @@ ERROR [required] src/generated/api.ts
 
 ## 2. forbidden
 
-<!-- monban:ref ../src/rules/content/forbidden.ts sha256:662d943a5e611479896d237df99ad00389d527dfee920321c9f0d7f2b8635627 -->
+<!-- monban:ref ../src/rules/content/forbidden.ts sha256:71b92106e4fef145863246b77d05a07b41dbd53f90c84263bc2efb5a144d65ff -->
 
-ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字、シークレット、プロンプトインジェクション、マージコンフリクトマーカーの 6 種類を同じルールで扱う。
+ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字、シークレット、プロンプトインジェクション、マージコンフリクトマーカーの 6 種類を同じルールで扱う。加えて、JSON ファイルの特定キーを対象に値をパターン検査する `json_key` モディファイアがある。
 
-`pattern`、`bom`、`invisible`、`secret`、`injection`、`conflict` のいずれか 1 つ以上を指定する。
+`pattern`、`json_key`、`bom`、`invisible`、`secret`、`injection`、`conflict` のいずれか 1 つ以上を指定する。`json_key` はバイト列検査 (`bom`/`invisible`/`secret`/`injection`/`conflict`) とは併用不可。
 
 ### 設定
 
@@ -185,6 +197,19 @@ content:
     - path: "**"
       conflict: true
       message: "未解決のマージコンフリクトが残っています。"
+
+    # --- JSON 特定キー（json_key） ---
+
+    # package.json の全ライフサイクルスクリプトで curl | sh / rm -rf を禁止
+    - path: "package.json"
+      json_key: "scripts.*"
+      pattern: "curl|wget|\\brm\\s+-rf"
+      message: "ライフサイクルスクリプトに危険なシェル操作を含めないでください。"
+
+    # 特定キーの存在そのものを禁止（pattern 無指定）
+    - path: "package.json"
+      json_key: "scripts.preinstall"
+      message: "preinstall スクリプトは不要です。"
 ```
 
 ### フィールド
@@ -193,7 +218,8 @@ content:
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | 対象ファイルの glob パターン |
 | `exclude` | string[] | No | `[]` | 対象から除外する glob パターン（特定ディレクトリだけ例外扱いに使う） |
-| `pattern` | string | No* | — | 禁止する正規表現パターン（行単位マッチ） |
+| `pattern` | string | No* | — | 禁止する正規表現パターン（行単位マッチ、または `json_key` と併用時は値に対するマッチ） |
+| `json_key` | string | No* | — | JSON 内のドット区切りキーパス。末尾に `*` を付けると 1 階層のワイルドカードになる。指定時は行単位検査をしない |
 | `bom` | boolean | No* | — | `true` で BOM の存在を禁止する |
 | `invisible` | boolean | No* | — | `true` で不可視 Unicode 文字の存在を禁止する |
 | `secret` | boolean | No* | — | `true` で既知シークレット形式の存在を禁止する |
@@ -202,13 +228,26 @@ content:
 | `message` | string | No | — | エラーメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
 
-\* `pattern`、`bom`、`invisible`、`secret`、`injection`、`conflict` のいずれか 1 つ以上が必須。
+\* `pattern`、`json_key`、`bom`、`invisible`、`secret`、`injection`、`conflict` のいずれか 1 つ以上が必須。`json_key` はバイト列検査 (`bom`/`invisible`/`secret`/`injection`/`conflict`) と併用不可。
 
 ### pattern の判定
 
 1. 対象ファイルを行単位で読み込み
 2. 各行に対して `new RegExp(pattern)` でマッチ
 3. マッチした行を違反として報告（行番号付き）
+
+### json_key の判定
+
+1. 対象ファイルを JSON としてパース（失敗は `severity` 付き finding として報告、実行不能エラーにはしない）
+2. `json_key` をドット区切りでトラバース
+   - 例: `scripts.postinstall` → `doc.scripts.postinstall` を参照
+   - `*` は 1 階層のワイルドカード。例: `scripts.*` → `scripts` オブジェクトの全子キーに展開
+3. 各一致キーについて:
+   - `pattern` が指定されていて、値が文字列の場合は正規表現でマッチ
+   - `pattern` が未指定の場合は、**キーの存在そのものを違反**とする
+4. マッチした箇所を `<file>:<key>` 形式で報告
+
+`json_key` は `package.json` の `scripts.*` に危険なシェル操作が無いか、lockfile の URL ホストが allowlist にあるか、`renovate.json` / `dependabot.yml`（※ YAML は未対応）などの設定ファイルの特定キー検査に使う。
 
 ### bom の判定
 

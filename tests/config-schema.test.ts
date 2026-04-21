@@ -122,6 +122,45 @@ describe("config/schema/content", () => {
 			validateContentConfig({ size: [{ path: "**/*.ts" }] }),
 		).toThrow(/max_lines/);
 	});
+
+	it("accepts json_key-only forbidden rule", () => {
+		const config = validateContentConfig({
+			forbidden: [{ path: "**/*.json", json_key: "scripts.postinstall" }],
+		});
+		expect(config.forbidden?.[0].json_key).toBe("scripts.postinstall");
+	});
+
+	it("rejects json_key combined with byte-level flags", () => {
+		expect(() =>
+			validateContentConfig({
+				forbidden: [
+					{ path: "**/*.json", json_key: "scripts.build", bom: true },
+				],
+			}),
+		).toThrow(/json_key.*byte-level/);
+	});
+
+	it("accepts json_key on required rule", () => {
+		const config = validateContentConfig({
+			required: [{ path: "package.json", json_key: "license", pattern: ".+" }],
+		});
+		expect(config.required?.[0].json_key).toBe("license");
+	});
+
+	it("rejects json_key combined with scope on required rule", () => {
+		expect(() =>
+			validateContentConfig({
+				required: [
+					{
+						path: "package.json",
+						json_key: "license",
+						pattern: ".+",
+						scope: "first_line",
+					},
+				],
+			}),
+		).toThrow(/json_key.*line-level/);
+	});
 });
 
 describe("config/schema/doc", () => {
