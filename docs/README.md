@@ -1,28 +1,30 @@
-# monban ドキュメント
+# monban Documentation
 
-monban のユーザー向けドキュメント索引。
+> [日本語](./README.ja.md) | **English**
 
-## はじめに
+Index of user-facing monban docs.
 
-- [getting-started.md](getting-started.md) — インストールから初回実行までの最短手順
-- [concepts.md](concepts.md) — 設計思想と他リンターとの棲み分け
+## Getting started
 
-## チェックリファレンス
+- [getting-started.md](getting-started.md) — shortest path from install to first run
+- [concepts.md](concepts.md) — design philosophy and how monban differs from other linters
 
-| ドキュメント | 内容 |
+## Check reference
+
+| Doc | Covers |
 |-------------|------|
-| [path.md](path.md) | パス構造（`forbidden` / `required` / `naming` / `depth` / `count`） |
-| [content.md](content.md) | ファイル内容（`forbidden` / `required`、BOM・不可視文字・シークレット） |
-| [doc.md](doc.md) | ドキュメント整合性（`ref` / `link`） |
-| [github.md](github.md) | GitHub（workflows + CODEOWNERS、13 ルール） |
-| [deps.md](deps.md) | 依存パッケージ（`existence` / `freshness` / `popularity` / `cross_ecosystem` / `typosquat` / `allowed` / `forbidden`） |
-| [git.md](git.md) | Git メタデータ（`commit.message` / `commit.trailers` / `commit.references` / `diff.size` / `diff.ignored` / `branch_name` / `tag_name`） |
-| [agent.md](agent.md) | AI エージェント設定（`instructions` / `mcp` / `ignore`） |
+| [path.md](path.md) | Path structure (`forbidden` / `required` / `naming` / `depth` / `count`) |
+| [content.md](content.md) | File contents (`forbidden` / `required`, BOM, invisible characters, secrets) |
+| [doc.md](doc.md) | Documentation integrity (`ref` / `link`) |
+| [github.md](github.md) | GitHub (workflows + CODEOWNERS, 13 rules) |
+| [deps.md](deps.md) | Dependency packages (`existence` / `freshness` / `popularity` / `cross_ecosystem` / `typosquat` / `allowed` / `forbidden`) |
+| [git.md](git.md) | Git metadata (`commit.message` / `commit.trailers` / `commit.references` / `diff.size` / `diff.ignored` / `branch_name` / `tag_name`) |
+| [agent.md](agent.md) | AI agent configuration (`instructions` / `mcp` / `ignore`) |
 
 ## CLI
 
-- [diff.md](diff.md) — 全コマンド共通の `--diff` フラグ（PR 差分スコープ）
+- [diff.md](diff.md) — the `--diff` flag (PR diff scoping), shared by all commands
 
-## 設定
+## Configuration
 
-- [extends.md](extends.md) — 他の YAML 設定の継承（local / GitHub）
+- [extends.md](extends.md) — inheriting other YAML configs (local / GitHub)

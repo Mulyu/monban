@@ -1,31 +1,33 @@
 # monban content
 
-ファイル内容のチェック。言語非依存の正規表現マッチで、禁止パターン・必須パターンを検証する。
+> [日本語](./content.ja.md) | **English**
 
-- 言語非依存・AST 不要
-- プレーンテキストの正規表現スキャンのみで完結
-- セレクタは `path`（glob パターン）で対象ファイルを指定
+File-contents checks. Language-agnostic regex matching for forbidden and required patterns.
+
+- Language-agnostic, no AST
+- Plain-text regex scanning only
+- The selector is `path` (a glob pattern) targeting files
 
 ```bash
-monban content                     # 全ルール実行
-monban content --rule forbidden    # 特定ルールのみ
-monban content --diff=main         # 差分スコープのみ（詳細: ./diff.md）
-monban content --json              # JSON 出力
+monban content                     # run every rule
+monban content --rule forbidden    # run a specific rule only
+monban content --diff=main         # scope to a diff (details: ./diff.md)
+monban content --json              # JSON output
 ```
 
 ---
 
-## ルール一覧
+## Rule list
 
-| # | ルール | 概要 |
+| # | Rule | Summary |
 |---|--------|------|
-| 1 | `required` | ファイル内の必須テキストパターンの欠落を検出する（`within_lines` で先頭 N 行に限定可） |
-| 2 | `forbidden` | ファイル内の禁止テキストパターン・BOM・不可視文字・シークレット・プロンプトインジェクション・マージコンフリクトマーカーを検出する |
-| 3 | `size` | ファイルの行数が上限を超えていないか検証する |
+| 1 | `required` | Detect missing required text patterns in a file (limitable to the first N lines with `within_lines`) |
+| 2 | `forbidden` | Detect forbidden text patterns, BOM, invisible characters, secrets, prompt injection, or merge-conflict markers |
+| 3 | `size` | Verify that the file's line count stays under a limit |
 
 ---
 
-## 設定
+## Configuration
 
 ```yaml
 # monban.yml
@@ -34,26 +36,26 @@ content:
     - path: "src/**/*.ts"
       pattern: "^// Copyright \\d{4}"
       scope: first_line
-      message: "コピーライトヘッダーが必要です。"
+      message: "Copyright header required."
 
   forbidden:
     - path: "src/domain/**"
       pattern: "process\\.env"
-      message: "domain 層で環境変数に直接アクセスしないでください。"
+      message: "Do not access environment variables directly from the domain layer."
 
     - path: "src/**"
       bom: true
-      message: "BOM を含めないでください。"
+      message: "Do not include a BOM."
 
     - path: "src/**"
       invisible: true
-      message: "不可視の Unicode 文字が含まれています。"
+      message: "File contains an invisible Unicode character."
 
   size:
     - path: "src/**/*.ts"
       max_lines: 300
       exclude: ["src/generated/**"]
-      message: "ファイルが大きすぎます。分割してください。"
+      message: "File is too large. Split it up."
 ```
 
 ---
@@ -62,11 +64,11 @@ content:
 
 <!-- monban:ref ../src/rules/content/required.ts sha256:e63e65945a1cfcc349914a9516379c52419c04d58d5d4b078d6903723d753c73 -->
 
-ファイル内に含まれるべきテキストパターンを定義する。
+Declare text patterns that a file must contain.
 
-コピーライトヘッダーやライセンス表記など、すべてのファイルに存在すべき定型テキストのチェックに使う。
+Use it for boilerplate text every file should carry — copyright headers, license notices, and so on.
 
-### 設定
+### Configuration
 
 ```yaml
 content:
@@ -74,7 +76,7 @@ content:
     - path: "src/**/*.ts"
       pattern: "^// Copyright \\d{4}"
       scope: first_line
-      message: "コピーライトヘッダーが必要です。"
+      message: "Copyright header required."
 
     - path: "**/*.rb"
       pattern: "^# frozen_string_literal: true"
@@ -84,48 +86,48 @@ content:
       pattern: "@license MIT"
       scope: file
 
-    # 生成ファイルは先頭 3 行以内に DO NOT EDIT マーカーを持つべき
+    # Generated files must carry a DO NOT EDIT marker within the first 3 lines
     - path: "src/generated/**/*.{ts,go}"
       pattern: "(@generated|DO NOT EDIT)"
       within_lines: 3
-      message: "生成ファイルには先頭に DO NOT EDIT マーカーが必要です。"
+      message: "Generated files must carry a DO NOT EDIT marker at the top."
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob パターン |
-| `exclude` | string[] | No | `[]` | 対象から除外する glob パターン |
-| `pattern` | string | Yes | — | 必須の正規表現パターン |
-| `json_key` | string | No | — | JSON 内のドット区切りキーパス。指定時はキーの存在 + 値が `pattern` にマッチすることを要求する（`scope` / `within_lines` と併用不可） |
-| `scope` | `"file"` \| `"first_line"` \| `"last_line"` | No | `"file"` | マッチ範囲 |
-| `within_lines` | integer | No | — | 先頭 N 行に限定してマッチする（`scope` が `"file"` のときのみ指定可） |
-| `message` | string | No | — | エラーメッセージ |
+| `path` | string | Yes | — | Glob pattern for target files |
+| `exclude` | string[] | No | `[]` | Glob patterns to exclude from targets |
+| `pattern` | string | Yes | — | Required regex pattern |
+| `json_key` | string | No | — | Dot-delimited key path into a JSON file. When set, requires the key to exist and its value to match `pattern` (cannot be combined with `scope` / `within_lines`) |
+| `scope` | `"file"` \| `"first_line"` \| `"last_line"` | No | `"file"` | Match scope |
+| `within_lines` | integer | No | — | Restrict the match to the first N lines (only meaningful when `scope` is `"file"`) |
+| `message` | string | No | — | Error message |
 
-`scope: "first_line"` は `within_lines: 1` と同等。複数行のヘッダ（generated マーカーのように `@generated` / `DO NOT EDIT` が先頭 2–3 行のどこかに現れる）を許容したい場合は `within_lines` を使う。
+`scope: "first_line"` is equivalent to `within_lines: 1`. Use `within_lines` when you want a multi-line header (for example, a `@generated` / `DO NOT EDIT` marker that may appear anywhere in the first 2–3 lines).
 
-`json_key` を指定すると、対象ファイルを JSON としてパースし、そのキーが存在し、かつ値が `pattern` にマッチすることを要求する。キーが見つからない／値がマッチしない場合に違反。例:
+When `json_key` is set, the target file is parsed as JSON; the rule requires the key to exist and its value to match `pattern`. If the key is missing or the value does not match, it is a violation. Example:
 
 ```yaml
 content:
   required:
-    # package.json に license が宣言されていること
+    # package.json must declare a license
     - path: "package.json"
       json_key: "license"
       pattern: ".+"
 ```
 
-### 出力例
+### Example output
 
 ```
 ERROR [required] src/billing/invoice.ts
-  必須パターンが見つかりません: ^// Copyright \d{4} (first_line)
-  コピーライトヘッダーが必要です。
+  required pattern not found: ^// Copyright \d{4} (first_line)
+  Copyright header required.
 
 ERROR [required] src/generated/api.ts
-  必須パターンが見つかりません: (@generated|DO NOT EDIT) (within first 3 lines)
-  生成ファイルには先頭に DO NOT EDIT マーカーが必要です。
+  required pattern not found: (@generated|DO NOT EDIT) (within first 3 lines)
+  Generated files must carry a DO NOT EDIT marker at the top.
 ```
 
 ---
@@ -134,26 +136,26 @@ ERROR [required] src/generated/api.ts
 
 <!-- monban:ref ../src/rules/content/forbidden.ts sha256:71b92106e4fef145863246b77d05a07b41dbd53f90c84263bc2efb5a144d65ff -->
 
-ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字、シークレット、プロンプトインジェクション、マージコンフリクトマーカーの 6 種類を同じルールで扱う。加えて、JSON ファイルの特定キーを対象に値をパターン検査する `json_key` モディファイアがある。
+Declare things that must not appear in a file. A single rule shape handles six kinds: text patterns, BOM, invisible Unicode characters, secrets, prompt injection, and merge-conflict markers. In addition, the `json_key` modifier lets you target a specific key inside a JSON file and pattern-match its value.
 
-`pattern`、`json_key`、`bom`、`invisible`、`secret`、`injection`、`conflict` のいずれか 1 つ以上を指定する。`json_key` はバイト列検査 (`bom`/`invisible`/`secret`/`injection`/`conflict`) とは併用不可。
+Specify at least one of `pattern`, `json_key`, `bom`, `invisible`, `secret`, `injection`, `conflict`. `json_key` cannot be combined with byte-level flags (`bom` / `invisible` / `secret` / `injection` / `conflict`).
 
-### 設定
+### Configuration
 
 ```yaml
 content:
   forbidden:
-    # --- テキストパターン ---
+    # --- text patterns ---
 
-    # レイヤー制約
+    # Layer constraints
     - path: "src/domain/**"
       pattern: "process\\.env"
-      message: "domain 層で環境変数に直接アクセスしないでください。"
+      message: "Do not access environment variables directly from the domain layer."
     - path: "src/domain/**"
       pattern: "console\\.(log|error|warn)"
-      message: "domain 層に console 出力を置かないでください。"
+      message: "Do not emit console output from the domain layer."
 
-    # デバッグコード
+    # Debug code
     - path: "src/**"
       pattern: "debugger"
     - path: "**/*.py"
@@ -166,179 +168,179 @@ content:
 
     - path: "src/**"
       bom: true
-      message: "BOM を含めないでください。"
+      message: "Do not include a BOM."
 
-    # --- 不可視 Unicode 文字 ---
+    # --- invisible Unicode characters ---
 
     - path: "src/**"
       invisible: true
-      message: "不可視の Unicode 文字が含まれています。"
+      message: "File contains an invisible Unicode character."
 
-    # --- シークレット ---
+    # --- secrets ---
 
     - path: "src/**"
       secret: true
-      message: "シークレットらしき文字列が検出されました。"
+      message: "Possible secret detected."
 
-    # --- プロンプトインジェクション ---
+    # --- prompt injection ---
 
     - path: "**/*.md"
       injection: true
-      message: "AI エージェント向けドキュメントに不審な指示が含まれています。"
+      message: "Suspicious instruction detected in agent-facing documentation."
     - path: "AGENTS.md"
       injection: true
     - path: ".mcp.json"
       injection: true
 
-    # --- マージコンフリクトマーカー ---
+    # --- merge-conflict markers ---
 
     - path: "**"
       conflict: true
-      message: "未解決のマージコンフリクトが残っています。"
+      message: "Unresolved merge conflict markers remain."
 
-    # --- JSON 特定キー（json_key） ---
+    # --- JSON specific keys (json_key) ---
 
-    # package.json の全ライフサイクルスクリプトで curl | sh / rm -rf を禁止
+    # Forbid curl | sh / rm -rf in any lifecycle script of package.json
     - path: "package.json"
       json_key: "scripts.*"
       pattern: "curl|wget|\\brm\\s+-rf"
-      message: "ライフサイクルスクリプトに危険なシェル操作を含めないでください。"
+      message: "Do not include dangerous shell operations in lifecycle scripts."
 
-    # 特定キーの存在そのものを禁止（pattern 無指定）
+    # Forbid the mere existence of a specific key (pattern omitted)
     - path: "package.json"
       json_key: "scripts.preinstall"
-      message: "preinstall スクリプトは不要です。"
+      message: "A preinstall script is not needed."
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob パターン |
-| `exclude` | string[] | No | `[]` | 対象から除外する glob パターン（特定ディレクトリだけ例外扱いに使う） |
-| `pattern` | string | No* | — | 禁止する正規表現パターン（行単位マッチ、または `json_key` と併用時は値に対するマッチ） |
-| `json_key` | string | No* | — | JSON 内のドット区切りキーパス。末尾に `*` を付けると 1 階層のワイルドカードになる。指定時は行単位検査をしない |
-| `bom` | boolean | No* | — | `true` で BOM の存在を禁止する |
-| `invisible` | boolean | No* | — | `true` で不可視 Unicode 文字の存在を禁止する |
-| `secret` | boolean | No* | — | `true` で既知シークレット形式の存在を禁止する |
-| `injection` | boolean | No* | — | `true` でプロンプトインジェクション疑いを検出する |
-| `conflict` | boolean | No* | — | `true` でマージコンフリクトマーカーを検出する |
-| `message` | string | No | — | エラーメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Glob pattern for target files |
+| `exclude` | string[] | No | `[]` | Glob patterns to exclude (for exempting specific directories) |
+| `pattern` | string | No* | — | Forbidden regex pattern (matched per line, or against the value when combined with `json_key`) |
+| `json_key` | string | No* | — | Dot-delimited key path into a JSON file. A trailing `*` expands one level as a wildcard. When set, the rule does not do line-level matching |
+| `bom` | boolean | No* | — | `true` to forbid BOM |
+| `invisible` | boolean | No* | — | `true` to forbid invisible Unicode characters |
+| `secret` | boolean | No* | — | `true` to forbid known secret formats |
+| `injection` | boolean | No* | — | `true` to detect prompt-injection indicators |
+| `conflict` | boolean | No* | — | `true` to detect merge-conflict markers |
+| `message` | string | No | — | Error message |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-\* `pattern`、`json_key`、`bom`、`invisible`、`secret`、`injection`、`conflict` のいずれか 1 つ以上が必須。`json_key` はバイト列検査 (`bom`/`invisible`/`secret`/`injection`/`conflict`) と併用不可。
+\* At least one of `pattern`, `json_key`, `bom`, `invisible`, `secret`, `injection`, `conflict` is required. `json_key` cannot be combined with byte-level flags (`bom` / `invisible` / `secret` / `injection` / `conflict`).
 
-### pattern の判定
+### pattern algorithm
 
-1. 対象ファイルを行単位で読み込み
-2. 各行に対して `new RegExp(pattern)` でマッチ
-3. マッチした行を違反として報告（行番号付き）
+1. Read the target file line by line
+2. Match each line against `new RegExp(pattern)`
+3. Report matching lines (with line numbers)
 
-### json_key の判定
+### json_key algorithm
 
-1. 対象ファイルを JSON としてパース（失敗は `severity` 付き finding として報告、実行不能エラーにはしない）
-2. `json_key` をドット区切りでトラバース
-   - 例: `scripts.postinstall` → `doc.scripts.postinstall` を参照
-   - `*` は 1 階層のワイルドカード。例: `scripts.*` → `scripts` オブジェクトの全子キーに展開
-3. 各一致キーについて:
-   - `pattern` が指定されていて、値が文字列の場合は正規表現でマッチ
-   - `pattern` が未指定の場合は、**キーの存在そのものを違反**とする
-4. マッチした箇所を `<file>:<key>` 形式で報告
+1. Parse the target file as JSON (parse failures are reported as findings with `severity`, not raised as execution errors)
+2. Traverse `json_key` as a dot-delimited path
+   - Example: `scripts.postinstall` → look up `doc.scripts.postinstall`
+   - `*` is a one-level wildcard. Example: `scripts.*` expands to every child key under `scripts`
+3. For each resolved key:
+   - If `pattern` is set and the value is a string, match it against the regex
+   - If `pattern` is omitted, the **mere existence of the key is a violation**
+4. Report matches in `<file>:<key>` form
 
-`json_key` は `package.json` の `scripts.*` に危険なシェル操作が無いか、lockfile の URL ホストが allowlist にあるか、`renovate.json` / `dependabot.yml`（※ YAML は未対応）などの設定ファイルの特定キー検査に使う。
+Use `json_key` for checks like "ensure no dangerous shell operations appear in `package.json` scripts.*", "the URL hosts in a lockfile are in an allowlist", or specific-key checks on config files such as `renovate.json` / `dependabot.yml` (YAML is not yet supported).
 
-### bom の判定
+### bom algorithm
 
-1. ファイルの先頭 3 バイトを読み込み
-2. UTF-8 BOM（`0xEF 0xBB 0xBF`）が存在すれば違反
+1. Read the first 3 bytes of the file
+2. If a UTF-8 BOM (`0xEF 0xBB 0xBF`) is present, report
 
-### invisible の判定
+### invisible algorithm
 
-以下のカテゴリの文字が存在すれば違反として報告する:
+Reports any character from the following categories:
 
-| 文字 | コードポイント | 名前 |
+| Char | Codepoint | Name |
 |------|--------------|------|
 | ​ | `U+200B` | Zero Width Space |
 | ‌ | `U+200C` | Zero Width Non-Joiner |
 | ‍ | `U+200D` | Zero Width Joiner |
 | ⁠ | `U+2060` | Word Joiner |
 | ­ | `U+00AD` | Soft Hyphen |
-| ﻿ | `U+FEFF` | Zero Width No-Break Space（行中） |
+| ﻿ | `U+FEFF` | Zero Width No-Break Space (mid-line) |
 | ⁡ | `U+2061` | Function Application |
 | ⁢ | `U+2062` | Invisible Times |
 | ⁣ | `U+2063` | Invisible Separator |
 | ⁤ | `U+2064` | Invisible Plus |
 
-### secret の判定
+### secret algorithm
 
-既知のシークレット形式を行単位で正規表現マッチする。組み込みのデテクタは以下:
+Performs line-level regex matching against known secret formats. Built-in detectors:
 
-| 検出器 | 対象 |
+| Detector | Target |
 |--------|------|
-| AWS Access Key ID | `AKIA` で始まる 20 文字の英数字 |
-| GitHub Personal Access Token | `ghp_` + 36 文字 |
-| GitHub OAuth Token | `gho_` + 36 文字 |
-| GitHub App Token | `ghu_` / `ghs_` + 36 文字 |
-| GitHub Refresh Token | `ghr_` + 36 文字 |
-| Google API Key | `AIza` + 35 文字 |
+| AWS Access Key ID | 20 alphanumeric characters starting with `AKIA` |
+| GitHub Personal Access Token | `ghp_` + 36 chars |
+| GitHub OAuth Token | `gho_` + 36 chars |
+| GitHub App Token | `ghu_` / `ghs_` + 36 chars |
+| GitHub Refresh Token | `ghr_` + 36 chars |
+| Google API Key | `AIza` + 35 chars |
 | Slack Token | `xoxb-` / `xoxa-` / `xoxp-` / `xoxr-` / `xoxs-` |
-| Stripe Live Key | `sk_live_` / `pk_live_` / `rk_live_` + 24 文字以上 |
-| NPM Token | `npm_` + 36 文字 |
-| JWT | `eyJ...eyJ...<signature>` 形式の 3 セクション構造 |
+| Stripe Live Key | `sk_live_` / `pk_live_` / `rk_live_` + 24+ chars |
+| NPM Token | `npm_` + 36 chars |
+| JWT | Three-section structure of the form `eyJ...eyJ...<signature>` |
 | Private Key Block | `-----BEGIN (RSA\|OPENSSH\|DSA\|EC\|PGP) PRIVATE KEY-----` |
 
-誤検出を避けるため、エントロピー解析ではなく既知形式のみを対象とする。
+To avoid false positives, only known formats are detected — no entropy heuristics.
 
-### injection の判定
+### injection algorithm
 
-AI エージェント（Claude / Cursor / Copilot 等）を標的にした間接的プロンプトインジェクションを検出する。`README.md` / `AGENTS.md` / `CLAUDE.md` / `.mcp.json` / PR テンプレートなど、エージェントが読み込むテキストに対して適用する。
+Detects indirect prompt injection targeting AI agents (Claude / Cursor / Copilot etc.). Apply it to text the agent reads — `README.md`, `AGENTS.md`, `CLAUDE.md`, `.mcp.json`, PR templates, and so on.
 
-検出対象は 3 カテゴリ:
+Three categories:
 
-| カテゴリ | 検出内容 |
+| Category | Detection |
 |---------|---------|
-| Unicode Tag ブロック | `U+E0000`–`U+E007F`（正当な用途はほぼなく、インジェクションの隠蔽に悪用される） |
-| Bidi 制御文字 | `U+202A`–`U+202E`、`U+2066`–`U+2069`（Trojan Source 攻撃） |
-| 指示上書きフレーズ | `ignore previous instructions` / `disregard ... system prompt` / `you are now ...` / `forget everything` / `new system prompt:` 等（大文字小文字無視） |
+| Unicode Tag block | `U+E0000`–`U+E007F` (virtually no legitimate use; commonly abused to hide injections) |
+| Bidi control characters | `U+202A`–`U+202E`, `U+2066`–`U+2069` (Trojan Source attacks) |
+| Instruction-override phrases | `ignore previous instructions` / `disregard ... system prompt` / `you are now ...` / `forget everything` / `new system prompt:` etc. (case-insensitive) |
 
-`invisible` とは検出対象が重ならない（`invisible` は零幅スペース等の正当な用途もある文字、`injection` は攻撃専用の文字列）。両方を有効にしても二重報告にはならない。
+`invisible` and `injection` do not overlap in targets (`invisible` includes characters that can be legitimate, like zero-width space; `injection` targets attack-only strings). Enabling both does not produce duplicate reports.
 
-### conflict の判定
+### conflict algorithm
 
-Git マージコンフリクトの 3 種のマーカーを行頭一致で検出する:
+Line-leading match for the three Git merge-conflict markers:
 
-| マーカー | 判定 |
+| Marker | Detection |
 |---------|------|
-| `<<<<<<<` | 行頭に 7 文字の `<` |
-| `=======` | 行全体が 7 文字の `=`（行の途中にある等号区切りは誤検出しない） |
-| `>>>>>>>` | 行頭に 7 文字の `>` |
+| `<<<<<<<` | 7 `<` characters at the start of a line |
+| `=======` | A line that is exactly 7 `=` characters (mid-line equals separators are not matched) |
+| `>>>>>>>` | 7 `>` characters at the start of a line |
 
-### 出力例
+### Example output
 
 ```
 ERROR [forbidden] src/domain/order/service.ts:15
-  禁止パターン検出: process.env
-  domain 層で環境変数に直接アクセスしないでください。
+  forbidden pattern matched: process.env
+  Do not access environment variables directly from the domain layer.
 
 ERROR [forbidden] src/config/defaults.ts
-  BOM (Byte Order Mark) が検出されました。
-  BOM を含めないでください。
+  BOM (Byte Order Mark) detected.
+  Do not include a BOM.
 
 ERROR [forbidden] src/handlers/payment.ts:42
-  不可視の Unicode 文字が検出されました: U+200B (Zero Width Space)
-  不可視の Unicode 文字が含まれています。
+  invisible Unicode character: U+200B (Zero Width Space)
+  File contains an invisible Unicode character.
 
 ERROR [forbidden] src/handlers/webhook.ts:8
-  シークレット検出: AWS Access Key ID
-  シークレットらしき文字列が検出されました。
+  secret detected: AWS Access Key ID
+  Possible secret detected.
 
 ERROR [forbidden] AGENTS.md:42
-  プロンプトインジェクション疑い: 指示上書きフレーズを検出
-  AI エージェント向けドキュメントに不審な指示が含まれています。
+  possible prompt injection: instruction-override phrase detected
+  Suspicious instruction detected in agent-facing documentation.
 
 ERROR [forbidden] src/legacy/module.ts:12
-  マージコンフリクトマーカー検出: start marker (<<<<<<<)
-  未解決のマージコンフリクトが残っています。
+  merge-conflict marker detected: start marker (<<<<<<<)
+  Unresolved merge conflict markers remain.
 ```
 
 ---
@@ -347,9 +349,9 @@ ERROR [forbidden] src/legacy/module.ts:12
 
 <!-- monban:ref ../src/rules/content/size.ts sha256:0c136a6bcc0a68958ef21e1ddebd9af9893c8e02c823b6ac6ff71ba5cb3db5b4 -->
 
-ファイルの行数（line count）が閾値以内に収まっているかを検証する。AIエージェントは 1 ファイルに機能を詰め込みがちで、可読性や責務分割の観点で肥大化を検出したい場面がある。
+Verify that a file's line count stays under a threshold. Coding agents tend to cram functionality into one file; this rule surfaces bloat from a readability and responsibility-split perspective.
 
-### 設定
+### Configuration
 
 ```yaml
 content:
@@ -357,45 +359,45 @@ content:
     - path: "src/**/*.ts"
       max_lines: 300
       exclude: ["src/generated/**"]
-      message: "ファイルが大きすぎます。分割してください。"
+      message: "File is too large. Split it up."
 
     - path: "src/rules/**/*.ts"
-      max_lines: 150   # ルール単位では小さく保つ
+      max_lines: 150   # keep per-rule files small
       severity: warn
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob パターン |
-| `exclude` | string[] | No | `[]` | 対象から除外する glob パターン |
-| `max_lines` | integer | Yes | — | 許容する最大行数（この値を超えると違反） |
-| `message` | string | No | — | エラーメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Glob pattern for target files |
+| `exclude` | string[] | No | `[]` | Glob patterns to exclude from targets |
+| `max_lines` | integer | Yes | — | Maximum allowed line count (exceeding reports a violation) |
+| `message` | string | No | — | Error message |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-### 判定方法
+### Algorithm
 
-1. 対象ファイルを読み込む
-2. 行数をカウント（末尾の空行は除外）
-3. `max_lines` を超えていれば違反として報告
+1. Read the target file
+2. Count lines (trailing blank lines excluded)
+3. If it exceeds `max_lines`, report
 
-### 出力例
+### Example output
 
 ```
 ERROR [size] src/cli.ts
-  行数 412 が上限 300 を超えています。
-  ファイルが大きすぎます。分割してください。
+  412 lines exceeds limit 300.
+  File is too large. Split it up.
 ```
 
 ---
 
-## 共通出力
+## Common output
 
 ```
 $ monban content
 
-monban content — コンテンツチェック
+monban content — content checks
 
   ✗ forbidden     5 violations
   ✗ required      1 violation

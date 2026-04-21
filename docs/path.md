@@ -1,38 +1,40 @@
 # monban path
 
-パス構造のチェック。ファイル・ディレクトリの存在、命名、深度、数を検証する。
+> [日本語](./path.ja.md) | **English**
 
-- 言語非依存・AST 不要
-- ファイルシステムの走査（glob / パス解析）のみで完結
-- 全ルールのセレクタは `path`（glob パターン）
+Path-structure checks. Verifies file and directory existence, naming, depth, and count.
+
+- Language-agnostic, no AST
+- Filesystem traversal only (glob / path parsing)
+- Every rule uses `path` (a glob pattern) as its selector
 
 ```bash
-monban path                    # 全ルール実行
-monban path --rule forbidden   # 特定ルールのみ
-monban path --diff=main        # 差分スコープのみ（詳細: ../docs/diff.md）
-monban path --json             # JSON 出力
+monban path                    # run every rule
+monban path --rule forbidden   # run a specific rule only
+monban path --diff=main        # scope to a diff (details: ./diff.md)
+monban path --json             # JSON output
 ```
 
 ---
 
-## ルール一覧
+## Rule list
 
-| # | ルール | 概要 |
+| # | Rule | Summary |
 |---|--------|------|
-| 1 | `required` | 存在しなければならないファイルの欠落を検出する |
-| 2 | `forbidden` | 存在してはならないパスを検出する |
-| 3 | `naming` | ファイル・ディレクトリの命名規則違反を検出する |
-| 4 | `depth` | ディレクトリのネスト深度の超過を検出する |
-| 5 | `count` | ディレクトリ内のファイル数の上限・下限を検査する |
-| 6 | `size` | ファイルサイズ（バイト数）の上限を検査する |
-| 7 | `hash` | 単一ファイルを SHA256 で固定する（テンプレート / ベンダ / 生成物の改竄検知） |
-| 8 | `case_conflict` | 大文字小文字違いで衝突するファイル名を検出する（macOS/Windows 破壊対策） |
+| 1 | `required` | Detect missing files that must exist |
+| 2 | `forbidden` | Detect paths that must not exist |
+| 3 | `naming` | Detect file/directory naming-convention violations |
+| 4 | `depth` | Detect directory nesting that exceeds a limit |
+| 5 | `count` | Check the upper/lower bound of the number of files in a directory |
+| 6 | `size` | Check the upper bound of file size in bytes |
+| 7 | `hash` | Pin a single file by SHA256 (template / vendored / generated-file tamper detection) |
+| 8 | `case_conflict` | Detect filenames that collide only by case (macOS/Windows damage prevention) |
 
 ---
 
-## 設定
+## Configuration
 
-すべてのルールは、トップレベルの `exclude` で指定されたパターンを自動的に除外する。
+Every rule automatically excludes patterns listed in the top-level `exclude`.
 
 ```yaml
 # monban.yml
@@ -50,9 +52,9 @@ path:
 
   forbidden:
     - path: "**/utils/**"
-      message: "utils/ は使用禁止。適切なモジュールに配置してください。"
+      message: "utils/ is disallowed. Put the code in an appropriate module."
     - path: "src/**/*.js"
-      message: "src/ 内に .js は配置できません。"
+      message: ".js files are not allowed under src/."
 
   naming:
     - path: "src/components/**/*.tsx"
@@ -76,19 +78,19 @@ path:
 
 <!-- monban:ref ../src/rules/path/required.ts sha256:c8830437421369adad6bb499bef67c371685e1f7a0414b7aa917406648a9237b -->
 
-特定のディレクトリやファイルに対し、存在すべきファイルを定義する。2つのモードがある。
+Declare files that must exist relative to a directory or a source file. Two modes:
 
-- **files** — ディレクトリに必須のファイルを定義する
-- **companions** — ソースファイルに対するペアファイルを定義する
+- **files** — required files inside a directory
+- **companions** — a paired file that must exist alongside a source file
 
-### 設定: files モード
+### Configuration: files mode
 
-ディレクトリが存在するとき、その中に必ず含まれるべきファイルを指定する。
+When the target directory exists, the listed files must exist inside it.
 
 ```yaml
 path:
   required:
-    # ディレクトリに必須ファイル
+    # required files in a directory
     - path: "src/handlers/*"
       files:
         - "index.ts"
@@ -99,7 +101,7 @@ path:
         - "package.json"
         - "README.md"
 
-    # 必須ディレクトリ（末尾 / でディレクトリ指定）
+    # required directories (trailing / marks a directory)
     - path: "src"
       files:
         - "domain/"
@@ -107,23 +109,23 @@ path:
         - "infrastructure/"
 ```
 
-### 設定: companions モード
+### Configuration: companions mode
 
-ファイルが存在するとき、対応するペアファイルが存在すべきことを指定する。
+When a file exists, require a paired file to exist.
 
 ```yaml
 path:
   required:
-    # 同一ディレクトリの随伴ファイル（既定: root 未指定）
+    # same-directory companion (default: root unset)
     - path: "src/components/**/*.tsx"
       exclude: ["**/*.test.tsx", "**/*.stories.tsx"]
       companions:
         - pattern: "{stem}.test.tsx"
           required: true
         - pattern: "{stem}.stories.tsx"
-          required: false    # warn のみ
+          required: false    # warn only
 
-    # 別ディレクトリの随伴ファイル（root: true でリポジトリルート起点）
+    # cross-directory companion (root: true anchors at the repository root)
     - path: "app/models/**/*.rb"
       companions:
         - pattern: "spec/models/{stem}_spec.rb"
@@ -131,45 +133,45 @@ path:
           root: true
 ```
 
-`{stem}` はソースファイルの拡張子を除いた名前に展開される。
+`{stem}` expands to the source file's name without its extension.
 
-パターンの解決方法は `root` フィールドで制御する。
+The `root` field controls how the pattern is resolved.
 
-- `root` 未指定（既定）— ソースファイルのディレクトリ起点で解決する。例: `src/components/UserProfile.tsx` に対する `{stem}.test.tsx` は `src/components/UserProfile.test.tsx`
-- `root: true` — リポジトリルート起点で解決する。例: `app/models/user.rb` に対する `spec/models/{stem}_spec.rb` は `spec/models/user_spec.rb`
+- `root` unset (default) — resolved relative to the source file's directory. Example: `{stem}.test.tsx` for `src/components/UserProfile.tsx` resolves to `src/components/UserProfile.test.tsx`.
+- `root: true` — resolved relative to the repository root. Example: `spec/models/{stem}_spec.rb` for `app/models/user.rb` resolves to `spec/models/user_spec.rb`.
 
-一方向性は保たれる（「ソースがあれば随伴があるべき」の一方向で、逆方向のチェックは行わない）。
+The check remains one-directional ("source exists → companion must exist"; no reverse check).
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `path` | string | Yes | 対象を選択する glob パターン |
-| `exclude` | string[] | No | 除外パターン |
-| `files` | string[] | No* | 必須ファイル名（末尾 `/` でディレクトリ） |
-| `companions` | CompanionDef[] | No* | ペアファイル定義 |
+| `path` | string | Yes | Glob pattern for targets |
+| `exclude` | string[] | No | Exclude patterns |
+| `files` | string[] | No* | Required file names (trailing `/` for directories) |
+| `companions` | CompanionDef[] | No* | Companion-file definitions |
 
-\* `files` か `companions` のいずれかが必須。
+\* One of `files` or `companions` is required.
 
 **CompanionDef:**
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `pattern` | string | Yes | — | ペアファイルのパターン（`{stem}` 展開可） |
+| `pattern` | string | Yes | — | Companion file pattern (supports `{stem}`) |
 | `required` | boolean | Yes | — | `true` = error, `false` = warn |
-| `root` | boolean | No | `false` | `true` でリポジトリルート起点、`false` でソースファイルのディレクトリ起点 |
+| `root` | boolean | No | `false` | `true` to anchor at repo root, `false` to anchor at the source file's directory |
 
-### 出力例
+### Example output
 
 ```
 ERROR [required] src/handlers/invoice/
-  必須ファイルが見つかりません: schema.ts
+  required file not found: schema.ts
 
 ERROR [required] src/components/UserProfile.tsx
-  対応ファイルが見つかりません: UserProfile.test.tsx
+  companion file not found: UserProfile.test.tsx
 
 WARN  [required] src/components/UserProfile.tsx
-  対応ファイルが見つかりません: UserProfile.stories.tsx
+  companion file not found: UserProfile.stories.tsx
 ```
 
 ---
@@ -178,65 +180,65 @@ WARN  [required] src/components/UserProfile.tsx
 
 <!-- monban:ref ../src/rules/path/forbidden.ts sha256:550b88f8a963672c732389404fe13f4d039513e5eff20d980830f80659a24276 -->
 
-存在してはならないファイル・ディレクトリを定義する。
+Declare files or directories that must not exist.
 
-AIエージェントは `utils/`、`helpers/` のような曖昧なディレクトリを安易に作る。拡張子の制限やトップレベル構造の制御にも使える。
+Coding agents like to spin up vague directories such as `utils/` or `helpers/`. This rule also covers extension restrictions and top-level structure control.
 
-### 設定
+### Configuration
 
 ```yaml
 path:
   forbidden:
-    # ディレクトリ禁止
+    # forbidden directory
     - path: "**/utils/**"
-      message: "utils/ は使用禁止。適切なモジュールに配置してください。"
+      message: "utils/ is disallowed. Put the code in an appropriate module."
     - path: "**/helpers/**"
-      message: "helpers/ は使用禁止。"
+      message: "helpers/ is disallowed."
 
-    # 拡張子禁止
+    # forbidden extension
     - path: "src/**/*.js"
-      message: "src/ 内に .js は配置できません。"
+      message: ".js files are not allowed under src/."
 
-    # 一時ファイル
+    # temp files
     - path: "**/*.temp.*"
       severity: warn
-      message: "一時ファイルをコミットしないでください。"
+      message: "Do not commit temporary files."
 
-    # トップレベル構造の制御
+    # top-level structure control
     - path: "src/!(domain|application|infrastructure|presentation)/"
-      message: "src/ 直下に未定義のディレクトリを作成しないでください。"
+      message: "Do not add undefined directories directly under src/."
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 禁止する glob パターン |
-| `type` | `"file"` \| `"directory"` \| `"symlink"` | No | — | エントリ種別で絞り込む（指定しないと全種別） |
-| `message` | string | No | — | エラーメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Forbidden glob pattern |
+| `type` | `"file"` \| `"directory"` \| `"symlink"` | No | — | Restrict to an entry kind (any kind if unset) |
+| `message` | string | No | — | Error message |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-`type: symlink` を使うと、リポジトリ内のシンボリックリンク禁止をシンプルに表現できる:
+`type: symlink` makes it easy to disallow symlinks across the repo:
 
 ```yaml
 path:
   forbidden:
     - path: "**"
       type: symlink
-      message: "シンボリックリンクは使用禁止。"
+      message: "Symlinks are disallowed."
 ```
 
-### 出力例
+### Example output
 
 ```
 ERROR [forbidden] src/utils/format.ts
-  utils/ は使用禁止。適切なモジュールに配置してください。
+  utils/ is disallowed. Put the code in an appropriate module.
 
 ERROR [forbidden] src/legacy/handler.js
-  src/ 内に .js は配置できません。
+  .js files are not allowed under src/.
 
 WARN  [forbidden] tmp/draft.temp.md
-  一時ファイルをコミットしないでください。
+  Do not commit temporary files.
 ```
 
 ---
@@ -245,11 +247,11 @@ WARN  [forbidden] tmp/draft.temp.md
 
 <!-- monban:ref ../src/rules/path/naming.ts sha256:940d7a1d664ab9829783bafaa3d880669aa40162c72be4f9ce63bee9ef8d213a -->
 
-ファイル名・ディレクトリ名の命名スタイルを強制する。場所を起点として、そこにあるファイル/ディレクトリの名前をチェックする。
+Enforce a naming style for files and directories. Starts from a location and checks the names of files/directories there.
 
-AIエージェントは既存の命名規則を把握せずにファイルを作成し、PascalCase と kebab-case が混在するなどの不一致を起こす。
+Coding agents tend to create files without checking the existing convention, mixing PascalCase and kebab-case.
 
-### 設定
+### Configuration
 
 ```yaml
 path:
@@ -273,31 +275,31 @@ path:
       suffix: ".entity"
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象パスの glob パターン |
-| `target` | `"file"` \| `"directory"` | No | `"file"` | チェック対象 |
-| `style` | NamingStyle | Yes | — | 命名スタイル |
-| `prefix` | string | No | — | 必須プレフィックス |
-| `suffix` | string | No | — | 必須サフィックス（拡張子を除いた部分に対して） |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Glob pattern for targets |
+| `target` | `"file"` \| `"directory"` | No | `"file"` | What to check |
+| `style` | NamingStyle | Yes | — | Naming style |
+| `prefix` | string | No | — | Required prefix |
+| `suffix` | string | No | — | Required suffix (applied to the name without extension) |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
 **NamingStyle:**
 
 `pascal` / `camel` / `kebab` / `snake`
 
-### 出力例
+### Example output
 
 ```
 ERROR [naming] src/components/user_profile.tsx
-  pascal が期待されています。
-  現在: user_profile.tsx
+  expected pascal.
+  got: user_profile.tsx
 
 ERROR [naming] src/hooks/auth.ts
-  prefix "use" が期待されています。
-  現在: auth.ts
+  expected prefix "use".
+  got: auth.ts
 ```
 
 ---
@@ -306,11 +308,11 @@ ERROR [naming] src/hooks/auth.ts
 
 <!-- monban:ref ../src/rules/path/depth.ts sha256:f10e9e5c4c142e578c2a6af296dddede8ab934a3662ce30109c3c0e5a3fa04a9 -->
 
-ディレクトリのネスト深度に上限を設ける。
+Cap directory nesting depth.
 
-AIエージェントは機械的にサブディレクトリを掘り、不必要に深い構造を作ることがある。
+Coding agents sometimes mechanically dig subdirectories, producing needlessly deep trees.
 
-### 設定
+### Configuration
 
 ```yaml
 path:
@@ -326,19 +328,19 @@ path:
       - "**/vendor/**"
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `path` | string | Yes | 基準ディレクトリ |
-| `max` | number | Yes | path からの最大深度 |
-| `exclude` | string[] | No | 除外パターン（ルールセット全体で共有） |
+| `path` | string | Yes | Base directory |
+| `max` | number | Yes | Max depth from the base |
+| `exclude` | string[] | No | Exclude patterns (shared across the ruleset) |
 
-### 出力例
+### Example output
 
 ```
 ERROR [depth] src/domain/user/profile/settings/theme.ts
-  深度 5 は上限 4 を超えています (基準: src/)
+  depth 5 exceeds limit 4 (base: src/)
 ```
 
 ---
@@ -347,11 +349,11 @@ ERROR [depth] src/domain/user/profile/settings/theme.ts
 
 <!-- monban:ref ../src/rules/path/count.ts sha256:6596f61566e4ca8af19628768eb1a744deaeed64b2b5033dde038db0ef7654e4 -->
 
-1ディレクトリに置けるファイル数に上限を設ける。
+Cap the number of files in a directory.
 
-AIエージェントは責務を分割せず、1ディレクトリにファイルを大量に生成しがち。
+Coding agents often pile many files into a single directory instead of splitting responsibilities.
 
-### 設定
+### Configuration
 
 ```yaml
 path:
@@ -364,25 +366,25 @@ path:
       exclude: ["index.ts"]
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `path` | string | Yes | 対象ディレクトリ |
-| `max` | number | No* | 最大ファイル数 |
-| `min` | number | No* | 最小ファイル数 |
-| `exclude` | string[] | No | カウント除外パターン |
+| `path` | string | Yes | Target directory |
+| `max` | number | No* | Maximum file count |
+| `min` | number | No* | Minimum file count |
+| `exclude` | string[] | No | Patterns excluded from the count |
 
-\* `max` または `min` のいずれか 1 つ以上が必須。両方指定すれば範囲チェックになる。
+\* At least one of `max` or `min` is required. Specifying both produces a range check.
 
-### 出力例
+### Example output
 
 ```
 ERROR [count] src/handlers/
-  ファイル数 24 が上限 20 を超えています。
+  24 files exceeds limit 20.
 
 ERROR [count] src/rules/
-  ファイル数 0 が下限 1 を下回っています。
+  0 files is below minimum 1.
 ```
 
 ---
@@ -391,38 +393,38 @@ ERROR [count] src/rules/
 
 <!-- monban:ref ../src/rules/path/size.ts sha256:f54d72a23a1edde734b5f895d3caee71f8ca7f940706244da9cde15ae7f058ee -->
 
-ファイルサイズ（バイト数）の上限を検査する。`content.size` が行数を見るのに対し、こちらはバイナリ・画像・バンドル成果物などを対象にできる。
+Cap file size in bytes. Where `content.size` counts lines, this rule targets binaries, images, bundle artifacts, and the like.
 
-### 設定
+### Configuration
 
 ```yaml
 path:
   size:
-    # 画像アセットの肥大化を防ぐ
+    # Prevent image assets from bloating
     - path: "assets/**/*.{png,jpg,gif}"
       max_bytes: 102400  # 100 KiB
       severity: warn
 
-    # 設定ファイルが暴走的に肥大化していないかを担保
+    # Guard against config files ballooning
     - path: "config/**/*.json"
       max_bytes: 10240   # 10 KiB
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob |
-| `exclude` | string[] | No | — | 除外 glob |
-| `max_bytes` | integer | Yes | — | バイト数の上限 |
-| `message` | string | No | — | カスタムメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Glob for target files |
+| `exclude` | string[] | No | — | Exclude glob |
+| `max_bytes` | integer | Yes | — | Byte-size limit |
+| `message` | string | No | — | Custom message |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-### 出力例
+### Example output
 
 ```
 WARN  [size] assets/banner.png
-  サイズ 412.3 KiB が上限 100.0 KiB を超えています。
+  size 412.3 KiB exceeds limit 100.0 KiB.
 ```
 
 ---
@@ -431,40 +433,40 @@ WARN  [size] assets/banner.png
 
 <!-- monban:ref ../src/rules/path/hash.ts sha256:5427e3c0b0222579544c2d206c19d781c4774a535d8740014af9240e1563b7c3 -->
 
-単一ファイルの SHA256 を固定する。LICENSE のテンプレ、ベンダ済みファイル、生成成果物の改竄を検出する。
+Pin a single file to a SHA256. Detects tampering of LICENSE templates, vendored files, or generated artifacts.
 
-`doc.ref`（A の中に B のハッシュが埋め込まれている cross-file 照合）とは別概念で、こちらは「特定のファイルそのものが既知のバイト列であるか」を見る。
+This is distinct from `doc.ref` (a cross-file check where A embeds B's hash); `hash` only verifies that a particular file is a known byte sequence.
 
-### 設定
+### Configuration
 
 ```yaml
 path:
   hash:
-    # 組織共通の LICENSE をピン留め
+    # Pin an organization-wide LICENSE template
     - path: "LICENSE"
       sha256: "f288702d2fa16d3cdf0035b15a9eecc3866f4ddc5c1f6f5a2f8c8b4a0c1f4..."
-      message: "LICENSE は組織共通テンプレを使ってください。"
+      message: "Use the organization LICENSE template."
 
-    # ベンダ済みスクリプトの改竄検知
+    # Detect tampering with a vendored script
     - path: "vendor/setup.sh"
       sha256: "8a2c..."
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob（通常は単一ファイルを指す） |
-| `sha256` | string (64桁hex) | Yes | — | 期待する SHA256 |
-| `message` | string | No | — | カスタムメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Glob for target file (typically a single file) |
+| `sha256` | string (64-digit hex) | Yes | — | Expected SHA256 |
+| `message` | string | No | — | Custom message |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-### 出力例
+### Example output
 
 ```
 ERROR [hash] LICENSE
-  ハッシュ不一致: expected f288702d2fa1... actual 9b5fe22e4730...
-  LICENSE は組織共通テンプレを使ってください。
+  hash mismatch: expected f288702d2fa1... actual 9b5fe22e4730...
+  Use the organization LICENSE template.
 ```
 
 ---
@@ -473,9 +475,9 @@ ERROR [hash] LICENSE
 
 <!-- monban:ref ../src/rules/path/case-conflict.ts sha256:0f66bf1e1692fc004b5db2bd206df0714e54cef8b351ad4ea0fbc18c59db71c5 -->
 
-同一ディレクトリ内で大文字小文字違いのみで衝突するファイル名を検出する。case-insensitive ファイルシステム（macOS / Windows）でリポジトリを開いたときに片方が消えるバグを防ぐ。
+Detect filenames inside the same directory that collide only by letter case. Prevents the bug where one of the two vanishes when the repo is opened on a case-insensitive filesystem (macOS / Windows).
 
-### 設定
+### Configuration
 
 ```yaml
 path:
@@ -484,30 +486,30 @@ path:
       exclude: ["node_modules/**"]
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイル / ディレクトリの glob |
-| `exclude` | string[] | No | — | 除外 glob |
-| `message` | string | No | — | カスタムメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Glob for target files/directories |
+| `exclude` | string[] | No | — | Exclude glob |
+| `message` | string | No | — | Custom message |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-### 出力例
+### Example output
 
 ```
 ERROR [case_conflict] src/{Foo.ts, foo.ts}
-  大文字小文字違いで衝突するパス: Foo.ts, foo.ts
+  case-only conflict: Foo.ts, foo.ts
 ```
 
 ---
 
-## 共通出力
+## Common output
 
 ```
 $ monban path
 
-monban path — パスチェック
+monban path — path checks
 
   ✗ forbidden     2 violations
   ✓ required

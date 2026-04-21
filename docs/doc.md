@@ -1,29 +1,31 @@
 # monban doc
 
-ドキュメントの整合性チェック。参照ハッシュの一致とリンク切れを検証する。
+> [日本語](./doc.ja.md) | **English**
 
-- ファイルシステムスキャンのみで完結（git 不要）
-- セレクタは `path`（glob パターン）で対象 Markdown ファイルを指定
+Documentation integrity checks. Verifies referenced-file hashes and detects broken links.
+
+- Filesystem scan only (no git required)
+- The selector is `path` (a glob pattern) that targets Markdown files
 
 ```bash
-monban doc                     # 全ルール実行
-monban doc --rule ref          # 特定ルールのみ
-monban doc --diff=main         # 差分スコープのみ（詳細: ./diff.md）
-monban doc --json              # JSON 出力
+monban doc                     # run every rule
+monban doc --rule ref          # run a specific rule only
+monban doc --diff=main         # scope to a diff (details: ./diff.md)
+monban doc --json              # JSON output
 ```
 
 ---
 
-## ルール一覧
+## Rule list
 
-| # | ルール | 概要 |
+| # | Rule | Summary |
 |---|--------|------|
-| 1 | `ref` | `monban:ref` マーカーで参照したファイルのハッシュ一致を検証する |
-| 2 | `link` | Markdown 内の相対リンク切れを検出する |
+| 1 | `ref` | Verify that files referenced with `monban:ref` markers still match their recorded hash |
+| 2 | `link` | Detect broken relative links in Markdown |
 
 ---
 
-## 設定
+## Configuration
 
 ```yaml
 # monban.yml
@@ -43,17 +45,17 @@ doc:
 
 <!-- monban:ref ../src/rules/doc/ref.ts sha256:f1ed5c220f6109c37aaf4a79ff87a7f947901fb23f3644bb4dbaf9b5496c2589 -->
 
-ドキュメント内の `monban:ref` マーカーで参照されたファイルのハッシュが実際のファイルと一致するかを検証する。
+Verifies that files referenced via a `monban:ref` marker still hash to the recorded value.
 
-コードが変更されたのにドキュメントが更新されていない状態を検出する。
+This catches the case where code changes land but the doc that references it was not updated.
 
-### マーカー形式
+### Marker format
 
 ```markdown
 <!-- monban:ref src/auth.ts sha256:a3f1c2... -->
 ```
 
-### 設定
+### Configuration
 
 ```yaml
 doc:
@@ -62,27 +64,27 @@ doc:
     - path: "ARCHITECTURE.md"
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `path` | string | Yes | 対象 Markdown ファイルの glob パターン |
+| `path` | string | Yes | Glob pattern for target Markdown files |
 
-### 判定
+### Algorithm
 
-1. 対象ファイル内の `<!-- monban:ref <filepath> <algo>:<hash> -->` マーカーを抽出
-2. 参照先ファイルを読み込み、指定アルゴリズムでハッシュを計算
-3. マーカーのハッシュと一致しなければ違反
-4. 参照先ファイルが存在しなければ違反
+1. Extract `<!-- monban:ref <filepath> <algo>:<hash> -->` markers from target files
+2. Read the referenced file and compute its hash with the stated algorithm
+3. If the marker's hash does not match, report a violation
+4. If the referenced file does not exist, report a violation
 
-### 出力例
+### Example output
 
 ```
 ERROR [ref] docs/architecture.md:15
-  ハッシュ不一致: src/auth.ts (expected: a3f1c2... actual: 7b2e9d...)
+  hash mismatch: src/auth.ts (expected: a3f1c2... actual: 7b2e9d...)
 
 ERROR [ref] docs/api.md:8
-  参照先ファイルが見つかりません: src/old-handler.ts
+  referenced file not found: src/old-handler.ts
 ```
 
 ---
@@ -91,11 +93,11 @@ ERROR [ref] docs/api.md:8
 
 <!-- monban:ref ../src/rules/doc/link.ts sha256:9f4442bb0bb2df56d102ad59e5d061217aa93f2780676f557426387c1dd9e401 -->
 
-Markdown 内の相対リンクが実在するファイルを指しているかを検証する。
+Verifies that relative links inside Markdown point at files that actually exist.
 
-コーディングエージェントがファイルをリネーム・削除した際、ドキュメント内のリンクが古いまま残るケースを検出する。
+This catches the case where a coding agent renames or deletes a file but leaves the old link in place.
 
-### 設定
+### Configuration
 
 ```yaml
 doc:
@@ -104,39 +106,39 @@ doc:
     - path: "*.md"
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象 Markdown ファイルの glob パターン |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Glob pattern for target Markdown files |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-### 判定
+### Algorithm
 
-1. 対象ファイル内の Markdown リンクを抽出
-2. 外部 URL（`http://`、`https://`、`mailto:`）はスキップ
-3. アンカーのみ（`#section`）はスキップ
-4. アンカー付きリンク（`./file.md#section`）はアンカーを除去してファイル存在を確認
-5. リンク先ファイルが存在しなければ違反
+1. Extract Markdown links from target files
+2. Skip external URLs (`http://`, `https://`, `mailto:`)
+3. Skip anchor-only links (`#section`)
+4. For anchor-suffixed links (`./file.md#section`), strip the anchor and check file existence
+5. If the linked file does not exist, report a violation
 
-### 出力例
+### Example output
 
 ```
 ERROR [link] docs/guide.md:42
-  リンク切れ: ./old-page.md
+  broken link: ./old-page.md
 
 ERROR [link] README.md:15
-  リンク切れ: docs/removed-section.md#overview
+  broken link: docs/removed-section.md#overview
 ```
 
 ---
 
-## 共通出力
+## Common output
 
 ```
 $ monban doc
 
-monban doc — ドキュメントチェック
+monban doc — documentation checks
 
   ✓ ref
   ✗ link         2 violations
