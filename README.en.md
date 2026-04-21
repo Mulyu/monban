@@ -1,6 +1,6 @@
 # monban
 
-> [日本語](./README.md) | **English**
+> [日本語](./README.ja.md) | **English**
 
 > A guardhouse for coding agents. The gatekeeper checks whether code is allowed through the checkpoint.
 
@@ -8,7 +8,7 @@
 
 Language-agnostic. No AST required. Works on projects in any language.
 
-For the design philosophy, see [docs/en/concepts.md](docs/en/concepts.md).
+For the design philosophy, see [docs/concepts.en.md](docs/concepts.en.md).
 
 ---
 
@@ -16,14 +16,14 @@ For the design philosophy, see [docs/en/concepts.md](docs/en/concepts.md).
 
 | Command | Target | Docs |
 |---------|------|-------------|
-| `monban path` | File and directory existence, naming, depth, count | [docs/en/path.md](docs/en/path.md) |
-| `monban content` | Regex-based forbidden/required patterns, BOM, invisible characters, secrets | [docs/en/content.md](docs/en/content.md) |
-| `monban doc` | Doc reference hashes and broken links | [docs/en/doc.md](docs/en/doc.md) |
-| `monban github` | GitHub Actions workflows (pinning, permissions, triggers, etc.) and CODEOWNERS | [docs/en/github.md](docs/en/github.md) |
-| `monban deps` | Validate manifest dependency names against registries: existence, freshness, popularity, similarity | [docs/en/deps.md](docs/en/deps.md) |
-| `monban git` | Commit messages, trailers, issue references, change granularity, ignore bypasses | [docs/en/git.md](docs/en/git.md) |
+| `monban path` | File and directory existence, naming, depth, count | [docs/path.en.md](docs/path.en.md) |
+| `monban content` | Regex-based forbidden/required patterns, BOM, invisible characters, secrets | [docs/content.en.md](docs/content.en.md) |
+| `monban doc` | Doc reference hashes and broken links | [docs/doc.en.md](docs/doc.en.md) |
+| `monban github` | GitHub Actions workflows (pinning, permissions, triggers, etc.) and CODEOWNERS | [docs/github.en.md](docs/github.en.md) |
+| `monban deps` | Validate manifest dependency names against registries: existence, freshness, popularity, similarity | [docs/deps.en.md](docs/deps.en.md) |
+| `monban git` | Commit messages, trailers, issue references, change granularity, ignore bypasses | [docs/git.en.md](docs/git.en.md) |
 
-The `--diff` flag, which scopes a run to a PR diff, works on every command ([docs/en/diff.md](docs/en/diff.md)). For reusing organization-wide rule sets, see [docs/en/extends.md](docs/en/extends.md).
+The `--diff` flag, which scopes a run to a PR diff, works on every command ([docs/diff.en.md](docs/diff.en.md)). For reusing organization-wide rule sets, see [docs/extends.en.md](docs/extends.en.md).
 
 ---
 
@@ -39,7 +39,7 @@ npx @mulyu/monban all
 
 > The package name is `@mulyu/monban`, but the installed command is `monban`.
 
-See [docs/en/getting-started.md](docs/en/getting-started.md) for the fastest path to a first run.
+See [docs/getting-started.en.md](docs/getting-started.en.md) for the fastest path to a first run.
 
 ---
 
@@ -83,12 +83,12 @@ exclude:
   - "**/node_modules/**"
   - "**/dist/**"
 
-path:    { ... }   # docs/en/path.md
-content: { ... }   # docs/en/content.md
-doc:     { ... }   # docs/en/doc.md
-github:  { ... }   # docs/en/github.md
-deps:    { ... }   # docs/en/deps.md
-git:     { ... }   # docs/en/git.md
+path:    { ... }   # docs/path.en.md
+content: { ... }   # docs/content.en.md
+doc:     { ... }   # docs/doc.en.md
+github:  { ... }   # docs/github.en.md
+deps:    { ... }   # docs/deps.en.md
+git:     { ... }   # docs/git.en.md
 ```
 
 ---
@@ -133,9 +133,9 @@ Omitting `--diff` runs a full scan. For PR review, passing the base SHA so only 
 
 ## Docs
 
-- [Getting started](docs/en/getting-started.md)
-- [Concepts](docs/en/concepts.md)
-- [Docs index](docs/en/README.md)
+- [Getting started](docs/getting-started.en.md)
+- [Concepts](docs/concepts.en.md)
+- [Docs index](docs/README.en.md)
 
 ---
 

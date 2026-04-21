@@ -1,6 +1,6 @@
 # monban git
 
-> **日本語** | [English](./en/git.md)
+> **日本語** | [English](./git.en.md)
 
 Git メタデータと差分の粒度を検査する。コーディングエージェントが引き起こしがちな Git 操作の事故と規約崩れを CI で防ぐ。
 

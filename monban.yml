@@ -78,8 +78,8 @@ content:
     - path: "**/*.md"
       exclude:
         - "tests/fixtures/**"
-        - "docs/content.md"        # injection ルール自身の説明例を含む
-        - "docs/en/content.md"     # 同上（英語版）
+        - "docs/content.ja.md"     # injection ルール自身の説明例を含む
+        - "docs/content.en.md"     # 同上（英語版）
       injection: true
       message: "ドキュメントに不審な指示や不可視文字が含まれています。"
     - path: "src/rules/path/*.ts"
@@ -249,7 +249,7 @@ git:
         - "package-lock.json"
         - "**/__snapshots__/**"
         - "**/*.lock"
-        - "docs/en/**"   # 日本語原文のミラー翻訳。レビュー負荷の指標にカウントしない
+        - "**/*.en.md"   # 日本語原文のミラー翻訳。レビュー負荷の指標にカウントしない
       severity: error
     # .gitignore 対象ファイル（.env 等）の誤追跡を検出
     ignored:

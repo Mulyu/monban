@@ -1,6 +1,6 @@
 # monban github
 
-> [日本語](../github.md) | **English**
+> [日本語](./github.ja.md) | **English**
 
 Structural checks on GitHub-specific files (workflows, CODEOWNERS). Specialized for YAML parsing and the CODEOWNERS custom syntax.
 
@@ -106,7 +106,7 @@ github:
 
 ## 1. actions.required
 
-<!-- monban:ref ../../src/rules/github/required.ts sha256:2f2ae5a0de6966983aa3e172b959da82ef95f068ab8b5672fb3baf4ead84c1d9 -->
+<!-- monban:ref ../src/rules/github/required.ts sha256:2f2ae5a0de6966983aa3e172b959da82ef95f068ab8b5672fb3baf4ead84c1d9 -->
 
 Verifies that required workflow files exist and that required steps appear inside them.
 
@@ -142,7 +142,7 @@ ERROR [actions.required] .github/workflows/lint.yml
 
 ## 2. actions.forbidden
 
-<!-- monban:ref ../../src/rules/github/forbidden.ts sha256:d52b87a8fe6081b2f202197468e2ede3fb010045c36117302d34ee6e80ec7fc9 -->
+<!-- monban:ref ../src/rules/github/forbidden.ts sha256:d52b87a8fe6081b2f202197468e2ede3fb010045c36117302d34ee6e80ec7fc9 -->
 
 Detects forbidden actions.
 
@@ -176,7 +176,7 @@ github:
 
 ## 3. actions.pinned
 
-<!-- monban:ref ../../src/rules/github/pinned.ts sha256:2bdd15a8cbd7f1951916c5d9d91fddfb6ef311ee9c26abceb735d9ba94452b69 -->
+<!-- monban:ref ../src/rules/github/pinned.ts sha256:2bdd15a8cbd7f1951916c5d9d91fddfb6ef311ee9c26abceb735d9ba94452b69 -->
 
 Verifies that the reference in a `uses` field is pinned to a commit hash.
 
@@ -220,7 +220,7 @@ ERROR [actions.pinned] .github/workflows/test.yml
 
 ## 4. actions.permissions
 
-<!-- monban:ref ../../src/rules/github/permissions.ts sha256:804e2a3db48a047b84bb3cfba25bbd09aea3d71a624d597a7f1a0f49353fb1d3 -->
+<!-- monban:ref ../src/rules/github/permissions.ts sha256:804e2a3db48a047b84bb3cfba25bbd09aea3d71a624d597a7f1a0f49353fb1d3 -->
 
 Validates the workflow's `permissions:` declaration. Without a `permissions:` declaration, GitHub grants the `GITHUB_TOKEN` broad permissions by default, so explicit declaration is recommended.
 
@@ -262,7 +262,7 @@ ERROR [actions.permissions] .github/workflows/ci.yml
 
 ## 5. actions.triggers
 
-<!-- monban:ref ../../src/rules/github/triggers.ts sha256:a8f07ca4dcac248b849d193d09767e512cfd4bcd1e5b017c949d2b9426b1447a -->
+<!-- monban:ref ../src/rules/github/triggers.ts sha256:a8f07ca4dcac248b849d193d09767e512cfd4bcd1e5b017c949d2b9426b1447a -->
 
 Validates the workflow's `on:` events.
 
@@ -299,7 +299,7 @@ github:
 
 ## 6. actions.runner
 
-<!-- monban:ref ../../src/rules/github/runner.ts sha256:d7d7236d94705ff8bce5df41778e263e66a6d53bc2fa25644c9ee952a8e8506a -->
+<!-- monban:ref ../src/rules/github/runner.ts sha256:d7d7236d94705ff8bce5df41778e263e66a6d53bc2fa25644c9ee952a8e8506a -->
 
 Validates each job's `runs-on:` against an allowlist.
 
@@ -341,7 +341,7 @@ github:
 
 ## 7. actions.timeout
 
-<!-- monban:ref ../../src/rules/github/timeout.ts sha256:083121fda708eaa894666cee9857642085fa6a999cc1fb5e1e5c16894822d732 -->
+<!-- monban:ref ../src/rules/github/timeout.ts sha256:083121fda708eaa894666cee9857642085fa6a999cc1fb5e1e5c16894822d732 -->
 
 Verifies that every job has `timeout-minutes:` set and stays under the cap.
 
@@ -375,7 +375,7 @@ Reusable workflow calls (job-level `uses:`) cannot control timeout from within t
 
 ## 8. actions.concurrency
 
-<!-- monban:ref ../../src/rules/github/concurrency.ts sha256:3b30195589ab48181f9c02835bf45a8b6f0ecdf3e2390e7eba357039a46523b5 -->
+<!-- monban:ref ../src/rules/github/concurrency.ts sha256:3b30195589ab48181f9c02835bf45a8b6f0ecdf3e2390e7eba357039a46523b5 -->
 
 Require a workflow-level `concurrency:` declaration.
 
@@ -406,7 +406,7 @@ github:
 
 ## 9. actions.consistency
 
-<!-- monban:ref ../../src/rules/github/consistency.ts sha256:2401bc1fac0b098cb45db13696c2bd67727483e60f3c60c32d93c5bb89d6aa79 -->
+<!-- monban:ref ../src/rules/github/consistency.ts sha256:2401bc1fac0b098cb45db13696c2bd67727483e60f3c60c32d93c5bb89d6aa79 -->
 
 Verifies that the same action uses the same version (`ref`) across multiple files.
 
@@ -445,7 +445,7 @@ ERROR [actions.consistency] .github/workflows/test.yml
 
 ## 10. actions.secrets
 
-<!-- monban:ref ../../src/rules/github/secrets.ts sha256:4e97b007d07dc4a4ba08e4fb327bcc79d06bcc224b9c96117a3dc1cbc4d1ffd6 -->
+<!-- monban:ref ../src/rules/github/secrets.ts sha256:4e97b007d07dc4a4ba08e4fb327bcc79d06bcc224b9c96117a3dc1cbc4d1ffd6 -->
 
 Verifies that `${{ secrets.X }}` references in a workflow match an allowlist.
 
@@ -487,7 +487,7 @@ github:
 
 ## 11. actions.danger
 
-<!-- monban:ref ../../src/rules/github/danger.ts sha256:8496dd37d92b9da94220c6586bba1d67de30686f399c649a5218b147cfe6c357 -->
+<!-- monban:ref ../src/rules/github/danger.ts sha256:8496dd37d92b9da94220c6586bba1d67de30686f399c649a5218b147cfe6c357 -->
 
 Detects **dangerous boilerplate patterns** in workflows. Covers two items from the Actions hardening guidance issued by GitHub / OpenSSF after tj-actions/changed-files (CVE-2025-30066):
 
@@ -525,7 +525,7 @@ ERROR [actions.danger] .github/workflows/pr.yml:build
 
 ## 12. actions.injection
 
-<!-- monban:ref ../../src/rules/github/injection.ts sha256:197ae6148a99ce7867f147e2ddc6a7a3ff3364ad722679cd62ec086c63416692 -->
+<!-- monban:ref ../src/rules/github/injection.ts sha256:197ae6148a99ce7867f147e2ddc6a7a3ff3364ad722679cd62ec086c63416692 -->
 
 Detects whether **untrusted input** such as `${{ github.event.*.body }}` is embedded directly in a `run:` step. Catches the script-injection attack that GitHub's security hardening guide explicitly calls out as "the most exploited path".
 
@@ -587,7 +587,7 @@ ERROR [actions.injection] .github/workflows/welcome.yml:greet
 
 ## 13. codeowners.ownership
 
-<!-- monban:ref ../../src/rules/github/codeowners.ts sha256:eec767568805cb1ef0c2b061b67751790bb5044a7a8ac89989be6de3a427c649 -->
+<!-- monban:ref ../src/rules/github/codeowners.ts sha256:eec767568805cb1ef0c2b061b67751790bb5044a7a8ac89989be6de3a427c649 -->
 
 Verifies the one-directional `path → owners` integrity of `CODEOWNERS`.
 

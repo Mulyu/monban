@@ -1,6 +1,6 @@
 # monban git
 
-> [日本語](../git.md) | **English**
+> [日本語](./git.ja.md) | **English**
 
 Checks Git metadata and change granularity. Designed to catch, in CI, the kinds of Git mistakes and convention drift that coding agents commonly cause.
 
@@ -108,7 +108,7 @@ git:
 
 ## 1. commit.message
 
-<!-- monban:ref ../../src/rules/git/commit-message.ts sha256:04015849c7ad913c088716b72b94b2ae4ed87a9c94592e60f6b3dde7f109b178 -->
+<!-- monban:ref ../src/rules/git/commit-message.ts sha256:04015849c7ad913c088716b72b94b2ae4ed87a9c94592e60f6b3dde7f109b178 -->
 
 Checks commit message format, length, and forbidden words.
 
@@ -182,7 +182,7 @@ ERROR [commit.message] d4e5f6g
 
 ## 2. commit.trailers
 
-<!-- monban:ref ../../src/rules/git/commit-trailers.ts sha256:e6d00b467a4d811470b9bb7641a5929ce16d23b7ea84de51f18bcdf519f6f7f9 -->
+<!-- monban:ref ../src/rules/git/commit-trailers.ts sha256:e6d00b467a4d811470b9bb7641a5929ce16d23b7ea84de51f18bcdf519f6f7f9 -->
 
 Enforces policy on trailers (`Co-authored-by`, `Signed-off-by`, `AI-Assistant`, etc.).
 
@@ -264,7 +264,7 @@ ERROR [commit.trailers] d4e5f6g
 
 ## 3. commit.references
 
-<!-- monban:ref ../../src/rules/git/commit-references.ts sha256:e6199d3565daf0295c41dc0923ec1a8ef18fc16fb9558c5b8d60626ddb01e21b -->
+<!-- monban:ref ../src/rules/git/commit-references.ts sha256:e6199d3565daf0295c41dc0923ec1a8ef18fc16fb9558c5b8d60626ddb01e21b -->
 
 Require an issue / ticket number reference. Like `commit.message`, fetches commit bodies and checks them by regex.
 
@@ -318,7 +318,7 @@ ERROR [commit.references]
 
 ## 4. diff.size
 
-<!-- monban:ref ../../src/rules/git/diff-size.ts sha256:7a73f9d93ce34f67c87ae2da6a52599e07cb067c157d32618c64c0e02de45b1d -->
+<!-- monban:ref ../src/rules/git/diff-size.ts sha256:7a73f9d93ce34f67c87ae2da6a52599e07cb067c157d32618c64c0e02de45b1d -->
 
 Checks whether the PR change is too large. Uses `git diff --numstat <base>...<head>` to read per-file insertion/deletion counts.
 
@@ -371,7 +371,7 @@ WARN [diff.size]
 
 ## 5. diff.ignored
 
-<!-- monban:ref ../../src/rules/git/diff-ignored.ts sha256:cf48531035af87c0e88150c83a308e916df29e87d087c5f4a92c18379de8593e -->
+<!-- monban:ref ../src/rules/git/diff-ignored.ts sha256:cf48531035af87c0e88150c83a308e916df29e87d087c5f4a92c18379de8593e -->
 
 Detects files tracked despite matching a `.gitignore` pattern. Targets the accident where an agent adds files via `git add -f` or `git add -A`.
 
@@ -418,7 +418,7 @@ WARN [diff.ignored]
 
 ## 6. branch_name
 
-<!-- monban:ref ../../src/rules/git/branch-name.ts sha256:3a622647a3eb08095a1dd5ab595c4886422488420bcad99d93ed17f6fbdb8e1d -->
+<!-- monban:ref ../src/rules/git/branch-name.ts sha256:3a622647a3eb08095a1dd5ab595c4886422488420bcad99d93ed17f6fbdb8e1d -->
 
 Checks whether the currently checked-out branch name matches a regex. Useful for aligning temporary branches that agents create (for example, `claude/foo-bar-XYZ`) with organization conventions.
 
@@ -459,7 +459,7 @@ ERROR [branch_name] WIP_branch
 
 ## 7. tag_name
 
-<!-- monban:ref ../../src/rules/git/tag-name.ts sha256:d9a0a2d9f4105c2d369d0b78b97e47e6bf678acd14c3c5c1cc72b787a34f44a2 -->
+<!-- monban:ref ../src/rules/git/tag-name.ts sha256:d9a0a2d9f4105c2d369d0b78b97e47e6bf678acd14c3c5c1cc72b787a34f44a2 -->
 
 Checks whether repository tag names match a regex. Use it to enforce SemVer or the `v` prefix policy.
 

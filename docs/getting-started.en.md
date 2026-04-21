@@ -1,6 +1,6 @@
 # Getting Started
 
-> [日本語](../getting-started.md) | **English**
+> [日本語](./getting-started.ja.md) | **English**
 
 The fastest path to a first monban run.
 
@@ -44,11 +44,11 @@ doc:
 
 See the per-section docs for every available field:
 
-- Path structure: [path.md](path.md)
-- File contents: [content.md](content.md)
-- Documentation: [doc.md](doc.md)
-- GitHub: [github.md](github.md)
-- Git metadata: [git.md](git.md)
+- Path structure: [path.md](path.en.md)
+- File contents: [content.md](content.en.md)
+- Documentation: [doc.md](doc.en.md)
+- GitHub: [github.md](github.en.md)
+- Git metadata: [git.md](git.en.md)
 
 ## 3. Run
 
@@ -97,5 +97,5 @@ After changing code, always run `npx @mulyu/monban all` and confirm every check 
 
 ## Next steps
 
-- To reuse an organization-wide rule set, see [extends.md](extends.md)
-- For the design philosophy, see [concepts.md](concepts.md)
+- To reuse an organization-wide rule set, see [extends.md](extends.en.md)
+- For the design philosophy, see [concepts.md](concepts.en.md)

@@ -1,6 +1,6 @@
 # The --diff flag
 
-> [日本語](../diff.md) | **English**
+> [日本語](./diff.ja.md) | **English**
 
 A CLI flag shared by `monban all` / `monban path` / `monban content` / `monban doc` / `monban github` / `monban deps` / `monban git`. Restricts the scope of a run.
 

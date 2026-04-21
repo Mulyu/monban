@@ -1,6 +1,6 @@
 # monban content
 
-> **日本語** | [English](./en/content.md)
+> **日本語** | [English](./content.en.md)
 
 ファイル内容のチェック。言語非依存の正規表現マッチで、禁止パターン・必須パターンを検証する。
 

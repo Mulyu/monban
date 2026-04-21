@@ -1,6 +1,6 @@
 # Concepts
 
-> [日本語](../concepts.md) | **English**
+> [日本語](./concepts.ja.md) | **English**
 
 ## Why monban
 
@@ -19,7 +19,7 @@ Because agents make a lot of localized changes, the following kinds of drift are
 - Cramming thousands of lines of change into a single PR, making it unreviewable
 - Accidentally tracking files listed in `.gitignore` via `git add -A`
 
-monban is a gatekeeper that catches this kind of structural drift in CI or locally. When you only care about newly introduced violations in a PR, the `--diff` flag — available on every command — restricts the check to the diff scope ([diff.md](diff.md)).
+monban is a gatekeeper that catches this kind of structural drift in CI or locally. When you only care about newly introduced violations in a PR, the `--diff` flag — available on every command — restricts the check to the diff scope ([diff.md](diff.en.md)).
 
 ## How monban fits with other linters
 
@@ -37,7 +37,7 @@ Traditional linters (ESLint, markdownlint, etc.) focus on language- and format-l
 - **Language-agnostic, no AST** — runs on any language. Only filesystem traversal, plain-text regex scans, and YAML/manifest structural parsing.
 - **A single `monban.yml`** — one file for all configuration, minimizing learning cost.
 - **Globs are the universal selector** — no rule invents its own selector syntax.
-- **Cross-org reuse via `extends`** — inherit base rules from GitHub ([extends.md](extends.md)).
+- **Cross-org reuse via `extends`** — inherit base rules from GitHub ([extends.md](extends.en.md)).
 - **External network access is contained in `monban deps`** — only dependency-registry lookup uses external APIs. Every other command runs fully offline. In offline environments, `deps --offline` only runs `allowed` / `forbidden`.
 
 ## Error handling

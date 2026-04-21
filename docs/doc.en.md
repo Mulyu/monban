@@ -1,6 +1,6 @@
 # monban doc
 
-> [日本語](../doc.md) | **English**
+> [日本語](./doc.ja.md) | **English**
 
 Documentation integrity checks. Verifies referenced-file hashes and detects broken links.
 
@@ -43,7 +43,7 @@ doc:
 
 ## 1. ref
 
-<!-- monban:ref ../../src/rules/doc/ref.ts sha256:f1ed5c220f6109c37aaf4a79ff87a7f947901fb23f3644bb4dbaf9b5496c2589 -->
+<!-- monban:ref ../src/rules/doc/ref.ts sha256:f1ed5c220f6109c37aaf4a79ff87a7f947901fb23f3644bb4dbaf9b5496c2589 -->
 
 Verifies that files referenced via a `monban:ref` marker still hash to the recorded value.
 
@@ -91,7 +91,7 @@ ERROR [ref] docs/api.md:8
 
 ## 2. link
 
-<!-- monban:ref ../../src/rules/doc/link.ts sha256:9f4442bb0bb2df56d102ad59e5d061217aa93f2780676f557426387c1dd9e401 -->
+<!-- monban:ref ../src/rules/doc/link.ts sha256:9f4442bb0bb2df56d102ad59e5d061217aa93f2780676f557426387c1dd9e401 -->
 
 Verifies that relative links inside Markdown point at files that actually exist.
 

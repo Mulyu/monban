@@ -1,6 +1,6 @@
 # monban extends
 
-> [日本語](../extends.md) | **English**
+> [日本語](./extends.ja.md) | **English**
 
 A mechanism that lets `monban.yml` inherit other YAML configurations. Useful for organization-wide base rules and cross-team standard rule sets.
 

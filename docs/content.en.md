@@ -1,6 +1,6 @@
 # monban content
 
-> [日本語](../content.md) | **English**
+> [日本語](./content.ja.md) | **English**
 
 File-contents checks. Language-agnostic regex matching for forbidden and required patterns.
 
@@ -62,7 +62,7 @@ content:
 
 ## 1. required
 
-<!-- monban:ref ../../src/rules/content/required.ts sha256:98f26028c52b78cfbb147f4687ce354d4ba786c120fae979f593e0e650bda0ef -->
+<!-- monban:ref ../src/rules/content/required.ts sha256:98f26028c52b78cfbb147f4687ce354d4ba786c120fae979f593e0e650bda0ef -->
 
 Declare text patterns that a file must contain.
 
@@ -122,7 +122,7 @@ ERROR [required] src/generated/api.ts
 
 ## 2. forbidden
 
-<!-- monban:ref ../../src/rules/content/forbidden.ts sha256:662d943a5e611479896d237df99ad00389d527dfee920321c9f0d7f2b8635627 -->
+<!-- monban:ref ../src/rules/content/forbidden.ts sha256:662d943a5e611479896d237df99ad00389d527dfee920321c9f0d7f2b8635627 -->
 
 Declare things that must not appear in a file. A single rule shape handles six kinds: text patterns, BOM, invisible Unicode characters, secrets, prompt injection, and merge-conflict markers.
 
@@ -308,7 +308,7 @@ ERROR [forbidden] src/legacy/module.ts:12
 
 ## 3. size
 
-<!-- monban:ref ../../src/rules/content/size.ts sha256:0c136a6bcc0a68958ef21e1ddebd9af9893c8e02c823b6ac6ff71ba5cb3db5b4 -->
+<!-- monban:ref ../src/rules/content/size.ts sha256:0c136a6bcc0a68958ef21e1ddebd9af9893c8e02c823b6ac6ff71ba5cb3db5b4 -->
 
 Verify that a file's line count stays under a threshold. Coding agents tend to cram functionality into one file; this rule surfaces bloat from a readability and responsibility-split perspective.
 
