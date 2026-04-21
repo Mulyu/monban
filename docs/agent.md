@@ -1,5 +1,7 @@
 # monban agent
 
+> **日本語** | [English](./en/agent.md)
+
 AI エージェント（Claude / Cursor / Copilot 等）のためのリポジトリ設定ファイル（`AGENTS.md` / `CLAUDE.md` / `.mcp.json` / AI ignore ファイル）の整合性を検証する。
 
 - 2025–2026 年に急増した MCP 関連 CVE（CVE-2025-68143/68144/68145、CVE-2025-53773、CVE-2025-6515 等）への対応

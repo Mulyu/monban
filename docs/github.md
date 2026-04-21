@@ -1,5 +1,7 @@
 # monban github
 
+> **日本語** | [English](./en/github.md)
+
 GitHub 特有ファイル（ワークフロー・CODEOWNERS）の構造チェック。YAML パースと独自構文パースに特化する。
 
 - `github.actions.*` — `.github/workflows/**/*.yml` を YAML としてパース

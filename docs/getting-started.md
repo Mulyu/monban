@@ -1,5 +1,7 @@
 # はじめに
 
+> **日本語** | [English](./en/getting-started.md)
+
 monban を初めて導入するときの最短手順。
 
 ## 1. インストール

@@ -1,5 +1,7 @@
 # monban ドキュメント
 
+> **日本語** | [English](./en/README.md)
+
 monban のユーザー向けドキュメント索引。
 
 ## はじめに

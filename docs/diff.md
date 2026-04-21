@@ -1,5 +1,7 @@
 # --diff フラグ
 
+> **日本語** | [English](./en/diff.md)
+
 `monban all` / `monban path` / `monban content` / `monban doc` / `monban github` / `monban deps` / `monban git` すべてに共通する、スコープフィルタ用の CLI フラグ。
 
 PR レビューで、**今回の変更によって新規に混入した違反だけ** を報告するための機能。既存コードに昔からある TODO やレイアウト違反を毎回蒸し返さない。
