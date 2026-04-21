@@ -19,15 +19,15 @@ npx @mulyu/monban all --json                   # JSON 出力
 
 ## コマンド対応表
 
-<!-- monban:ref ../../../../docs/path.ja.md sha256:b68cd0b7fef1d56cd21680877c4cb4998f07509db0bbb93de849551720d163a6 -->
-<!-- monban:ref ../../../../docs/content.ja.md sha256:8a6f6dffedb6ea2d8e804e0884c66e8f64c3e07965ed9e700ca1d5df584b4021 -->
-<!-- monban:ref ../../../../docs/doc.ja.md sha256:dcf350050ac9b7c29a0f7a01b69cfce4cff1f93bfffd483c9571bbe4adbf50fb -->
-<!-- monban:ref ../../../../docs/github.ja.md sha256:829ea672a0d5b3d784061c6372d880e10e523952109f5703ff0b2134a78b75b3 -->
-<!-- monban:ref ../../../../docs/deps.ja.md sha256:8065cd54df44479338d5b0c111d6f91be878aa21fc807b50b85e54752c354d2b -->
-<!-- monban:ref ../../../../docs/git.ja.md sha256:edffb2a779ca1a78ed1a7b300e5fc0eaeab46da2e5d9bd33cb3f8a53d453299b -->
-<!-- monban:ref ../../../../docs/agent.ja.md sha256:e030707ab488f1ae4a08e06edca965a3f7326ebe71402c164332478d476e87b5 -->
-<!-- monban:ref ../../../../docs/diff.ja.md sha256:30537694de5676fcfac45b855160c722e43bd1a3380599d3552d26cabd2eb2bc -->
-<!-- monban:ref ../../../../docs/extends.ja.md sha256:943bc927a4e71405b9a2172f27e4bd3294aadf7eadf0728d3b8beb1eb8516ad9 -->
+<!-- monban:ref ../../../../docs/path.ja.md sha256:b15bc70569a25fdd23071fffd37403e8603828e1a67c6ddc997688c70f641ea3 -->
+<!-- monban:ref ../../../../docs/content.ja.md sha256:6e718a98bda3846d9c98dff7898c2904aad7064c39c6673bff154cd6b8028418 -->
+<!-- monban:ref ../../../../docs/doc.ja.md sha256:7142c36f91579151803e2294e97f799237f10d86ebadaed8be18b7c644320375 -->
+<!-- monban:ref ../../../../docs/github.ja.md sha256:412be81fb096c220838334eef5d88b911ac74ccf76289c423ccbf8bbd3d2fdd3 -->
+<!-- monban:ref ../../../../docs/deps.ja.md sha256:659e5232d2709358e96e13ef3946a2b07e4db5b4a4456732b337f907feb6e250 -->
+<!-- monban:ref ../../../../docs/git.ja.md sha256:43fce569e67a1a217f41b0f23efd8d58c541cbd18dc047e8517af55e52037899 -->
+<!-- monban:ref ../../../../docs/agent.ja.md sha256:087859fa790082bef8f22f78cd8758a66ed7fe03794e6a66e25fa2ab759b8b32 -->
+<!-- monban:ref ../../../../docs/diff.ja.md sha256:5726e9f22a61138d0af1ea57653fd2d6019f94ab2a2c38c9aec2aeaac2718e9c -->
+<!-- monban:ref ../../../../docs/extends.ja.md sha256:83d96111afd903aef0f70b2e1cffc6893340f592166345c4dfed404726327b10 -->
 
 | コマンド | 対象 | docs |
 |---|---|---|
@@ -43,7 +43,7 @@ npx @mulyu/monban all --json                   # JSON 出力
 
 ## 出力の読み方
 
-<!-- monban:ref ../../../../docs/getting-started.ja.md sha256:7a19a17449f0ad786d6554b74f38aff52297974c0bbf2d6a592d8bb61481e601 -->
+<!-- monban:ref ../../../../docs/getting-started.ja.md sha256:27d9ba6c9ae868acc465b8c9a9fe5bb90a60a020a3f8e12d16b145e0aa9a20e4 -->
 
 ### 終了コード
 
@@ -130,7 +130,7 @@ agent:   { ... }
 
 ## スコープ外
 
-<!-- monban:ref ../../../../docs/concepts.ja.md sha256:26a1f06a27092d9afb6b4250ce71d71d40c5800afa775fca70c504ce6d59c36c -->
+<!-- monban:ref ../../../../docs/concepts.ja.md sha256:1e1c17ea27dada9ae06ac5f54695d96d02c05fd077b36bdbacddf1abe96ce845 -->
 
 monban は以下を扱わない（別ツール）。
 

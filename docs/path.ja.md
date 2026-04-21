@@ -1,6 +1,6 @@
 # monban path
 
-> **日本語** | [English](./path.en.md)
+> **日本語** | [English](./path.md)
 
 パス構造のチェック。ファイル・ディレクトリの存在、命名、深度、数を検証する。
 

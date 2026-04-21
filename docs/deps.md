@@ -525,7 +525,7 @@ monban focuses on the entry-point check: **does this dependency name exist, and 
 
 ## Combining with diff mode
 
-With `--diff`, only newly added dependencies in modified manifests are inspected. This is the most useful mode during PR review. See [diff.md](diff.en.md) for details.
+With `--diff`, only newly added dependencies in modified manifests are inspected. This is the most useful mode during PR review. See [diff.md](diff.md) for details.
 
 ```bash
 monban deps --diff=main

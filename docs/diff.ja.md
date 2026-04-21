@@ -1,6 +1,6 @@
 # --diff フラグ
 
-> **日本語** | [English](./diff.en.md)
+> **日本語** | [English](./diff.md)
 
 `monban all` / `monban path` / `monban content` / `monban doc` / `monban github` / `monban deps` / `monban git` すべてに共通する、スコープフィルタ用の CLI フラグ。
 

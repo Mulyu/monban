@@ -1,6 +1,6 @@
 # はじめに
 
-> **日本語** | [English](./getting-started.en.md)
+> **日本語** | [English](./getting-started.md)
 
 monban を初めて導入するときの最短手順。
 

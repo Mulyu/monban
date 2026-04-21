@@ -1,6 +1,6 @@
 # monban extends
 
-> **日本語** | [English](./extends.en.md)
+> **日本語** | [English](./extends.md)
 
 `monban.yml` に他の YAML 設定を継承させる仕組み。組織共通のベースルールや、チーム横断の標準ルールセットを再利用できる。
 

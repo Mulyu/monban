@@ -1,6 +1,6 @@
 # コンセプト
 
-> **日本語** | [English](./concepts.en.md)
+> **日本語** | [English](./concepts.md)
 
 ## なぜ monban か
 

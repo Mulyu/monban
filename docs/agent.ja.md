@@ -1,6 +1,6 @@
 # monban agent
 
-> **日本語** | [English](./agent.en.md)
+> **日本語** | [English](./agent.md)
 
 AI エージェント（Claude / Cursor / Copilot 等）のためのリポジトリ設定ファイル（`AGENTS.md` / `CLAUDE.md` / `.mcp.json` / AI ignore ファイル）の整合性を検証する。
 

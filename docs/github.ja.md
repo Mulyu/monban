@@ -1,6 +1,6 @@
 # monban github
 
-> **日本語** | [English](./github.en.md)
+> **日本語** | [English](./github.md)
 
 GitHub 特有ファイル（ワークフロー・CODEOWNERS）の構造チェック。YAML パースと独自構文パースに特化する。
 
