@@ -52,7 +52,7 @@ agent:
 
 ## 1. instructions
 
-<!-- monban:ref ../src/rules/agent/instructions.ts sha256:2ade7a48cff681b5368b896ae6b6bb94f0a4d6e8a27f7dd94c4c1c5c11f1529a -->
+<!-- monban:ref ../../src/rules/agent/instructions.ts sha256:2ade7a48cff681b5368b896ae6b6bb94f0a4d6e8a27f7dd94c4c1c5c11f1529a -->
 
 Validates the structure of agent instruction files (`AGENTS.md` / `CLAUDE.md`).
 
@@ -102,7 +102,7 @@ WARN  [instructions] AGENTS.md
 
 ## 2. mcp
 
-<!-- monban:ref ../src/rules/agent/mcp.ts sha256:f54ac3ca9ca459d702ab7062818b158ad7548e81bb64743d250a66ac21cc40a1 -->
+<!-- monban:ref ../../src/rules/agent/mcp.ts sha256:f54ac3ca9ca459d702ab7062818b158ad7548e81bb64743d250a66ac21cc40a1 -->
 
 Validates the structure and safety of MCP (Model Context Protocol) configuration files. Targets `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json`.
 
@@ -170,7 +170,7 @@ Many of these make the configuration file itself an attack surface. This rule ai
 
 ## 3. ignore
 
-<!-- monban:ref ../src/rules/agent/ignore.ts sha256:ff759a122865b1848c4a9aba8bf9bcb6651d9b7a9ad89f401e1243e3f8bcfe35 -->
+<!-- monban:ref ../../src/rules/agent/ignore.ts sha256:ff759a122865b1848c4a9aba8bf9bcb6651d9b7a9ad89f401e1243e3f8bcfe35 -->
 
 Validates that AI ignore files (`.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore`) cover sensitive files.
 

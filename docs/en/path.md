@@ -76,7 +76,7 @@ path:
 
 ## 1. required
 
-<!-- monban:ref ../src/rules/path/required.ts sha256:c8830437421369adad6bb499bef67c371685e1f7a0414b7aa917406648a9237b -->
+<!-- monban:ref ../../src/rules/path/required.ts sha256:c8830437421369adad6bb499bef67c371685e1f7a0414b7aa917406648a9237b -->
 
 Declare files that must exist relative to a directory or a source file. Two modes:
 
@@ -178,7 +178,7 @@ WARN  [required] src/components/UserProfile.tsx
 
 ## 2. forbidden
 
-<!-- monban:ref ../src/rules/path/forbidden.ts sha256:550b88f8a963672c732389404fe13f4d039513e5eff20d980830f80659a24276 -->
+<!-- monban:ref ../../src/rules/path/forbidden.ts sha256:550b88f8a963672c732389404fe13f4d039513e5eff20d980830f80659a24276 -->
 
 Declare files or directories that must not exist.
 
@@ -245,7 +245,7 @@ WARN  [forbidden] tmp/draft.temp.md
 
 ## 3. naming
 
-<!-- monban:ref ../src/rules/path/naming.ts sha256:940d7a1d664ab9829783bafaa3d880669aa40162c72be4f9ce63bee9ef8d213a -->
+<!-- monban:ref ../../src/rules/path/naming.ts sha256:940d7a1d664ab9829783bafaa3d880669aa40162c72be4f9ce63bee9ef8d213a -->
 
 Enforce a naming style for files and directories. Starts from a location and checks the names of files/directories there.
 
@@ -306,7 +306,7 @@ ERROR [naming] src/hooks/auth.ts
 
 ## 4. depth
 
-<!-- monban:ref ../src/rules/path/depth.ts sha256:f10e9e5c4c142e578c2a6af296dddede8ab934a3662ce30109c3c0e5a3fa04a9 -->
+<!-- monban:ref ../../src/rules/path/depth.ts sha256:f10e9e5c4c142e578c2a6af296dddede8ab934a3662ce30109c3c0e5a3fa04a9 -->
 
 Cap directory nesting depth.
 
@@ -347,7 +347,7 @@ ERROR [depth] src/domain/user/profile/settings/theme.ts
 
 ## 5. count
 
-<!-- monban:ref ../src/rules/path/count.ts sha256:6596f61566e4ca8af19628768eb1a744deaeed64b2b5033dde038db0ef7654e4 -->
+<!-- monban:ref ../../src/rules/path/count.ts sha256:6596f61566e4ca8af19628768eb1a744deaeed64b2b5033dde038db0ef7654e4 -->
 
 Cap the number of files in a directory.
 
@@ -391,7 +391,7 @@ ERROR [count] src/rules/
 
 ## 6. size
 
-<!-- monban:ref ../src/rules/path/size.ts sha256:f54d72a23a1edde734b5f895d3caee71f8ca7f940706244da9cde15ae7f058ee -->
+<!-- monban:ref ../../src/rules/path/size.ts sha256:f54d72a23a1edde734b5f895d3caee71f8ca7f940706244da9cde15ae7f058ee -->
 
 Cap file size in bytes. Where `content.size` counts lines, this rule targets binaries, images, bundle artifacts, and the like.
 
@@ -431,7 +431,7 @@ WARN  [size] assets/banner.png
 
 ## 7. hash
 
-<!-- monban:ref ../src/rules/path/hash.ts sha256:5427e3c0b0222579544c2d206c19d781c4774a535d8740014af9240e1563b7c3 -->
+<!-- monban:ref ../../src/rules/path/hash.ts sha256:5427e3c0b0222579544c2d206c19d781c4774a535d8740014af9240e1563b7c3 -->
 
 Pin a single file to a SHA256. Detects tampering of LICENSE templates, vendored files, or generated artifacts.
 
@@ -473,7 +473,7 @@ ERROR [hash] LICENSE
 
 ## 8. case_conflict
 
-<!-- monban:ref ../src/rules/path/case-conflict.ts sha256:0f66bf1e1692fc004b5db2bd206df0714e54cef8b351ad4ea0fbc18c59db71c5 -->
+<!-- monban:ref ../../src/rules/path/case-conflict.ts sha256:0f66bf1e1692fc004b5db2bd206df0714e54cef8b351ad4ea0fbc18c59db71c5 -->
 
 Detect filenames inside the same directory that collide only by letter case. Prevents the bug where one of the two vanishes when the repo is opened on a case-insensitive filesystem (macOS / Windows).
 
