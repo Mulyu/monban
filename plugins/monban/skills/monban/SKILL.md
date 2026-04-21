@@ -20,12 +20,12 @@ npx @mulyu/monban all --json                   # JSON 出力
 ## コマンド対応表
 
 <!-- monban:ref ../../../../docs/path.md sha256:122ae567c031d067b9f403d34255bb711d6044e16c238511fe77cade57c3f393 -->
-<!-- monban:ref ../../../../docs/content.md sha256:91c688ee819f780a92339ee4494f3f9df7f06d86a571adcb1d17003a2830ee93 -->
+<!-- monban:ref ../../../../docs/content.md sha256:309c39a55c42070f7faaa877320f40ea8732e6b749e8f3906cadaa411a82e2cf -->
 <!-- monban:ref ../../../../docs/doc.md sha256:fc5859b5629722faf5e404ae1910ca82b3e6ff8ca11cd166fb68b245fd9a427e -->
 <!-- monban:ref ../../../../docs/github.md sha256:676366e6fde4a690e04511cb29c5d05034261d361b23318c24b6f5a79ad2f84e -->
 <!-- monban:ref ../../../../docs/deps.md sha256:bcffd679c536784b27db82b898f47868c7482a85702d7aac6564f194749daa98 -->
 <!-- monban:ref ../../../../docs/git.md sha256:a1fedcebab14c99e18345af70085c3464e4afd5214508e21845221ec310ec73f -->
-<!-- monban:ref ../../../../docs/agent.md sha256:ee88c9df0fa5ea876df44f97caee4ed29bd05beb2b6bfa93e1ce8e2622e50446 -->
+<!-- monban:ref ../../../../docs/agent.md sha256:15ddd43d61c892d165d33106861103e4c43598c10ad471be5783f450a8c1c7e0 -->
 <!-- monban:ref ../../../../docs/diff.md sha256:7efbff1942471bc56bde68936b50d583fbe2af2ffa6063b6c32cf27d1805f786 -->
 <!-- monban:ref ../../../../docs/extends.md sha256:ea9047adca382aa3c39bcd9ab078f12c981b01a5a3174cd948746456021bb2e3 -->
 

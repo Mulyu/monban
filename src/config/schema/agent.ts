@@ -3,6 +3,7 @@ import type {
 	AgentIgnoreRule,
 	AgentInstructionsRule,
 	AgentMcpRule,
+	AgentSettingsRule,
 } from "../../types.js";
 import {
 	assertObject,
@@ -31,6 +32,13 @@ export function validateAgentConfig(raw: unknown): AgentConfig {
 	}
 	if (obj.mcp !== undefined) {
 		config.mcp = validateArray(obj.mcp, "agent.mcp", validateMcpRule);
+	}
+	if (obj.settings !== undefined) {
+		config.settings = validateArray(
+			obj.settings,
+			"agent.settings",
+			validateSettingsRule,
+		);
 	}
 	if (obj.ignore !== undefined) {
 		config.ignore = validateArray(
@@ -101,6 +109,48 @@ function validateMcpRule(
 	if (allowed !== undefined) rule.allowed_servers = allowed;
 	const forbiddenServers = optionalStringArray(raw, "forbidden_servers", label);
 	if (forbiddenServers !== undefined) rule.forbidden_servers = forbiddenServers;
+	const message = optionalString(raw, "message", label);
+	if (message !== undefined) rule.message = message;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+
+	return rule;
+}
+
+function validateSettingsRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): AgentSettingsRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: AgentSettingsRule = {
+		path: requireString(raw, "path", label),
+	};
+	const exclude = optionalStringArray(raw, "exclude", label);
+	if (exclude !== undefined) rule.exclude = exclude;
+	const allowedPerms = optionalStringArray(raw, "allowed_permissions", label);
+	if (allowedPerms !== undefined) rule.allowed_permissions = allowedPerms;
+	const forbiddenPerms = optionalStringArray(
+		raw,
+		"forbidden_permissions",
+		label,
+	);
+	if (forbiddenPerms !== undefined) rule.forbidden_permissions = forbiddenPerms;
+	const forbiddenHooks = optionalStringArray(
+		raw,
+		"forbidden_hook_commands",
+		label,
+	);
+	if (forbiddenHooks !== undefined)
+		rule.forbidden_hook_commands = forbiddenHooks;
+	if (raw.unpinned_npx !== undefined) {
+		if (typeof raw.unpinned_npx !== "boolean") {
+			throw new Error(`${label}.unpinned_npx must be a boolean`);
+		}
+		rule.unpinned_npx = raw.unpinned_npx;
+	}
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;
 	const severity = validateSeverity(raw, label);

@@ -20,7 +20,8 @@ monban agent --json                 # JSON 出力
 |---|--------|------|------|
 | 1 | `instructions` | `AGENTS.md` / `CLAUDE.md` | 存在、必須 H2 セクション、サイズ上限、frontmatter の key allowlist |
 | 2 | `mcp` | `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` | `mcpServers` の allowed/forbidden、生シェル禁止、`npx @latest` 禁止、env の直値 secret 検出 |
-| 3 | `ignore` | `.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore` | `.env*` / `*.pem` / `id_rsa` 等の必須カバレッジ |
+| 3 | `settings` | `.claude/settings.json` / `.claude/settings.local.json` | ハーネス本体の `permissions.allow` の広域許可・`hooks.*.command` の危険シェル・`npx @latest` を検出 |
+| 4 | `ignore` | `.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore` | `.env*` / `*.pem` / `id_rsa` 等の必須カバレッジ |
 
 ---
 
@@ -40,6 +41,16 @@ agent:
       forbidden_commands: [curl, wget, sh, bash, zsh]
       unpinned_npx: true
       env_secrets: true
+
+  settings:
+    - path: "{.claude/settings.json,.claude/settings.local.json}"
+      forbidden_permissions:
+        - "^Bash\\(\\*\\)$"
+        - "^Bash\\(sudo"
+        - "^Bash\\(rm"
+        - "^WebFetch\\(\\*\\)$"
+      forbidden_hook_commands: [curl, wget, sh, bash, zsh, sudo]
+      unpinned_npx: true
 
   ignore:
     - path: ".llmignore"
@@ -166,7 +177,94 @@ WARN  [mcp] .mcp.json:hardcoded-secret.env.GITHUB_TOKEN
 
 ---
 
-## 3. ignore
+## 3. settings
+
+<!-- monban:ref ../src/rules/agent/settings.ts sha256:41f982b587f1a072c191e491c69757d155c40d5fc14142c11d3ee3207e3183a8 -->
+
+Claude Code のハーネス設定ファイル（`.claude/settings.json` / `.claude/settings.local.json`）の `permissions` と `hooks` を検証する。`agent.mcp` が `mcpServers` のみを対象にするのに対し、このルールはハーネス全体の許可・フックを見る。
+
+### 設定
+
+```yaml
+agent:
+  settings:
+    - path: "{.claude/settings.json,.claude/settings.local.json}"
+      forbidden_permissions:
+        - "^Bash\\(\\*\\)$"
+        - "^Bash\\(\\*:\\*\\)$"
+        - "^Bash\\(sudo"
+        - "^Bash\\(rm"
+        - "^Bash\\(curl"
+        - "^Bash\\(wget"
+        - "^WebFetch\\(\\*\\)$"
+      allowed_permissions:
+        - "^Bash\\(npm "
+        - "^Bash\\(git "
+        - "^Read"
+      forbidden_hook_commands: [curl, wget, sh, bash, zsh, sudo]
+      unpinned_npx: true
+      severity: warn
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | 対象ファイルの glob |
+| `exclude` | string[] | No | `[]` | 除外 glob |
+| `forbidden_permissions` | string[] | No | 下記デフォルト | `permissions.allow` のエントリに対する禁止正規表現 |
+| `allowed_permissions` | string[] | No | — | 指定時、`permissions.allow` の各エントリはいずれかに一致しないと違反 |
+| `forbidden_hook_commands` | string[] | No | `[curl, wget, sh, bash, zsh, sudo]` | `hooks.*.hooks[].command` に含まれるトークンとして禁止するもの |
+| `unpinned_npx` | boolean | No | `true` | hook command 内の `npx pkg` / `npx pkg@latest` を禁止 |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
+
+デフォルトの `forbidden_permissions`:
+
+```
+^Bash\(\*\)$      # すべての Bash を許可（任意コード実行）
+^Bash\(\*:\*\)$   # 同上のサブコマンド表記
+^Bash\(sudo      # 特権昇格
+^Bash\(rm        # 破壊的削除
+^Bash\(curl      # ネットワーク取得 → 実行
+^Bash\(wget      # 同上
+^WebFetch\(\*\)$  # 任意 URL のコンテキスト流入
+```
+
+### 判定
+
+対象ファイルを JSON としてパースし、以下を検査する。
+
+- **permissions.allow**: 各エントリについて、`forbidden_permissions` のいずれかに一致すれば違反。`allowed_permissions` が指定されていれば、いずれにも一致しないエントリは違反。
+- **hooks.`<event>`[].hooks[].command**:
+  - コマンド文字列をトークン化（空白・パイプ・`;`・`&` 等で分割、path の basename を比較）。いずれかのトークンが `forbidden_hook_commands` に含まれれば違反。
+  - `unpinned_npx: true` のとき、`npx <pkg>` のうち `@<version>` が無い／`@latest` なら違反。
+
+### 出力例
+
+```
+WARN  [settings] .claude/settings.json:permissions.allow
+  危険な permission: Bash(*) (広域許可は任意コード実行の経路)
+
+WARN  [settings] .claude/settings.json:hooks.PostToolUse
+  hooks の command に禁止トークンを検出: curl (任意コード実行の経路)
+
+WARN  [settings] .claude/settings.json:hooks.SessionStart
+  hooks の npx コマンドがバージョン固定されていません: some-pkg@latest (供給網侵害時に自動被弾)
+```
+
+### `agent.mcp` との棲み分け
+
+| ルール | 対象 | 役割 |
+|---|---|---|
+| `agent.mcp` | JSON 内の `mcpServers` ブロック | MCP server 個別の command / args / env を検査 |
+| `agent.settings` | JSON 内の `permissions` と `hooks` ブロック | ハーネス本体の許可設定とイベントフックを検査 |
+
+両者は同じ `.claude/settings.json` を対象にし得るが、JSON 内の見る場所が異なるため重複しない。両方設定するのが推奨。
+
+---
+
+## 4. ignore
 
 <!-- monban:ref ../src/rules/agent/ignore.ts sha256:ff759a122865b1848c4a9aba8bf9bcb6651d9b7a9ad89f401e1243e3f8bcfe35 -->
 

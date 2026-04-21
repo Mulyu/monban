@@ -64,6 +64,9 @@ function validateContentForbiddenRule(
 
 	rule.pattern = optionalString(raw, "pattern", label);
 
+	const jsonKey = optionalString(raw, "json_key", label);
+	if (jsonKey !== undefined) rule.json_key = jsonKey;
+
 	if (raw.bom !== undefined) {
 		if (typeof raw.bom !== "boolean") {
 			throw new Error(`${label}.bom must be a boolean`);
@@ -101,6 +104,7 @@ function validateContentForbiddenRule(
 
 	if (
 		!rule.pattern &&
+		!rule.json_key &&
 		!rule.bom &&
 		!rule.invisible &&
 		!rule.secret &&
@@ -108,7 +112,20 @@ function validateContentForbiddenRule(
 		!rule.conflict
 	) {
 		throw new Error(
-			`${label} must have at least one of: pattern, bom, invisible, secret, injection, conflict`,
+			`${label} must have at least one of: pattern, json_key, bom, invisible, secret, injection, conflict`,
+		);
+	}
+
+	if (
+		rule.json_key &&
+		(rule.bom ||
+			rule.invisible ||
+			rule.secret ||
+			rule.injection ||
+			rule.conflict)
+	) {
+		throw new Error(
+			`${label}.json_key cannot be combined with bom/invisible/secret/injection/conflict (byte-level checks)`,
 		);
 	}
 
@@ -134,6 +151,9 @@ function validateContentRequiredRule(
 	};
 	rule.exclude = optionalStringArray(raw, "exclude", label);
 
+	const jsonKey = optionalString(raw, "json_key", label);
+	if (jsonKey !== undefined) rule.json_key = jsonKey;
+
 	const scope = optionalString(raw, "scope", label);
 	if (scope !== undefined) {
 		if (!CONTENT_REQUIRED_SCOPES.includes(scope as ContentRequiredScope)) {
@@ -152,6 +172,15 @@ function validateContentRequiredRule(
 			);
 		}
 		rule.within_lines = withinLines;
+	}
+
+	if (
+		rule.json_key &&
+		(rule.scope !== undefined || rule.within_lines !== undefined)
+	) {
+		throw new Error(
+			`${label}.json_key cannot be combined with scope/within_lines (line-level options)`,
+		);
 	}
 
 	rule.message = optionalString(raw, "message", label);

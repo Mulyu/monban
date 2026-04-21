@@ -1,0 +1,9 @@
+{
+  "name": "safe-pkg",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "postinstall": "node ./scripts/post.js"
+  }
+}

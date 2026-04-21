@@ -93,6 +93,7 @@ export interface ContentForbiddenRule {
 	path: string;
 	exclude?: string[];
 	pattern?: string;
+	json_key?: string;
 	bom?: boolean;
 	invisible?: boolean;
 	secret?: boolean;
@@ -108,6 +109,7 @@ export interface ContentRequiredRule {
 	path: string;
 	exclude?: string[];
 	pattern: string;
+	json_key?: string;
 	scope?: ContentRequiredScope;
 	within_lines?: number;
 	message?: string;
@@ -471,10 +473,22 @@ export interface AgentIgnoreRule {
 	severity?: Severity;
 }
 
+export interface AgentSettingsRule {
+	path: string;
+	exclude?: string[];
+	allowed_permissions?: string[];
+	forbidden_permissions?: string[];
+	forbidden_hook_commands?: string[];
+	unpinned_npx?: boolean;
+	message?: string;
+	severity?: Severity;
+}
+
 export interface AgentConfig {
 	instructions?: AgentInstructionsRule[];
 	mcp?: AgentMcpRule[];
 	ignore?: AgentIgnoreRule[];
+	settings?: AgentSettingsRule[];
 }
 
 // --- Extends types ---

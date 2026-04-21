@@ -2,6 +2,7 @@ import type { AgentConfig, RuleResult } from "../../types.js";
 import { checkAgentIgnore } from "./ignore.js";
 import { checkAgentInstructions } from "./instructions.js";
 import { checkAgentMcp } from "./mcp.js";
+import { checkAgentSettings } from "./settings.js";
 
 export interface AgentRuleResult {
 	name: string;
@@ -19,6 +20,7 @@ const RULE_RUNNERS: Record<
 	instructions: (c, cwd, ex) =>
 		checkAgentInstructions(c.instructions ?? [], cwd, ex),
 	mcp: (c, cwd, ex) => checkAgentMcp(c.mcp ?? [], cwd, ex),
+	settings: (c, cwd, ex) => checkAgentSettings(c.settings ?? [], cwd, ex),
 	ignore: (c, cwd, ex) => checkAgentIgnore(c.ignore ?? [], cwd, ex),
 };
 
