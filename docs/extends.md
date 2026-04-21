@@ -1,10 +1,12 @@
 # monban extends
 
-`monban.yml` に他の YAML 設定を継承させる仕組み。組織共通のベースルールや、チーム横断の標準ルールセットを再利用できる。
+> [日本語](./extends.ja.md) | **English**
 
-- ローカルファイル / GitHub リポジトリから取得可能
-- git CLI ベースで取得（プライベートリポジトリも既存の Git 認証で対応）
-- ルール配列は連結マージ（親の設定に子の設定を追加）
+A mechanism that lets `monban.yml` inherit other YAML configurations. Useful for organization-wide base rules and cross-team standard rule sets.
+
+- Source: local file or GitHub repository
+- Fetch via the git CLI (private repos work through your existing Git auth)
+- Rule arrays are concatenated (child rules are appended to parent rules)
 
 ```yaml
 # monban.yml
@@ -19,31 +21,31 @@ extends:
 
 path:
   forbidden:
-    - path: "src/legacy/**"  # 継承したルールに追加される
+    - path: "src/legacy/**"  # appended to the inherited rules
 ```
 
 ---
 
-## 設定
+## Configuration
 
-### フィールド
+### Fields
 
-トップレベルの `extends` は配列。各要素は `type: local` または `type: github`。
+The top-level `extends` is an array. Each element is either `type: local` or `type: github`.
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `type` | `"local"` \| `"github"` | Yes | 継承元の種類 |
-| `path` | string | Yes | 設定ファイルのパス |
-| `repo` | string | `type: github` 時 Yes | `owner/repo` 形式のリポジトリ名 |
-| `ref` | string | No | ブランチ・タグ・コミットハッシュ（省略時はデフォルトブランチ） |
+| `type` | `"local"` \| `"github"` | Yes | Source kind |
+| `path` | string | Yes | Path to the config file |
+| `repo` | string | Yes (when `type: github`) | `owner/repo` form |
+| `ref` | string | No | Branch, tag, or commit hash (defaults to the default branch) |
 
 ---
 
 ## 1. local
 
-プロジェクト内や親ディレクトリにある YAML ファイルを継承する。
+Inherit a YAML file inside the project or a parent directory.
 
-### 設定
+### Configuration
 
 ```yaml
 extends:
@@ -53,19 +55,19 @@ extends:
     path: "../../common/monban-base.yml"
 ```
 
-### 判定
+### Resolution
 
-1. `path` は `monban.yml` からの相対パスで解決
-2. ファイルが存在しなければエラー
-3. 読み込んだ YAML をマージ対象に追加
+1. `path` is resolved relative to `monban.yml`
+2. If the file does not exist, fail
+3. Add the loaded YAML to the merge set
 
 ---
 
 ## 2. github
 
-GitHub リポジトリから設定を取得する。git CLI で sparse clone するため、プライベートリポジトリも既存の Git 認証で扱える。
+Fetch a config from a GitHub repository. monban uses a sparse git clone under the hood, so private repos work with your existing Git authentication.
 
-### 設定
+### Configuration
 
 ```yaml
 extends:
@@ -74,67 +76,67 @@ extends:
     ref: "main"
     path: "base.yml"
 
-  # ブランチ名指定
+  # Branch name
   - type: github
     repo: "myorg/shared-rules"
     ref: "v1"
     path: "path-rules.yml"
 
-  # コミットハッシュ指定（再現性保証）
+  # Commit hash (guarantees reproducibility)
   - type: github
     repo: "myorg/shared-rules"
     ref: "a1b2c3d4e5f6789abc0123def4567890abcdef12"
     path: "content-rules.yml"
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `type` | `"github"` | Yes | 固定 |
-| `repo` | string | Yes | `owner/repo` 形式 |
-| `ref` | string | No | ブランチ・タグ・コミットハッシュ（省略時はデフォルトブランチ） |
-| `path` | string | Yes | リポジトリルートからの設定ファイルのパス |
+| `type` | `"github"` | Yes | Fixed value |
+| `repo` | string | Yes | `owner/repo` form |
+| `ref` | string | No | Branch, tag, or commit hash (defaults to the default branch) |
+| `path` | string | Yes | Path to the config file from the repo root |
 
-### 取得処理
+### Fetch
 
-1. キャッシュディレクトリ（`~/.cache/monban/github/<owner>/<repo>/<ref-hash>/`）を確認
-2. キャッシュミス時:
+1. Check the cache directory (`~/.cache/monban/github/<owner>/<repo>/<ref-hash>/`)
+2. On cache miss:
    - `git clone --depth 1 --no-checkout --filter=blob:none https://github.com/<owner>/<repo>.git <cache-dir>`
    - `git -C <cache-dir> checkout <ref> -- <path>`
-3. 取得した YAML をマージ対象に追加
+3. Add the fetched YAML to the merge set
 
-### 認証
+### Authentication
 
-- **公開リポジトリ**: 認証不要
-- **プライベートリポジトリ**: 既存の Git 認証機構を利用
-  - SSH 鍵
-  - `~/.gitconfig` の credential helper
-  - GitHub CLI (`gh auth login`) の認証情報
-  - 環境変数 `GITHUB_TOKEN`（CI 環境向けフォールバック）
+- **Public repos**: no authentication
+- **Private repos**: reuse the existing Git auth stack:
+  - SSH keys
+  - `~/.gitconfig` credential helpers
+  - GitHub CLI (`gh auth login`) credentials
+  - The `GITHUB_TOKEN` environment variable (CI fallback)
 
-追加設定なしで `git clone` できる状態なら monban でも取得できる。
+If you can `git clone` without extra configuration, monban can fetch too.
 
-### ref の扱い
+### ref handling
 
-| `ref` の種類 | キャッシュ動作 |
+| `ref` kind | Cache behavior |
 |--------------|--------------|
-| コミットハッシュ（40 文字の SHA） | immutable → 永続キャッシュ |
-| ブランチ名・タグ | mutable → 毎回 fetch（オフライン時はキャッシュ使用） |
+| Commit hash (40-character SHA) | Immutable → persistent cache |
+| Branch name / tag | Mutable → re-fetch every run (use cache when offline) |
 
-再現性を保証したい場合はコミットハッシュを指定する。
+Use a commit hash when you want reproducibility.
 
 ---
 
-## マージ戦略
+## Merge strategy
 
-全ての `extends` を先に解決し、以下のルールでマージする:
+Every `extends` entry is resolved first, then merged as follows:
 
-- **ルール配列**（`path.forbidden`、`content.required` など）: **連結**
-- **`exclude`** (グローバル除外): **連結**
-- **スカラー値**: 後勝ち（子で上書き）
+- **Rule arrays** (`path.forbidden`, `content.required`, etc.): **concatenated**
+- **`exclude`** (the global exclude): **concatenated**
+- **Scalars**: last-write-wins (child overrides parent)
 
-### マージ例
+### Merge example
 
 **base.yml:**
 ```yaml
@@ -144,7 +146,7 @@ exclude:
 path:
   forbidden:
     - path: "**/utils/**"
-      message: "utils/ は使用禁止"
+      message: "utils/ is disallowed"
 ```
 
 **monban.yml:**
@@ -159,70 +161,70 @@ exclude:
 path:
   forbidden:
     - path: "**/helpers/**"
-      message: "helpers/ は使用禁止"
+      message: "helpers/ is disallowed"
 ```
 
-**実効設定:**
+**Effective configuration:**
 ```yaml
 exclude:
-  - "**/node_modules/**"    # base.yml から
-  - "**/dist/**"            # monban.yml から
+  - "**/node_modules/**"    # from base.yml
+  - "**/dist/**"            # from monban.yml
 
 path:
   forbidden:
     - path: "**/utils/**"
-      message: "utils/ は使用禁止"      # base.yml から
+      message: "utils/ is disallowed"      # from base.yml
     - path: "**/helpers/**"
-      message: "helpers/ は使用禁止"    # monban.yml から
+      message: "helpers/ is disallowed"    # from monban.yml
 ```
 
 ---
 
-## 推移的解決について
+## Transitive resolution
 
-継承元の YAML に更に `extends` が書かれていても、それは**解決されない**（無視される）。
+If an inherited YAML itself declares `extends`, **it is not resolved** (it's ignored).
 
-シンプルさと予測可能性を優先するため、`extends` は 1 階層のみ。深い継承が必要な場合は、継承元の設定を平坦化して提供する運用にする。
+To keep the semantics predictable, `extends` only traverses one level. For deeper inheritance, flatten the config at the source.
 
 ---
 
-## エラー処理
+## Error handling
 
-| ケース | 動作 |
+| Case | Behavior |
 |-------|------|
-| ローカルファイルが存在しない | エラーで停止 |
-| GitHub 取得失敗（ネットワーク不達） | エラーで停止（キャッシュがあれば使用） |
-| GitHub 認証失敗 | エラーで停止（認証設定の案内付き） |
-| 継承先 YAML が不正 | エラーで停止（どの `extends` が壊れているか明示） |
-| `ref` が存在しない | エラーで停止 |
+| Local file does not exist | Fail |
+| GitHub fetch fails (network unreachable) | Fail (use cache when available) |
+| GitHub auth fails | Fail (include setup guidance) |
+| Inherited YAML invalid | Fail (identify which `extends` is broken) |
+| `ref` does not exist | Fail |
 
 ---
 
-## キャッシュ
+## Cache
 
-### 場所
+### Location
 
 - `~/.cache/monban/github/<owner>/<repo>/<ref>/`
 
-### コマンド
+### Commands
 
-将来的に以下のヘルパーコマンドを検討:
+Planned helper commands:
 
 ```bash
-monban extends fetch    # 全 extends を事前取得
-monban extends clear    # キャッシュクリア
+monban extends fetch    # pre-fetch every extends
+monban extends clear    # clear the cache
 ```
 
 ---
 
-## 出力例
+## Example output
 
-extends で読み込まれたルールも、通常のルール実行結果として表示される:
+Inherited rules are reported the same way as locally defined rules:
 
 ```
 $ monban all
 
-monban all — 全チェック
+monban all — all checks
 
   path
     ✓ forbidden
@@ -231,8 +233,8 @@ monban all — 全チェック
     ✓ forbidden
 
 ERROR [naming] src/userProfile.ts
-  kebab が期待されています。
+  expected kebab.
   ...
 ```
 
-継承ソースの可視化には `monban config print`（将来実装）を使う。
+To visualize the inheritance source, use `monban config print` (planned).

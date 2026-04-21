@@ -1,53 +1,55 @@
-# 門番 (monban)
+# monban
 
-> コーディングエージェントのための番所。コードが関所を通過できるか、門番が確かめる。
+> [日本語](./README.ja.md) | **English**
 
-**monban** は、コーディングエージェント（Claude Code、Cursor、Copilot など）が生成・編集したコードを、CI やローカルで静的にチェックするハーネス CLI です。
+> A guardhouse for coding agents. The gatekeeper checks whether code is allowed through the checkpoint.
 
-言語非依存・AST 不要。どの言語のプロジェクトでも動作します。
+**monban** is a harness CLI that statically inspects code generated or edited by coding agents (Claude Code, Cursor, Copilot, etc.) — in CI or locally.
 
-詳しい思想は [docs/concepts.md](docs/concepts.md) を参照してください。
+Language-agnostic. No AST required. Works on projects in any language.
+
+For the design philosophy, see [docs/concepts.md](docs/concepts.md).
 
 ---
 
-## チェック項目
+## Checks
 
-| コマンド | 対象 | ドキュメント |
+| Command | Target | Docs |
 |---------|------|-------------|
-| `monban path` | ファイル・ディレクトリの存在、命名、深度、数 | [docs/path.md](docs/path.md) |
-| `monban content` | 正規表現による禁止・必須パターン、BOM、不可視文字、シークレット | [docs/content.md](docs/content.md) |
-| `monban doc` | ドキュメントの参照ハッシュ・リンク切れ | [docs/doc.md](docs/doc.md) |
-| `monban github` | GitHub ワークフロー（ピン留め・権限・トリガー等）と CODEOWNERS | [docs/github.md](docs/github.md) |
-| `monban deps` | マニフェストの依存名をレジストリで実在・鮮度・人気度・類似性で検証 | [docs/deps.md](docs/deps.md) |
-| `monban git` | コミットメッセージ・trailer・Issue 参照・変更粒度・ignore すり抜けの検査 | [docs/git.md](docs/git.md) |
+| `monban path` | File and directory existence, naming, depth, count | [docs/path.md](docs/path.md) |
+| `monban content` | Regex-based forbidden/required patterns, BOM, invisible characters, secrets | [docs/content.md](docs/content.md) |
+| `monban doc` | Doc reference hashes and broken links | [docs/doc.md](docs/doc.md) |
+| `monban github` | GitHub Actions workflows (pinning, permissions, triggers, etc.) and CODEOWNERS | [docs/github.md](docs/github.md) |
+| `monban deps` | Validate manifest dependency names against registries: existence, freshness, popularity, similarity | [docs/deps.md](docs/deps.md) |
+| `monban git` | Commit messages, trailers, issue references, change granularity, ignore bypasses | [docs/git.md](docs/git.md) |
 
-PR 差分にスコープを絞る `--diff` フラグは全コマンド共通で使えます（[docs/diff.md](docs/diff.md)）。組織共通ルールの再利用は [docs/extends.md](docs/extends.md) を参照してください。
+The `--diff` flag, which scopes a run to a PR diff, works on every command ([docs/diff.md](docs/diff.md)). For reusing organization-wide rule sets, see [docs/extends.md](docs/extends.md).
 
 ---
 
-## インストール
+## Install
 
 ```bash
-# グローバルインストール
+# Global install
 npm install -g @mulyu/monban
 
-# 単発実行（CI 等で推奨）
+# One-off run (recommended for CI)
 npx @mulyu/monban all
 ```
 
-> パッケージ名は `@mulyu/monban` ですが、インストール後のコマンド名は `monban` です。
+> The package name is `@mulyu/monban`, but the installed command is `monban`.
 
-最短導入手順は [docs/getting-started.md](docs/getting-started.md) を参照してください。
+See [docs/getting-started.md](docs/getting-started.md) for the fastest path to a first run.
 
 ---
 
-## 使い方
+## Usage
 
 ```bash
-# すべてのチェックを実行
+# Run every check
 monban all
 
-# チェックを個別に実行
+# Run checks individually
 monban path
 monban content
 monban doc
@@ -55,21 +57,21 @@ monban github
 monban deps
 monban git
 
-# 特定ルールのみ実行
+# Run a single rule
 monban path --rule forbidden
 
-# PR 差分にスコープを絞る
+# Scope to a PR diff
 monban all --diff=main
 
-# JSON 出力
+# JSON output
 monban all --json
 ```
 
 ---
 
-## 設定ファイル
+## Configuration
 
-プロジェクトルートに `monban.yml` を置きます。各チェックの設定項目は対応するドキュメントを参照してください。
+Place `monban.yml` at the project root. See the per-command docs for the configuration fields.
 
 ```yaml
 # monban.yml
@@ -91,21 +93,21 @@ git:     { ... }   # docs/git.md
 
 ---
 
-## コーディングエージェントとの統合
+## Coding agent integration
 
 ### Claude Code
 
-`CLAUDE.md` に以下を追記することで、エージェントが変更後に自動でチェックを走らせるよう促せます。
+Add the following to `CLAUDE.md` to encourage the agent to run the checks after every change:
 
 ```markdown
-## 変更後の確認
+## Post-change verification
 
-コードを変更したあとは必ず `npx @mulyu/monban all` を実行し、すべてのチェックがパスすることを確認すること。
+After changing code, always run `npx @mulyu/monban all` and confirm every check passes.
 ```
 
-#### プラグインとしての導入（推奨）
+#### Install as a plugin (recommended)
 
-Claude Code のマーケットプレイス機能で monban スキルと `/monban:init` コマンドを導入できます。
+The monban skill and the `/monban:init` command can be installed through the Claude Code marketplace.
 
 ```text
 /plugin marketplace add Mulyu/monban
@@ -113,10 +115,10 @@ Claude Code のマーケットプレイス機能で monban スキルと `/monban
 /reload-plugins
 ```
 
-- `monban` スキル: コマンド対応表・出力の読み方・修正ワークフロー・`monban.yml` の書き方をエージェントに供給
-- `/monban:init`: 既存プロジェクトを調査して `monban.yml` の雛形を生成
+- `monban` skill: supplies the command table, output interpretation, fix workflow, and `monban.yml` conventions to the agent
+- `/monban:init`: surveys an existing project and generates a `monban.yml` scaffold
 
-マーケットプレイス manifest は [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json)、プラグイン本体は [plugins/monban/](plugins/monban/)。
+The marketplace manifest is at [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json); the plugin itself is at [plugins/monban/](plugins/monban/).
 
 ### GitHub Actions
 
@@ -125,18 +127,18 @@ Claude Code のマーケットプレイス機能で monban スキルと `/monban
   run: npx @mulyu/monban all --diff=${{ github.event.pull_request.base.sha }}
 ```
 
-`--diff` を省けばフル走査になります。PR レビューでは base SHA を渡して差分検査のみ走らせるのが推奨です。
+Omitting `--diff` runs a full scan. For PR review, passing the base SHA so only the diff is checked is the recommended setup.
 
 ---
 
-## ドキュメント
+## Docs
 
-- [はじめに (getting-started)](docs/getting-started.md)
-- [コンセプト (concepts)](docs/concepts.md)
-- [ドキュメント索引](docs/README.md)
+- [Getting started](docs/getting-started.md)
+- [Concepts](docs/concepts.md)
+- [Docs index](docs/README.md)
 
 ---
 
-## ライセンス
+## License
 
 MIT

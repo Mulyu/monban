@@ -1,30 +1,32 @@
 # monban agent
 
-AI エージェント（Claude / Cursor / Copilot 等）のためのリポジトリ設定ファイル（`AGENTS.md` / `CLAUDE.md` / `.mcp.json` / AI ignore ファイル）の整合性を検証する。
+> [日本語](./agent.ja.md) | **English**
 
-- 2025–2026 年に急増した MCP 関連 CVE（CVE-2025-68143/68144/68145、CVE-2025-53773、CVE-2025-6515 等）への対応
-- エージェント向けドキュメントの品質担保（必須セクション、サイズ上限、frontmatter の shape）
-- AI ignore ファイルに `.env*` / `*.pem` / `id_rsa` 等の機密が含まれているかの担保
+Validates the integrity of repository configuration files used by AI agents (Claude / Cursor / Copilot etc.): `AGENTS.md` / `CLAUDE.md` / `.mcp.json` / AI ignore files.
+
+- Responds to the surge of MCP-related CVEs in 2025–2026 (CVE-2025-68143/68144/68145, CVE-2025-53773, CVE-2025-6515, etc.)
+- Enforces quality of agent-facing docs (required sections, size limit, frontmatter shape)
+- Ensures AI ignore files cover sensitive files like `.env*` / `*.pem` / `id_rsa`
 
 ```bash
-monban agent                        # 全ルール実行
-monban agent --rule mcp             # 特定ルールのみ
-monban agent --json                 # JSON 出力
+monban agent                        # run every rule
+monban agent --rule mcp             # run a specific rule only
+monban agent --json                 # JSON output
 ```
 
 ---
 
-## ルール一覧
+## Rule list
 
-| # | ルール | 対象 | 概要 |
+| # | Rule | Target | Summary |
 |---|--------|------|------|
-| 1 | `instructions` | `AGENTS.md` / `CLAUDE.md` | 存在、必須 H2 セクション、サイズ上限、frontmatter の key allowlist |
-| 2 | `mcp` | `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` | `mcpServers` の allowed/forbidden、生シェル禁止、`npx @latest` 禁止、env の直値 secret 検出 |
-| 3 | `ignore` | `.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore` | `.env*` / `*.pem` / `id_rsa` 等の必須カバレッジ |
+| 1 | `instructions` | `AGENTS.md` / `CLAUDE.md` | Existence, required H2 sections, size cap, frontmatter key allowlist |
+| 2 | `mcp` | `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` | allowed/forbidden under `mcpServers`, raw-shell ban, `npx @latest` ban, raw-value secret detection in env |
+| 3 | `ignore` | `.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore` | Required coverage of `.env*` / `*.pem` / `id_rsa` etc. |
 
 ---
 
-## 設定
+## Configuration
 
 ```yaml
 # monban.yml
@@ -52,9 +54,9 @@ agent:
 
 <!-- monban:ref ../src/rules/agent/instructions.ts sha256:2ade7a48cff681b5368b896ae6b6bb94f0a4d6e8a27f7dd94c4c1c5c11f1529a -->
 
-エージェント指示書（`AGENTS.md` / `CLAUDE.md`）の構造を検証する。
+Validates the structure of agent instruction files (`AGENTS.md` / `CLAUDE.md`).
 
-### 設定
+### Configuration
 
 ```yaml
 agent:
@@ -66,34 +68,34 @@ agent:
       severity: warn
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob |
-| `exclude` | string[] | No | `[]` | 除外 glob |
-| `required_sections` | string[] | No | — | 必須 H2 見出し（大小無視） |
-| `max_bytes` | integer | No | — | サイズ上限（エージェントはこれを超えると読み飛ばすことがある） |
-| `allowed_frontmatter_keys` | string[] | No | — | `---` frontmatter が存在する場合の許可 key |
-| `message` | string | No | — | カスタムメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
+| `path` | string | Yes | — | Glob for target files |
+| `exclude` | string[] | No | `[]` | Exclude glob |
+| `required_sections` | string[] | No | — | Required H2 headings (case-insensitive) |
+| `max_bytes` | integer | No | — | Size cap (agents tend to truncate files above this) |
+| `allowed_frontmatter_keys` | string[] | No | — | Allowed keys when a `---` frontmatter block is present |
+| `message` | string | No | — | Custom message |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | Severity |
 
-### 判定
+### Algorithm
 
-1. `path` で指定した glob にマッチするファイルを列挙。マッチが 0 件なら「見つかりません」違反
-2. 各ファイルについて:
-   - `max_bytes` が指定されていれば、ファイルサイズを検査
-   - `required_sections` が指定されていれば、`^## <name>\s*$` 形式の H2 を抽出し、必須リストとの突き合わせ
-   - `allowed_frontmatter_keys` が指定されていれば、先頭の `---\n...\n---` ブロックを YAML としてパースし、許可リスト外の key を flag
+1. Enumerate files matching `path`. If no match, report a "not found" violation.
+2. For each file:
+   - If `max_bytes` is set, check file size
+   - If `required_sections` is set, extract `^## <name>\s*$` H2 headings and compare against the required list
+   - If `allowed_frontmatter_keys` is set, parse the leading `---\n...\n---` block as YAML and flag keys outside the allowlist
 
-### 出力例
+### Example output
 
 ```
 WARN  [instructions] AGENTS.md
-  必須セクションが見つかりません: ## Boundaries
+  required section not found: ## Boundaries
 
 WARN  [instructions] AGENTS.md
-  サイズ 15432 B が上限 12288 B を超えています (大きすぎるとエージェントに無視されます)。
+  size 15432 B exceeds limit 12288 B (agents may ignore files that are too large).
 ```
 
 ---
@@ -102,9 +104,9 @@ WARN  [instructions] AGENTS.md
 
 <!-- monban:ref ../src/rules/agent/mcp.ts sha256:f54ac3ca9ca459d702ab7062818b158ad7548e81bb64743d250a66ac21cc40a1 -->
 
-MCP（Model Context Protocol）設定ファイルの構造と安全性を検証する。`.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` が対象。
+Validates the structure and safety of MCP (Model Context Protocol) configuration files. Targets `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json`.
 
-### 設定
+### Configuration
 
 ```yaml
 agent:
@@ -117,52 +119,52 @@ agent:
       severity: error
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob |
-| `exclude` | string[] | No | `[]` | 除外 glob |
-| `forbidden_commands` | string[] | No | `[curl, wget, sh, bash, zsh]` | 禁止する生シェルコマンド |
-| `unpinned_npx` | boolean | No | `true` | `npx pkg@latest` / 無指定を禁止 |
-| `env_secrets` | boolean | No | `true` | env の直値が secret 形式なら flag（`${VAR}` 展開は OK） |
-| `allowed_servers` | string[] | No | — | 指定時、この名前のみ許可 |
-| `forbidden_servers` | string[] | No | `[]` | 明示的に禁止する server 名 |
-| `message` | string | No | — | カスタムメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
+| `path` | string | Yes | — | Glob for target files |
+| `exclude` | string[] | No | `[]` | Exclude glob |
+| `forbidden_commands` | string[] | No | `[curl, wget, sh, bash, zsh]` | Raw shell commands to forbid |
+| `unpinned_npx` | boolean | No | `true` | Forbid `npx pkg@latest` / unspecified versions |
+| `env_secrets` | boolean | No | `true` | Flag env raw values that match a secret format (`${VAR}` expansion is OK) |
+| `allowed_servers` | string[] | No | — | When set, only these names are allowed |
+| `forbidden_servers` | string[] | No | `[]` | Explicitly forbidden server names |
+| `message` | string | No | — | Custom message |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | Severity |
 
-### 判定
+### Algorithm
 
-対象ファイルを JSON としてパースし、`mcpServers` オブジェクトの各 server に対して検査する。
+Parse the target file as JSON, then inspect each server under `mcpServers`:
 
-- **forbidden_commands**: `command` フィールドがリストに含まれていれば違反（`"command": "bash"` 等）
-- **unpinned_npx**: `command` が `npx` または `npx.cmd` で、かつ `args` 内のパッケージ名にバージョン指定がない／`@latest` なら違反
-- **env_secrets**: `env` 内の文字列値が `${...}` を含まず、key 名に `token/secret/key/password/api_key/credential` を含み、値が 16 文字以上なら違反
-- **allowed_servers / forbidden_servers**: server 名の allowlist / forbidden list
+- **forbidden_commands**: If the `command` field appears in the list, report (e.g. `"command": "bash"`).
+- **unpinned_npx**: If `command` is `npx` or `npx.cmd`, and a package name in `args` lacks a version pinning or ends in `@latest`, report.
+- **env_secrets**: If an `env` value is a string that does not include `${...}`, the key name contains `token/secret/key/password/api_key/credential`, and the value is 16 characters or longer, report.
+- **allowed_servers / forbidden_servers**: allowlist / forbidden list on server name.
 
-### 出力例
+### Example output
 
 ```
 WARN  [mcp] .mcp.json:dangerous
-  生シェル経由の MCP server: command=bash (任意コード実行の経路)
+  MCP server via raw shell: command=bash (path to arbitrary code execution)
 
 WARN  [mcp] .mcp.json:unpinned
-  npx の MCP server がバージョン固定されていません: @modelcontextprotocol/server-foo@latest (供給網侵害時に自動被弾)
+  npx MCP server is not version-pinned: @modelcontextprotocol/server-foo@latest (auto-impacted by supply-chain compromise)
 
 WARN  [mcp] .mcp.json:hardcoded-secret.env.GITHUB_TOKEN
-  MCP server の env に直値らしきシークレット (GITHUB_TOKEN) を検出。${VAR} 経由で渡してください。
+  Raw secret-like value detected in MCP server env (GITHUB_TOKEN). Pass it via ${VAR} instead.
 ```
 
-### 2025–2026 年の MCP 関連 CVE 背景
+### Background: 2025–2026 MCP CVEs
 
-`mcp` ルールは、MCP 関連のサプライチェーン攻撃に対応する:
+The `mcp` rule responds to MCP-related supply-chain attacks:
 
-- **CVE-2025-68143 / 68144 / 68145**: Anthropic 公式 Git MCP server の prompt injection
+- **CVE-2025-68143 / 68144 / 68145**: Prompt injection in Anthropic's official Git MCP server
 - **CVE-2025-53773**: GitHub Copilot RCE via prompt injection
-- **CVE-2025-6515**: MCP prompt hijacking (JFrog 報告)
+- **CVE-2025-6515**: MCP prompt hijacking (JFrog disclosure)
 - **CVE-2025-5277 / 5276 / 5273**: aws-mcp-server command injection / markdownify SSRF
 
-これらの多くは「設定ファイル自体が攻撃面」になっており、`.mcp.json` のコミット時点でリスクを検出できるのが本ルールの狙い。
+Many of these make the configuration file itself an attack surface. This rule aims to catch the risk at the point the `.mcp.json` is committed.
 
 ---
 
@@ -170,9 +172,9 @@ WARN  [mcp] .mcp.json:hardcoded-secret.env.GITHUB_TOKEN
 
 <!-- monban:ref ../src/rules/agent/ignore.ts sha256:ff759a122865b1848c4a9aba8bf9bcb6651d9b7a9ad89f401e1243e3f8bcfe35 -->
 
-AI ignore ファイル（`.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore`）が機密ファイルをカバーしているかを検証する。
+Validates that AI ignore files (`.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore`) cover sensitive files.
 
-### 設定
+### Configuration
 
 ```yaml
 agent:
@@ -187,42 +189,42 @@ agent:
         - "**/secrets/**"
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ファイルの glob |
-| `exclude` | string[] | No | `[]` | 除外 glob |
-| `required` | string[] | No | 機密ファイル定型 6 種 | 含まれていなければ違反とするパターン |
-| `message` | string | No | — | カスタムメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
+| `path` | string | Yes | — | Glob for target files |
+| `exclude` | string[] | No | `[]` | Exclude glob |
+| `required` | string[] | No | Six standard sensitive-file patterns | Patterns that must be present (otherwise report) |
+| `message` | string | No | — | Custom message |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | Severity |
 
-### 判定
+### Algorithm
 
-1. 対象ファイルを行単位で読み込み、`#` 以降のコメントを除去
-2. 各行を ignore パターンとして集合化（`!negation` は `!` を除いた形で登録）
-3. `required` の各項目が集合に含まれているかを厳密一致で検査
+1. Read the target file line by line, stripping `#` comments
+2. Collect each line as an ignore pattern (`!negation` lines are stored without the `!`)
+3. For each required entry, check presence with strict equality
 
-ワイルドカードマッチは行わない。「`.env.local` は `.env.*` にマッチするから OK」のような推論はせず、**`.env.*` を設定ファイル側で明示する** ことを要求する。これは「明示的にカバーする」規律を促すため。
+Wildcard matching is **not** performed. monban does not reason that "`.env.local` is covered because `.env.*` matches"; it requires **`.env.*` to be listed explicitly** in the configuration. This enforces "cover it explicitly" discipline.
 
-### 出力例
+### Example output
 
 ```
 WARN  [ignore] .llmignore
-  必須カバレッジが欠落: .env.* が ignore リストに含まれていません。
+  missing required coverage: .env.* is not listed in the ignore file.
 
 WARN  [ignore] .llmignore
-  必須カバレッジが欠落: *.pem が ignore リストに含まれていません。
+  missing required coverage: *.pem is not listed in the ignore file.
 ```
 
 ---
 
-## 共通出力
+## Common output
 
 ```
 $ monban agent
 
-monban agent — エージェントチェック
+monban agent — agent checks
 
   ✗ instructions          2 violations (warn)
   ✗ mcp                   3 violations (warn)
@@ -234,10 +236,10 @@ monban agent — エージェントチェック
   0/3 rules passed
 ```
 
-## スコープ外
+## Out of scope
 
-以下は `monban agent` では検出しない（別ツールの領域）:
+`monban agent` does not cover the following — they belong elsewhere:
 
-- MCP server 自体の悪意検出 → 公開レジストリ / コードレビュー
-- `AGENTS.md` の **内容の正しさ**（例: ビルドコマンドが実在するか）→ 別ツール（AgentLinter / cclint 等）
-- ignore ファイル間の rule 整合（`.aiexclude` と `.cursorignore` の diff 禁止）→ `.llmignore` 仕様が未確定のため保留
+- Detecting maliciousness of the MCP server itself → public registries / code review
+- The **correctness of content** inside `AGENTS.md` (e.g. whether a build command actually exists) → other tools (AgentLinter / cclint, etc.)
+- Cross-file rule consistency between ignore files (e.g. "no diff between `.aiexclude` and `.cursorignore`") → deferred until the `.llmignore` spec stabilizes

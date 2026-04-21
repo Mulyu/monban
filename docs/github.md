@@ -1,46 +1,48 @@
 # monban github
 
-GitHub 特有ファイル（ワークフロー・CODEOWNERS）の構造チェック。YAML パースと独自構文パースに特化する。
+> [日本語](./github.ja.md) | **English**
 
-- `github.actions.*` — `.github/workflows/**/*.yml` を YAML としてパース
-- `github.codeowners.*` — `.github/CODEOWNERS` / `CODEOWNERS` / `docs/CODEOWNERS` を独自構文でパース
-- セレクタは `path`（glob パターン）
+Structural checks on GitHub-specific files (workflows, CODEOWNERS). Specialized for YAML parsing and the CODEOWNERS custom syntax.
+
+- `github.actions.*` — parses `.github/workflows/**/*.yml` as YAML
+- `github.codeowners.*` — parses `.github/CODEOWNERS` / `CODEOWNERS` / `docs/CODEOWNERS` with its own syntax
+- Selector is `path` (a glob pattern)
 
 ```bash
-monban github                              # 全ルール実行
-monban github --rule actions.pinned        # 特定ルールのみ
+monban github                              # run every rule
+monban github --rule actions.pinned        # run a specific rule only
 monban github --rule codeowners.ownership
-monban github --diff=main                  # 差分スコープのみ（詳細: ./diff.md）
-monban github --json                       # JSON 出力
+monban github --diff=main                  # scope to a diff (details: ./diff.md)
+monban github --json                       # JSON output
 ```
 
-ルール名はドット区切り（`<対象ファイル群>.<ルール>`）で指定する。`path` フィールドを各ルール配下で明示的に書く運用で、対象ファイルの暗黙固定はしない。
+Rule names are dot-separated (`<target-file-group>.<rule>`). Each rule takes an explicit `path` field; there is no implicit file pinning.
 
-GitHub 関連でも、構造パースが不要なもの（`LICENSE` / `SECURITY.md` の存在、PR テンプレートの必須セクション、`continue-on-error: true` 禁止 など）は `path.required` / `content.required` / `content.forbidden` で表現し、`github` に取り込まない。
+GitHub-related checks that do not need structural parsing (existence of `LICENSE` / `SECURITY.md`, PR template's required sections, "forbid `continue-on-error: true`" and so on) are expressed with `path.required` / `content.required` / `content.forbidden`, not with `github`.
 
 ---
 
-## ルール一覧
+## Rule list
 
-| # | ルール | 対象 | 概要 |
+| # | Rule | Target | Summary |
 |---|--------|------|------|
-| 1 | `actions.required` | workflows | 必須ワークフロー・必須ステップ |
-| 2 | `actions.forbidden` | workflows | 禁止アクション（`uses` は単一文字列 / 配列のどちらも可） |
-| 3 | `actions.pinned` | workflows | `uses` のアクション・reusable workflow・docker image のピン留め |
-| 4 | `actions.permissions` | workflows | `permissions:` の宣言必須・禁止スカラー値 |
-| 5 | `actions.triggers` | workflows | `on:` イベントの allow / deny |
-| 6 | `actions.runner` | workflows | `runs-on:` の allowlist |
-| 7 | `actions.timeout` | workflows | job に `timeout-minutes:` 必須・上限 |
-| 8 | `actions.concurrency` | workflows | `concurrency:` 宣言必須 |
-| 9 | `actions.consistency` | workflows | 同一アクションのバージョン一貫性 |
-| 10 | `actions.secrets` | workflows | `${{ secrets.X }}` 参照の allowlist |
-| 11 | `actions.danger` | workflows | `pull_request_target` + `actions/checkout` の危険な組み合わせと `persist-credentials` 未指定を検出 |
-| 12 | `actions.injection` | workflows | 信頼できない `${{ github.event.* }}` 入力が `run:` ステップに直埋めされる script injection を検出 |
-| 13 | `codeowners.ownership` | CODEOWNERS | path → owners の一方向整合 |
+| 1 | `actions.required` | workflows | Required workflows and required steps |
+| 2 | `actions.forbidden` | workflows | Forbidden actions (`uses` accepts a string or array) |
+| 3 | `actions.pinned` | workflows | Pinning of `uses` for actions, reusable workflows, and Docker images |
+| 4 | `actions.permissions` | workflows | `permissions:` declaration required / forbidden scalar values |
+| 5 | `actions.triggers` | workflows | `on:` event allow / deny |
+| 6 | `actions.runner` | workflows | `runs-on:` allowlist |
+| 7 | `actions.timeout` | workflows | `timeout-minutes:` required on every job, with a cap |
+| 8 | `actions.concurrency` | workflows | `concurrency:` declaration required |
+| 9 | `actions.consistency` | workflows | Version consistency across uses of the same action |
+| 10 | `actions.secrets` | workflows | Allowlist on `${{ secrets.X }}` references |
+| 11 | `actions.danger` | workflows | Detect the dangerous combination of `pull_request_target` + `actions/checkout`, and missing `persist-credentials` |
+| 12 | `actions.injection` | workflows | Detect script injection via untrusted `${{ github.event.* }}` input embedded directly in a `run:` step |
+| 13 | `codeowners.ownership` | CODEOWNERS | One-directional `path → owners` consistency |
 
 ---
 
-## 設定
+## Configuration
 
 ```yaml
 # monban.yml
@@ -54,7 +56,7 @@ github:
     forbidden:
       - path: ".github/workflows/**/*.yml"
         uses: ["actions/create-release", "actions/upload-release-asset"]
-        message: "release-please を使ってください。"
+        message: "Use release-please."
 
     pinned:
       - path: ".github/workflows/**/*.yml"
@@ -95,10 +97,10 @@ github:
     ownership:
       - path: "src/payments/**"
         owners: ["@myorg/payments-team"]
-        message: "payments 配下は payments-team のレビュー必須"
+        message: "payments/ must be reviewed by the payments-team"
 ```
 
-`github.actions` と `github.codeowners` はそれぞれオブジェクトで、配下にルール配列を持つ。各ルールは `path` を必須で取り、対象ファイル群を glob で明示する。
+`github.actions` and `github.codeowners` are each objects holding rule arrays. Every rule takes a required `path` explicitly specifying the target glob.
 
 ---
 
@@ -106,34 +108,34 @@ github:
 
 <!-- monban:ref ../src/rules/github/required.ts sha256:2f2ae5a0de6966983aa3e172b959da82ef95f068ab8b5672fb3baf4ead84c1d9 -->
 
-必須ワークフローファイルの存在と、ワークフロー内の必須ステップを検証する。
+Verifies that required workflow files exist and that required steps appear inside them.
 
-### 設定
+### Configuration
 
 ```yaml
 github:
   actions:
     required:
-      - file: ".github/workflows/test.yml"        # 存在チェック
-      - path: ".github/workflows/test.yml"        # ステップ存在チェック
+      - file: ".github/workflows/test.yml"        # existence check
+      - path: ".github/workflows/test.yml"        # step existence check
         steps: ["actions/checkout", "actions/setup-node"]
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `file` | string | No* | 必須ワークフローファイルのパス |
-| `path` | string | No* | 対象ワークフローファイルのパス |
-| `steps` | string[] | No | 必須ステップ（`uses` の前方一致） |
+| `file` | string | No* | Path to a required workflow file |
+| `path` | string | No* | Path to a target workflow file |
+| `steps` | string[] | No | Required steps (prefix match on `uses`) |
 
-\* `file` または `path` + `steps` のいずれかが必須。
+\* One of `file`, or `path` + `steps`, is required.
 
-### 出力例
+### Example output
 
 ```
 ERROR [actions.required] .github/workflows/lint.yml
-  必須ワークフローが見つかりません。
+  required workflow not found.
 ```
 
 ---
@@ -142,9 +144,9 @@ ERROR [actions.required] .github/workflows/lint.yml
 
 <!-- monban:ref ../src/rules/github/forbidden.ts sha256:d52b87a8fe6081b2f202197468e2ede3fb010045c36117302d34ee6e80ec7fc9 -->
 
-使用を禁止するアクションを検出する。
+Detects forbidden actions.
 
-### 設定
+### Configuration
 
 ```yaml
 github:
@@ -152,23 +154,23 @@ github:
     forbidden:
       - path: ".github/workflows/**/*.yml"
         uses: "actions/create-release"
-        message: "release-please を使ってください。"
+        message: "Use release-please."
         severity: warn
-      # 複数禁止は配列でまとめられる
+      # Multiple forbidden items can be bundled as an array
       - path: ".github/workflows/**/*.yml"
         uses:
           - "actions/create-release"
           - "actions/upload-release-asset"
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象 glob |
-| `uses` | string \| string[] | Yes | — | 禁止アクション（前方一致）。配列で複数指定可 |
-| `message` | string | No | — | エラーメッセージ |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Target glob |
+| `uses` | string \| string[] | Yes | — | Forbidden actions (prefix match). Array for multiple |
+| `message` | string | No | — | Error message |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
 ---
 
@@ -176,11 +178,11 @@ github:
 
 <!-- monban:ref ../src/rules/github/pinned.ts sha256:2bdd15a8cbd7f1951916c5d9d91fddfb6ef311ee9c26abceb735d9ba94452b69 -->
 
-`uses` で指定された参照がコミットハッシュで固定されているかを検証する。
+Verifies that the reference in a `uses` field is pinned to a commit hash.
 
-タグ（`@v4`、`@main` など）は可変でありサプライチェーン攻撃のリスクがある。
+Tags (`@v4`, `@main`, etc.) are mutable and expose supply-chain attack risk.
 
-### 設定
+### Configuration
 
 ```yaml
 github:
@@ -190,28 +192,28 @@ github:
         targets: ["action", "reusable", "docker"]
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象ワークフローファイルの glob |
-| `targets` | string[] | No | `["action"]` | ピン留めを検査する参照の種類 |
+| `path` | string | Yes | — | Target workflow glob |
+| `targets` | string[] | No | `["action"]` | Reference kinds to check for pinning |
 
-`targets` に指定できる値:
+Valid `targets` values:
 
-| 値 | 対象 | 判定 |
+| Value | Target | Check |
 |----|------|------|
-| `action` | step 内 `uses:` のアクション（例: `actions/checkout@...`） | 40 桁の 16 進数 |
-| `reusable` | job 直下 `uses:` の reusable workflow（例: `owner/repo/.github/workflows/x.yml@...`） | 40 桁の 16 進数 |
-| `docker` | step 内 `uses: docker://...` | `@sha256:` で始まる 64 桁 16 進数 |
+| `action` | Action in a step's `uses:` (e.g. `actions/checkout@...`) | 40-digit hex |
+| `reusable` | Reusable workflow at the job's `uses:` (e.g. `owner/repo/.github/workflows/x.yml@...`) | 40-digit hex |
+| `docker` | `uses: docker://...` in a step | 64-digit hex prefixed with `@sha256:` |
 
-ローカル参照（`./` で始まる）はスキップする。
+Local references (starting with `./`) are skipped.
 
-### 出力例
+### Example output
 
 ```
 ERROR [actions.pinned] .github/workflows/test.yml
-  ハッシュ固定されていません: actions/checkout@v4
+  not hash-pinned: actions/checkout@v4
 ```
 
 ---
@@ -220,40 +222,40 @@ ERROR [actions.pinned] .github/workflows/test.yml
 
 <!-- monban:ref ../src/rules/github/permissions.ts sha256:804e2a3db48a047b84bb3cfba25bbd09aea3d71a624d597a7f1a0f49353fb1d3 -->
 
-ワークフローの `permissions:` 宣言を検証する。GitHub は `permissions:` 未宣言時に `GITHUB_TOKEN` へ広い権限を与えるため、明示宣言が望ましい。
+Validates the workflow's `permissions:` declaration. Without a `permissions:` declaration, GitHub grants the `GITHUB_TOKEN` broad permissions by default, so explicit declaration is recommended.
 
-### 設定
+### Configuration
 
 ```yaml
 github:
   actions:
     permissions:
       - path: ".github/workflows/**/*.yml"
-        required: true              # 宣言必須（デフォルト true）
-        forbidden: ["write-all"]    # 禁止する権限スカラー値
+        required: true              # declaration required (default true)
+        forbidden: ["write-all"]    # forbidden scalar values
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象 glob |
-| `required` | boolean | No | `true` | `permissions:` の宣言を必須にするか |
-| `forbidden` | string[] | No | `[]` | 禁止するスカラー値（`write-all` / `read-all` など） |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Target glob |
+| `required` | boolean | No | `true` | Whether a `permissions:` declaration is required |
+| `forbidden` | string[] | No | `[]` | Forbidden scalar values (`write-all` / `read-all`, etc.) |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-### 判定
+### Algorithm
 
-1. `required: true` の場合、workflow トップレベル `permissions:` キーの存在を確認
-2. workflow トップレベル・各 job の `permissions:` がスカラー値で `forbidden` に含まれる場合は違反
+1. When `required: true`, confirm that the workflow-level `permissions:` key exists
+2. If the workflow-level or any job's `permissions:` is a scalar value listed in `forbidden`, report
 
-### 出力例
+### Example output
 
 ```
 ERROR [actions.permissions] .github/workflows/release.yml
-  permissions: が宣言されていません。
+  permissions: is not declared.
 ERROR [actions.permissions] .github/workflows/ci.yml
-  禁止された permissions スカラー: write-all
+  forbidden permissions scalar: write-all
 ```
 
 ---
@@ -262,11 +264,11 @@ ERROR [actions.permissions] .github/workflows/ci.yml
 
 <!-- monban:ref ../src/rules/github/triggers.ts sha256:a8f07ca4dcac248b849d193d09767e512cfd4bcd1e5b017c949d2b9426b1447a -->
 
-ワークフローの `on:` イベントを検証する。
+Validates the workflow's `on:` events.
 
-`pull_request_target` のような危険なトリガーの混入、手動実行（`workflow_dispatch`）の必須化などに用いる。
+Use it to catch dangerous triggers like `pull_request_target`, or to require a manual trigger (`workflow_dispatch`).
 
-### 設定
+### Configuration
 
 ```yaml
 github:
@@ -277,21 +279,21 @@ github:
         forbidden: ["pull_request_target"]
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象 glob |
-| `allowed` | string[] | No | `[]` | 許可するイベント（指定時は allowlist） |
-| `forbidden` | string[] | No | `[]` | 禁止するイベント |
+| `path` | string | Yes | — | Target glob |
+| `allowed` | string[] | No | `[]` | Allowed events (when set, functions as an allowlist) |
+| `forbidden` | string[] | No | `[]` | Forbidden events |
 
-`on:` はスカラー / 配列 / マップ記法に対応する。
+`on:` supports scalar / array / map forms.
 
-### 判定
+### Algorithm
 
-1. `on:` からイベント名を抽出（例: `on: push` → `["push"]`、`on: [push, pull_request]` → `["push", "pull_request"]`、`on: { push: {...} }` → `["push"]`）
-2. `allowed` 指定時、その集合に含まれないイベントがあれば違反
-3. `forbidden` 指定時、いずれかが含まれれば違反
+1. Extract event names from `on:` (e.g. `on: push` → `["push"]`, `on: [push, pull_request]` → `["push", "pull_request"]`, `on: { push: {...} }` → `["push"]`)
+2. When `allowed` is set, report any event not in the set
+3. When `forbidden` is set, report if any listed event appears
 
 ---
 
@@ -299,41 +301,41 @@ github:
 
 <!-- monban:ref ../src/rules/github/runner.ts sha256:d7d7236d94705ff8bce5df41778e263e66a6d53bc2fa25644c9ee952a8e8506a -->
 
-job の `runs-on:` の allowlist を検証する。
+Validates each job's `runs-on:` against an allowlist.
 
-コストやセキュリティの観点で、特定のランナー（`self-hosted`、`macos-*`）を制限したいケースに使う。
+Use it to restrict specific runners (`self-hosted`, `macos-*`) for cost or security reasons.
 
-### 設定
+### Configuration
 
 ```yaml
 github:
   actions:
     runner:
-      # allowlist のみ（ubuntu-latest 以外は全部違反）
+      # allowlist only (anything other than ubuntu-latest violates)
       - path: ".github/workflows/**/*.yml"
         allowed: ["ubuntu-latest", "ubuntu-22.04"]
 
-      # denylist のみ（self-hosted を禁止、それ以外は問わない）
+      # denylist only (forbid self-hosted; everything else is fine)
       - path: ".github/workflows/**/*.yml"
         forbidden: ["self-hosted"]
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `path` | string | Yes | 対象 glob |
-| `allowed` | string[] | No* | 許可するランナーラベル |
-| `forbidden` | string[] | No* | 禁止するランナーラベル |
+| `path` | string | Yes | Target glob |
+| `allowed` | string[] | No* | Allowed runner labels |
+| `forbidden` | string[] | No* | Forbidden runner labels |
 
-\* `allowed` / `forbidden` のいずれか 1 つ以上が必須。両方指定した場合は `forbidden` を先に評価する。
+\* At least one of `allowed` / `forbidden` is required. If both are set, `forbidden` is evaluated first.
 
-### 判定
+### Algorithm
 
-1. 各 job の `runs-on:` を抽出（文字列 / 配列）
-2. `${{ ... }}` を含む式はスキップ（静的評価不能のため）
-3. `forbidden` に含まれるラベルがあれば違反
-4. `allowed` 指定時、その集合に含まれないラベルがあれば違反
+1. Extract each job's `runs-on:` (string or array)
+2. Skip expressions containing `${{ ... }}` (not statically evaluable)
+3. Report if any label matches `forbidden`
+4. When `allowed` is set, report any label not in the set
 
 ---
 
@@ -341,9 +343,9 @@ github:
 
 <!-- monban:ref ../src/rules/github/timeout.ts sha256:083121fda708eaa894666cee9857642085fa6a999cc1fb5e1e5c16894822d732 -->
 
-全 job に `timeout-minutes:` が設定されているか、かつ上限値を超えていないかを検証する。
+Verifies that every job has `timeout-minutes:` set and stays under the cap.
 
-### 設定
+### Configuration
 
 ```yaml
 github:
@@ -353,21 +355,21 @@ github:
         max: 30
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象 glob |
-| `max` | number | Yes | — | 許容する最大分数 |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Target glob |
+| `max` | number | Yes | — | Allowed maximum minutes |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-### 判定
+### Algorithm
 
-1. 各 job の `timeout-minutes:` を確認
-2. 未設定なら違反
-3. `max` を超えていれば違反
+1. Check each job's `timeout-minutes:`
+2. Report if not set
+3. Report if the value exceeds `max`
 
-reusable workflow 呼び出し（job 直下 `uses:`）は job 内でタイムアウトを制御できないのでスキップする。
+Reusable workflow calls (job-level `uses:`) cannot control timeout from within the calling job, so they are skipped.
 
 ---
 
@@ -375,11 +377,11 @@ reusable workflow 呼び出し（job 直下 `uses:`）は job 内でタイムア
 
 <!-- monban:ref ../src/rules/github/concurrency.ts sha256:3b30195589ab48181f9c02835bf45a8b6f0ecdf3e2390e7eba357039a46523b5 -->
 
-ワークフロー単位の `concurrency:` 宣言を必須化する。
+Require a workflow-level `concurrency:` declaration.
 
-`concurrency` を宣言しないと、同じ PR への push で冗長なビルドが走ってコスト・ランナー枠を無駄にする。
+Without `concurrency`, successive pushes to the same PR trigger redundant builds, wasting cost and runner slots.
 
-### 設定
+### Configuration
 
 ```yaml
 github:
@@ -388,17 +390,17 @@ github:
       - path: ".github/workflows/**/*.yml"
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |-----------|-----|------|-----------|------|
-| `path` | string | Yes | — | 対象 glob |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Target glob |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-### 判定
+### Algorithm
 
-1. workflow トップレベル `concurrency:` キーの存在を確認
-2. 未宣言なら違反
+1. Check for the workflow-level `concurrency:` key
+2. Report if absent
 
 ---
 
@@ -406,11 +408,11 @@ github:
 
 <!-- monban:ref ../src/rules/github/consistency.ts sha256:2401bc1fac0b098cb45db13696c2bd67727483e60f3c60c32d93c5bb89d6aa79 -->
 
-同一アクションが複数ファイルで同じバージョン（ref）に揃っているかを検証する。
+Verifies that the same action uses the same version (`ref`) across multiple files.
 
-`actions/checkout@v4` と `actions/checkout@v3` が混在していると、メンテナンス時に取り残されるリスクがある。
+Mixing `actions/checkout@v4` with `actions/checkout@v3` is a recipe for leaving one behind during upgrades.
 
-### 設定
+### Configuration
 
 ```yaml
 github:
@@ -420,23 +422,23 @@ github:
         actions: ["actions/checkout", "actions/setup-node"]
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `path` | string | Yes | 対象 glob |
-| `actions` | string[] | Yes | 一貫性を要求するアクション（`owner/repo` 形式） |
+| `path` | string | Yes | Target glob |
+| `actions` | string[] | Yes | Actions to check for consistency (`owner/repo` form) |
 
-### 判定
+### Algorithm
 
-1. 対象ファイル群の中で、各指定アクションの `ref`（`@` 以降）を集計
-2. 同一アクションで複数の ref が検出されれば全ファイルに違反
+1. Tally the `ref` values (after `@`) for each specified action across the target file set
+2. If an action is found with multiple refs, report on every affected file
 
-### 出力例
+### Example output
 
 ```
 ERROR [actions.consistency] .github/workflows/test.yml
-  actions/checkout のバージョンが一貫していません: @v3, @v4
+  inconsistent version for actions/checkout: @v3, @v4
 ```
 
 ---
@@ -445,41 +447,41 @@ ERROR [actions.consistency] .github/workflows/test.yml
 
 <!-- monban:ref ../src/rules/github/secrets.ts sha256:4e97b007d07dc4a4ba08e4fb327bcc79d06bcc224b9c96117a3dc1cbc4d1ffd6 -->
 
-ワークフロー内の `${{ secrets.X }}` 参照が allowlist 内にあるかを検証する。
+Verifies that `${{ secrets.X }}` references in a workflow match an allowlist.
 
-タイポや未定義シークレットへの参照を静的に検出する。
+Catches typos and references to undefined secrets statically.
 
-### 設定
+### Configuration
 
 ```yaml
 github:
   actions:
     secrets:
-      # allowlist のみ（未知名はタイポ疑い）
+      # allowlist only (unknown names are treated as typos)
       - path: ".github/workflows/**/*.yml"
         allowed: ["NPM_TOKEN", "GITHUB_TOKEN", "SLACK_WEBHOOK"]
 
-      # denylist のみ（退役シークレットの再利用を禁止）
+      # denylist only (prevent reuse of retired secrets)
       - path: ".github/workflows/**/*.yml"
         forbidden: ["LEGACY_DEPLOY_KEY"]
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `path` | string | Yes | 対象 glob |
-| `allowed` | string[] | No* | 許可するシークレット名 |
-| `forbidden` | string[] | No* | 禁止するシークレット名 |
+| `path` | string | Yes | Target glob |
+| `allowed` | string[] | No* | Allowed secret names |
+| `forbidden` | string[] | No* | Forbidden secret names |
 
-\* `allowed` / `forbidden` のいずれか 1 つ以上が必須。両方指定した場合は `forbidden` を先に評価する。
+\* At least one of `allowed` / `forbidden` is required. If both are set, `forbidden` is evaluated first.
 
-### 判定
+### Algorithm
 
-1. ファイル本文から `${{ secrets.NAME }}` 形式の参照を抽出（正規表現）
-2. `forbidden` に含まれる名前があれば違反
-3. `allowed` 指定時、その集合に含まれない名前があれば違反
-4. `secrets.GITHUB_TOKEN` と `secrets.github_token` は同一扱い（GitHub が大文字小文字を区別しないため）
+1. Extract `${{ secrets.NAME }}` references from the file body (via regex)
+2. Report any name in `forbidden`
+3. When `allowed` is set, report any name not in the set
+4. `secrets.GITHUB_TOKEN` and `secrets.github_token` are treated as equivalent (GitHub is case-insensitive here)
 
 ---
 
@@ -487,12 +489,12 @@ github:
 
 <!-- monban:ref ../src/rules/github/danger.ts sha256:8496dd37d92b9da94220c6586bba1d67de30686f399c649a5218b147cfe6c357 -->
 
-ワークフローに含まれる **危険な定型パターン** を検出する。tj-actions/changed-files (CVE-2025-30066) 後に GitHub / OpenSSF が示した Actions ハードニングのうち、以下の 2 点を検査:
+Detects **dangerous boilerplate patterns** in workflows. Covers two items from the Actions hardening guidance issued by GitHub / OpenSSF after tj-actions/changed-files (CVE-2025-30066):
 
-1. `pull_request_target` + `actions/checkout` の組み合わせ — フォーク PR から secret が窃取される典型経路
-2. `actions/checkout` における `persist-credentials: false` の未指定 — 既定では `GITHUB_TOKEN` が `.git/config` に残留し、後続ステップから読み取れる
+1. `pull_request_target` + `actions/checkout` — the classic path for exfiltrating secrets from fork PRs
+2. `actions/checkout` without `persist-credentials: false` — the `GITHUB_TOKEN` is left in `.git/config` by default, readable by subsequent steps
 
-### 設定
+### Configuration
 
 ```yaml
 github:
@@ -502,21 +504,21 @@ github:
         severity: error
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `path` | string | Yes | — | 対象 workflow の glob |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
+| `path` | string | Yes | — | Target workflow glob |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-### 出力例
+### Example output
 
 ```
 ERROR [actions.danger] .github/workflows/release.yml:publish
-  actions/checkout は persist-credentials: false を明示してください (デフォルトでトークンが残留)。
+  Set persist-credentials: false on actions/checkout (token is left behind by default).
 
 ERROR [actions.danger] .github/workflows/pr.yml:build
-  pull_request_target + actions/checkout の組み合わせは危険 (フォーク PR から secret が窃取される経路)。
+  pull_request_target + actions/checkout is dangerous (path for secret exfiltration from fork PRs).
 ```
 
 ---
@@ -525,11 +527,11 @@ ERROR [actions.danger] .github/workflows/pr.yml:build
 
 <!-- monban:ref ../src/rules/github/injection.ts sha256:197ae6148a99ce7867f147e2ddc6a7a3ff3364ad722679cd62ec086c63416692 -->
 
-`${{ github.event.*.body }}` などの **信頼できない入力** が `run:` ステップ内に直接埋め込まれていないかを検出する。GitHub の security hardening ガイドが「最も悪用されやすい経路」と明示している script injection 攻撃の検出。
+Detects whether **untrusted input** such as `${{ github.event.*.body }}` is embedded directly in a `run:` step. Catches the script-injection attack that GitHub's security hardening guide explicitly calls out as "the most exploited path".
 
-### 検出対象
+### Detection targets
 
-以下のコンテキストが `run:` 内の `${{ ... }}` で展開されている場合に検出:
+Detected when any of the following contexts is expanded via `${{ ... }}` inside a `run:`:
 
 - `github.event.issue.title` / `.body`
 - `github.event.pull_request.title` / `.body` / `.head.ref` / `.head.label`
@@ -539,9 +541,9 @@ ERROR [actions.danger] .github/workflows/pr.yml:build
 - `github.event.commits.*.message` / `.author.email` / `.author.name`
 - `github.head_ref`
 
-正しい使い方は `env:` 経由で受け渡すこと（脆弱なコンテキストでも `env:` の値はシェル変数として安全に展開される）。
+The safe pattern is to pass the value through `env:` (even for vulnerable contexts, the `env:` value expands as a shell variable safely).
 
-### 設定
+### Configuration
 
 ```yaml
 github:
@@ -549,33 +551,33 @@ github:
     injection:
       - path: ".github/workflows/**/*.yml"
         severity: error
-        # 例外: 専用に sanitize 済みの run: ステップを許容する
+        # Exception: allow a specific, pre-sanitized run: step
         allowed_contexts:
-          - "github.event.issue.number"  # number は injection にならない
+          - "github.event.issue.number"  # number cannot lead to injection
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | デフォルト | 説明 |
+| Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `path` | string | Yes | — | 対象 workflow の glob |
-| `severity` | `"error"` \| `"warn"` | No | `"error"` | 重大度 |
-| `allowed_contexts` | string[] | No | `[]` | 検査をスキップするコンテキスト式（完全一致） |
+| `path` | string | Yes | — | Target workflow glob |
+| `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
+| `allowed_contexts` | string[] | No | `[]` | Context expressions to skip (exact match) |
 
-### 出力例
+### Example output
 
 ```
 ERROR [actions.injection] .github/workflows/welcome.yml:greet
-  信頼できない入力 github.event.issue.title が run: ステップ内で使われています (script injection の経路)。env: 経由で受け渡してください。
+  Untrusted input github.event.issue.title used inside a run: step (script-injection path). Pass it through env: instead.
 ```
 
-### 修正パターン
+### Fix pattern
 
 ```yaml
-# 危険
+# Dangerous
 - run: echo "Title: ${{ github.event.issue.title }}"
 
-# 安全
+# Safe
 - env:
     ISSUE_TITLE: ${{ github.event.issue.title }}
   run: echo "Title: $ISSUE_TITLE"
@@ -587,11 +589,11 @@ ERROR [actions.injection] .github/workflows/welcome.yml:greet
 
 <!-- monban:ref ../src/rules/github/codeowners.ts sha256:eec767568805cb1ef0c2b061b67751790bb5044a7a8ac89989be6de3a427c649 -->
 
-`CODEOWNERS` の `path → owners` 一方向整合を検証する。
+Verifies the one-directional `path → owners` integrity of `CODEOWNERS`.
 
-「この glob に該当するファイルにはこの owner が必要」という方向のみチェックする。逆方向（「この owner は何を所有すべきか」）は検査しない。
+Only checks "files matching this glob must have these owners". The reverse direction ("what should this owner own") is not checked.
 
-### 設定
+### Configuration
 
 ```yaml
 github:
@@ -599,32 +601,32 @@ github:
     ownership:
       - path: "src/payments/**"
         owners: ["@myorg/payments-team"]
-        message: "payments 配下は payments-team のレビュー必須"
+        message: "payments/ must be reviewed by the payments-team"
 ```
 
-### フィールド
+### Fields
 
-| フィールド | 型 | 必須 | 説明 |
+| Field | Type | Required | Description |
 |-----------|-----|------|------|
-| `path` | string | Yes | 対象ファイルの glob |
-| `owners` | string[] | Yes | 必須オーナー（`@user` / `@org/team`） |
-| `message` | string | No | エラーメッセージ |
+| `path` | string | Yes | Target file glob |
+| `owners` | string[] | Yes | Required owners (`@user` / `@org/team`) |
+| `message` | string | No | Error message |
 
-### 判定
+### Algorithm
 
-1. `.github/CODEOWNERS` / `CODEOWNERS` / `docs/CODEOWNERS` のいずれかを読む
-2. rule の `path` にマッチするファイルを glob で列挙
-3. 各ファイルに対して CODEOWNERS の**最後のマッチ**（GitHub の挙動）を取得
-4. そのマッチが `owners` をすべて含まなければ違反
+1. Read one of `.github/CODEOWNERS` / `CODEOWNERS` / `docs/CODEOWNERS`
+2. Enumerate files matching the rule's `path` via glob
+3. For each file, take the **last matching line** in CODEOWNERS (matching GitHub's behavior)
+4. Report if that match does not include every listed owner
 
 ---
 
-## 共通出力
+## Common output
 
 ```
 $ monban github
 
-monban github — GitHub チェック
+monban github — GitHub checks
 
   ✗ actions.pinned         2 violations
   ✓ actions.required

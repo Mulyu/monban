@@ -19,31 +19,31 @@ npx @mulyu/monban all --json                   # JSON 出力
 
 ## コマンド対応表
 
-<!-- monban:ref ../../../../docs/path.md sha256:122ae567c031d067b9f403d34255bb711d6044e16c238511fe77cade57c3f393 -->
-<!-- monban:ref ../../../../docs/content.md sha256:91c688ee819f780a92339ee4494f3f9df7f06d86a571adcb1d17003a2830ee93 -->
-<!-- monban:ref ../../../../docs/doc.md sha256:fc5859b5629722faf5e404ae1910ca82b3e6ff8ca11cd166fb68b245fd9a427e -->
-<!-- monban:ref ../../../../docs/github.md sha256:676366e6fde4a690e04511cb29c5d05034261d361b23318c24b6f5a79ad2f84e -->
-<!-- monban:ref ../../../../docs/deps.md sha256:bcffd679c536784b27db82b898f47868c7482a85702d7aac6564f194749daa98 -->
-<!-- monban:ref ../../../../docs/git.md sha256:a1fedcebab14c99e18345af70085c3464e4afd5214508e21845221ec310ec73f -->
-<!-- monban:ref ../../../../docs/agent.md sha256:ee88c9df0fa5ea876df44f97caee4ed29bd05beb2b6bfa93e1ce8e2622e50446 -->
-<!-- monban:ref ../../../../docs/diff.md sha256:7efbff1942471bc56bde68936b50d583fbe2af2ffa6063b6c32cf27d1805f786 -->
-<!-- monban:ref ../../../../docs/extends.md sha256:ea9047adca382aa3c39bcd9ab078f12c981b01a5a3174cd948746456021bb2e3 -->
+<!-- monban:ref ../../../../docs/path.ja.md sha256:b15bc70569a25fdd23071fffd37403e8603828e1a67c6ddc997688c70f641ea3 -->
+<!-- monban:ref ../../../../docs/content.ja.md sha256:6e718a98bda3846d9c98dff7898c2904aad7064c39c6673bff154cd6b8028418 -->
+<!-- monban:ref ../../../../docs/doc.ja.md sha256:7142c36f91579151803e2294e97f799237f10d86ebadaed8be18b7c644320375 -->
+<!-- monban:ref ../../../../docs/github.ja.md sha256:412be81fb096c220838334eef5d88b911ac74ccf76289c423ccbf8bbd3d2fdd3 -->
+<!-- monban:ref ../../../../docs/deps.ja.md sha256:659e5232d2709358e96e13ef3946a2b07e4db5b4a4456732b337f907feb6e250 -->
+<!-- monban:ref ../../../../docs/git.ja.md sha256:43fce569e67a1a217f41b0f23efd8d58c541cbd18dc047e8517af55e52037899 -->
+<!-- monban:ref ../../../../docs/agent.ja.md sha256:087859fa790082bef8f22f78cd8758a66ed7fe03794e6a66e25fa2ab759b8b32 -->
+<!-- monban:ref ../../../../docs/diff.ja.md sha256:5726e9f22a61138d0af1ea57653fd2d6019f94ab2a2c38c9aec2aeaac2718e9c -->
+<!-- monban:ref ../../../../docs/extends.ja.md sha256:83d96111afd903aef0f70b2e1cffc6893340f592166345c4dfed404726327b10 -->
 
 | コマンド | 対象 | docs |
 |---|---|---|
-| `monban path` | ファイル・ディレクトリの存在、命名、深度、数、ハッシュ、サイズ | [docs/path.md](https://github.com/Mulyu/monban/blob/main/docs/path.md) |
-| `monban content` | 正規表現による禁止・必須パターン、BOM、不可視文字、シークレット、injection、マージコンフリクト、行数 | [docs/content.md](https://github.com/Mulyu/monban/blob/main/docs/content.md) |
-| `monban doc` | ドキュメントの参照ハッシュ・リンク切れ | [docs/doc.md](https://github.com/Mulyu/monban/blob/main/docs/doc.md) |
-| `monban github` | GitHub Actions のピン留め・権限・トリガー、CODEOWNERS | [docs/github.md](https://github.com/Mulyu/monban/blob/main/docs/github.md) |
-| `monban deps` | 依存マニフェストの実在・鮮度・人気度・類似性 | [docs/deps.md](https://github.com/Mulyu/monban/blob/main/docs/deps.md) |
-| `monban git` | コミットメッセージ・trailer・Issue 参照・変更粒度・ignore すり抜け | [docs/git.md](https://github.com/Mulyu/monban/blob/main/docs/git.md) |
-| `monban agent` | AGENTS.md / CLAUDE.md / .mcp.json / AI ignore ファイル | [docs/agent.md](https://github.com/Mulyu/monban/blob/main/docs/agent.md) |
+| `monban path` | ファイル・ディレクトリの存在、命名、深度、数、ハッシュ、サイズ | [docs/path.ja.md](https://github.com/Mulyu/monban/blob/main/docs/path.ja.md) |
+| `monban content` | 正規表現による禁止・必須パターン、BOM、不可視文字、シークレット、injection、マージコンフリクト、行数 | [docs/content.ja.md](https://github.com/Mulyu/monban/blob/main/docs/content.ja.md) |
+| `monban doc` | ドキュメントの参照ハッシュ・リンク切れ | [docs/doc.ja.md](https://github.com/Mulyu/monban/blob/main/docs/doc.ja.md) |
+| `monban github` | GitHub Actions のピン留め・権限・トリガー、CODEOWNERS | [docs/github.ja.md](https://github.com/Mulyu/monban/blob/main/docs/github.ja.md) |
+| `monban deps` | 依存マニフェストの実在・鮮度・人気度・類似性 | [docs/deps.ja.md](https://github.com/Mulyu/monban/blob/main/docs/deps.ja.md) |
+| `monban git` | コミットメッセージ・trailer・Issue 参照・変更粒度・ignore すり抜け | [docs/git.ja.md](https://github.com/Mulyu/monban/blob/main/docs/git.ja.md) |
+| `monban agent` | AGENTS.md / CLAUDE.md / .mcp.json / AI ignore ファイル | [docs/agent.ja.md](https://github.com/Mulyu/monban/blob/main/docs/agent.ja.md) |
 
-`--diff` は全コマンド共通のスコープフィルタ（[docs/diff.md](https://github.com/Mulyu/monban/blob/main/docs/diff.md)）。組織共通ルールの継承は [docs/extends.md](https://github.com/Mulyu/monban/blob/main/docs/extends.md)。
+`--diff` は全コマンド共通のスコープフィルタ（[docs/diff.ja.md](https://github.com/Mulyu/monban/blob/main/docs/diff.ja.md)）。組織共通ルールの継承は [docs/extends.ja.md](https://github.com/Mulyu/monban/blob/main/docs/extends.ja.md)。
 
 ## 出力の読み方
 
-<!-- monban:ref ../../../../docs/getting-started.md sha256:002df2b48bf18737353455571c501478fa8b7e1e4be3572e4a2ce7079556a04f -->
+<!-- monban:ref ../../../../docs/getting-started.ja.md sha256:27d9ba6c9ae868acc465b8c9a9fe5bb90a60a020a3f8e12d16b145e0aa9a20e4 -->
 
 ### 終了コード
 
@@ -130,7 +130,7 @@ agent:   { ... }
 
 ## スコープ外
 
-<!-- monban:ref ../../../../docs/concepts.md sha256:fb62e4b4d4771e6c2645e0a4586b8ac9151c4a278269a8e7b519454f9bf65a70 -->
+<!-- monban:ref ../../../../docs/concepts.ja.md sha256:1e1c17ea27dada9ae06ac5f54695d96d02c05fd077b36bdbacddf1abe96ce845 -->
 
 monban は以下を扱わない（別ツール）。
 

@@ -1,70 +1,72 @@
-# コンセプト
+# Concepts
 
-## なぜ monban か
+> [日本語](./concepts.ja.md) | **English**
 
-コーディングエージェント（Claude Code、Cursor、Copilot など）はコードを書くのが得意ですが、プロジェクト全体の構造的な一貫性や、ドキュメントとコードの整合性を自律的に保つのは苦手です。
+## Why monban
 
-エージェントは局所的な変更を大量に行うため、以下のような「崩れ」が起きやすい特性があります。
+Coding agents (Claude Code, Cursor, Copilot, etc.) are good at writing code, but poor at autonomously maintaining structural consistency across a project or keeping documentation in sync with code.
 
-- `utils/` や `helpers/` のような曖昧なディレクトリを安易に作る
-- 既存の命名規則を把握せず、PascalCase と kebab-case を混在させる
-- 機械的にサブディレクトリを掘り、不必要に深い構造を作る
-- ドキュメントで参照していたコードを変更しても、ドキュメント側を更新し忘れる
-- 検索結果から非推奨の GitHub Actions を採用する
-- 存在しない依存パッケージ名を自信を持って提案する（hallucination / slopsquat）
-- `git add .` → `git commit` → `git push` を 1 ターンで実行し、人間のレビューを挟ませない
-- コミットメッセージが "fix"、"update code"、"AI changes" のように無意味になる
-- 1 PR に数千行の変更を詰め込み、レビュー不能にする
-- `git add -A` で `.gitignore` に書かれているファイルをうっかり追跡してしまう
+Because agents make a lot of localized changes, the following kinds of drift are common:
 
-monban は、こうした「全体の一貫性が崩れる」現象を CI やローカルで検出する番人です。PR レビューで新規違反だけを叩きたい場合は、全コマンドに共通する `--diff` フラグで差分スコープに限定できます（[diff.md](diff.md)）。
+- Creating vague directories like `utils/` or `helpers/` without hesitation
+- Mixing PascalCase and kebab-case without checking the existing convention
+- Mechanically nesting subdirectories, producing needlessly deep structures
+- Changing code that a doc references without updating the doc
+- Picking up deprecated GitHub Actions from search results
+- Confidently suggesting nonexistent dependency names (hallucination / slopsquat)
+- Running `git add .` → `git commit` → `git push` in a single turn, skipping human review
+- Writing meaningless commit messages like "fix", "update code", or "AI changes"
+- Cramming thousands of lines of change into a single PR, making it unreviewable
+- Accidentally tracking files listed in `.gitignore` via `git add -A`
 
-## 他リンターとの棲み分け
+monban is a gatekeeper that catches this kind of structural drift in CI or locally. When you only care about newly introduced violations in a PR, the `--diff` flag — available on every command — restricts the check to the diff scope ([diff.md](diff.md)).
 
-既存のリンター（ESLint、markdownlint など）は言語・フォーマット単体のチェックに特化しています。monban はそれらを補完する「プロジェクト構造レイヤー」のチェックに特化しています。
+## How monban fits with other linters
 
-| ツール | 対象 |
+Traditional linters (ESLint, markdownlint, etc.) focus on language- and format-level concerns. monban complements them by focusing on the *project-structure* layer.
+
+| Tool | Scope |
 |---|---|
-| ESLint / Biome | コードの文法・スタイル |
-| markdownlint | Markdown の記述スタイル |
-| commitlint / gitlint | コミットメッセージのフォーマット |
-| **monban** | **プロジェクト構造・ファイル内容・ドキュメント整合性・依存名の実在・Git メタデータと変更粒度** |
+| ESLint / Biome | Code syntax and style |
+| markdownlint | Markdown style |
+| commitlint / gitlint | Commit message format |
+| **monban** | **Project structure, file contents, doc integrity, dependency-name provenance, Git metadata and change granularity** |
 
-## 設計原則
+## Design principles
 
-- **言語非依存・AST 不要** — どの言語のプロジェクトでも動作する。ファイルシステムの走査と正規表現スキャン、YAML / マニフェストの構造パースのみで完結する
-- **設定はすべて `monban.yml` 1 ファイル** — 学習コストを最小化する
-- **セレクタは glob パターンに統一** — ルールごとに独自記法を持たない
-- **組織横断の再利用を `extends` で支援** — base ルールを GitHub から継承可能（[extends.md](extends.md)）
-- **外部ネットワーク依存は `monban deps` に局在化** — 依存パッケージのレジストリ照合のみが外部 API を使う。他のコマンドは完全ローカルで動作する。オフライン環境では `deps --offline` で `allowed` / `forbidden` のみ実行する
+- **Language-agnostic, no AST** — runs on any language. Only filesystem traversal, plain-text regex scans, and YAML/manifest structural parsing.
+- **A single `monban.yml`** — one file for all configuration, minimizing learning cost.
+- **Globs are the universal selector** — no rule invents its own selector syntax.
+- **Cross-org reuse via `extends`** — inherit base rules from GitHub ([extends.md](extends.md)).
+- **External network access is contained in `monban deps`** — only dependency-registry lookup uses external APIs. Every other command runs fully offline. In offline environments, `deps --offline` only runs `allowed` / `forbidden`.
 
-## エラーハンドリング
+## Error handling
 
-monban はルール実行中に発生するエラーを 2 種類に分けて扱います。
+monban distinguishes two kinds of errors that can arise during a rule run.
 
-- **検出結果 (finding)** — ルールが意図的に返す違反。`severity: "error"` でユーザーに修正を促し、CI を落とす。`severity: "warn"` はユーザーに通知するが CI は落とさない
-- **実行不能エラー (execution error)** — 設定不整合や予期しない例外など、ルール実行そのものが続行できない状況。ハーネス上位に伝播し、CLI を終了コード 1 で終了させる
+- **Finding** — a violation the rule intentionally returns. `severity: "error"` tells the user to fix and fails CI. `severity: "warn"` notifies the user without failing CI.
+- **Execution error** — configuration mismatch, unexpected exception, or any situation where the rule itself cannot continue. These propagate up to the harness and exit the CLI with code 1.
 
-### ネットワーク失敗の扱い
+### Network failures
 
-`monban deps` のレジストリ照合など、外部 I/O が失敗する状況は **常に `severity: "warn"` の finding として記録**し、黙って無視しません。これはユーザーが「違反が無いのか、照合ができなかったのか」を区別できるようにするためです。
+For external I/O, such as the registry lookups in `monban deps`, **a failure is always recorded as a `severity: "warn"` finding**, never silently ignored. This lets the user distinguish "no violations" from "couldn't verify".
 
-以下は同じ方針で扱われます。
+The same policy applies to:
 
-- ecosyste.ms API のネットワーク失敗・タイムアウト・5xx
-- ネットワーク不通（DNS エラー等）
+- ecosyste.ms API network failures, timeouts, and 5xx responses
+- Network unavailability (DNS errors, etc.)
 
-一方で、設定やマニフェストの構造破壊など「そもそも実行できない」状況は実行不能エラーとして上位に伝播します。
+On the other hand, situations that prevent execution outright — broken config or broken manifest structure — propagate as execution errors.
 
-## 想定外のスコープ
+## Out of scope
 
-monban は以下の領域には踏み込みません。これらは既存ツールに任せます。
+monban does not wade into the following areas. They belong to existing tools.
 
-- ソースコードの文法・型チェック（→ tsc, ESLint, Biome）
-- フォーマット整形（→ Prettier, Biome）
-- セキュリティ脆弱性スキャン（→ Dependabot, Trivy）
-- テスト実行（→ Vitest, Jest 等）
-- シークレットの深い検出（→ gitleaks）
-- 実行時の破壊的 Git コマンドブロック（→ git hook / エージェント側の責務）
-- ブランチ名規約（後続で検討）
-- PR メタデータ検査（→ 将来の `monban pr`）
+- Source-code syntax and type checking (→ tsc, ESLint, Biome)
+- Formatting (→ Prettier, Biome)
+- Security vulnerability scanning (→ Dependabot, Trivy)
+- Test execution (→ Vitest, Jest, etc.)
+- Deep secret scanning (→ gitleaks)
+- Blocking destructive Git commands at runtime (→ git hooks / the agent's responsibility)
+- Branch-name conventions (under consideration)
+- PR metadata checks (→ future `monban pr`)

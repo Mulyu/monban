@@ -1,22 +1,24 @@
-# はじめに
+# Getting Started
 
-monban を初めて導入するときの最短手順。
+> [日本語](./getting-started.ja.md) | **English**
 
-## 1. インストール
+The fastest path to a first monban run.
 
-CI で使う場合はインストール不要。`npx` で都度実行できます。
+## 1. Install
+
+No install is needed for CI — you can invoke monban on demand with `npx`.
 
 ```bash
-# 単発実行（推奨）
+# One-off run (recommended)
 npx @mulyu/monban all
 
-# あるいはグローバルインストール
+# Or install globally
 npm install -g @mulyu/monban
 ```
 
-## 2. 設定ファイルを作る
+## 2. Create a configuration file
 
-プロジェクトルートに `monban.yml` を置きます。最小構成の例:
+Place `monban.yml` at the project root. A minimal example:
 
 ```yaml
 # monban.yml
@@ -27,7 +29,7 @@ exclude:
 path:
   forbidden:
     - path: "**/utils/**"
-      message: "utils/ は使用禁止。適切なモジュールに配置してください。"
+      message: "utils/ is disallowed. Put the code in an appropriate module."
 
 content:
   forbidden:
@@ -40,21 +42,21 @@ doc:
     - path: "docs/**/*.md"
 ```
 
-各セクションの全フィールドは以下を参照してください:
+See the per-section docs for every available field:
 
-- パス構造: [path.md](path.md)
-- ファイル内容: [content.md](content.md)
-- ドキュメント: [doc.md](doc.md)
+- Path structure: [path.md](path.md)
+- File contents: [content.md](content.md)
+- Documentation: [doc.md](doc.md)
 - GitHub: [github.md](github.md)
-- Git メタデータ: [git.md](git.md)
+- Git metadata: [git.md](git.md)
 
-## 3. 実行する
+## 3. Run
 
 ```bash
 npx @mulyu/monban all
 ```
 
-特定のチェックだけを実行する場合:
+Run a single check:
 
 ```bash
 npx @mulyu/monban path
@@ -62,38 +64,38 @@ npx @mulyu/monban content --rule forbidden
 npx @mulyu/monban all --json
 ```
 
-## 4. CI に組み込む
+## 4. Wire into CI
 
-GitHub Actions の例:
+GitHub Actions example:
 
 ```yaml
 - name: monban
   run: npx @mulyu/monban all
 ```
 
-### 終了コード
+### Exit codes
 
-monban はコマンドの結果を以下の終了コードで返します。CI で違反検出とツール障害を区別するときに使います。
+monban returns one of three exit codes. Use them in CI to distinguish violations from tooling failures.
 
-| 終了コード | 意味 |
+| Exit code | Meaning |
 |-----------|------|
-| `0` | すべてのチェックが pass |
-| `1` | 違反（error 重大度）が 1 件以上見つかった |
-| `2` | 設定エラー・YAML パース失敗・その他の実行時エラー |
+| `0` | Every check passed |
+| `1` | One or more `error`-severity violations were found |
+| `2` | Configuration error, YAML parse failure, or other runtime error |
 
-`warn` 重大度のみの場合は `0` を返します（違反にカウントされません）。`monban.yml` が存在しない場合は `2`。`MONBAN_DEBUG=1` を設定すると、exit 2 時にスタックトレースも出力されます。
+When only `warn`-severity findings are reported, the exit code is still `0` (warnings don't count as violations). Missing `monban.yml` returns `2`. Set `MONBAN_DEBUG=1` to get a stack trace on exit 2.
 
-## 5. エージェントに守らせる
+## 5. Enforce via the agent
 
-Claude Code を使う場合、`CLAUDE.md` に以下を追記すると、変更後に自動で実行されるよう促せます。
+When using Claude Code, appending this to `CLAUDE.md` nudges the agent to run the checks after each change:
 
 ```markdown
-## 変更後の確認
+## Post-change verification
 
-コードを変更したあとは必ず `npx @mulyu/monban all` を実行し、すべてのチェックがパスすることを確認すること。
+After changing code, always run `npx @mulyu/monban all` and confirm every check passes.
 ```
 
-## 次のステップ
+## Next steps
 
-- 組織共通のルールを再利用するなら [extends.md](extends.md)
-- monban の設計思想は [concepts.md](concepts.md)
+- To reuse an organization-wide rule set, see [extends.md](extends.md)
+- For the design philosophy, see [concepts.md](concepts.md)

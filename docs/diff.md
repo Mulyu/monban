@@ -1,34 +1,36 @@
-# --diff フラグ
+# The --diff flag
 
-`monban all` / `monban path` / `monban content` / `monban doc` / `monban github` / `monban deps` / `monban git` すべてに共通する、スコープフィルタ用の CLI フラグ。
+> [日本語](./diff.ja.md) | **English**
 
-PR レビューで、**今回の変更によって新規に混入した違反だけ** を報告するための機能。既存コードに昔からある TODO やレイアウト違反を毎回蒸し返さない。
+A CLI flag shared by `monban all` / `monban path` / `monban content` / `monban doc` / `monban github` / `monban deps` / `monban git`. Restricts the scope of a run.
 
-- 新コマンドは追加しない。既存コマンドの挙動を変えるフラグ
-- `git merge-base` と `git diff --name-only` で対象ファイルを列挙する
-- 言語非依存・AST 不要は維持
+For PR review, this reports **only the violations newly introduced by the current change** — no re-surfacing of long-standing TODOs or legacy layout issues on every run.
+
+- Not a new command — a flag that modifies existing command behavior
+- Uses `git merge-base` and `git diff --name-only` to enumerate target files
+- Language-agnostic and AST-free design is preserved
 
 ```bash
-monban all --diff=main                 # main との差分に限定
-monban content --diff                  # 自動検出
-monban deps --diff=HEAD~3..HEAD        # 任意 revision 範囲
-monban all --diff=main --diff-granularity=line   # 追加行のみ検査
+monban all --diff=main                 # restrict to diff against main
+monban content --diff                  # auto-detect
+monban deps --diff=HEAD~3..HEAD        # arbitrary revision range
+monban all --diff=main --diff-granularity=line   # inspect only added lines
 ```
 
 ---
 
-## スコープ決定
+## Scope selection
 
-`--diff` で対象ファイル集合を決める優先順位:
+Priority for the `--diff` target file set:
 
-| 優先度 | 条件 | ベース |
+| Priority | Condition | Base |
 |---|---|---|
-| 1 | `--diff=<ref>` 明示指定 | `<ref>` |
-| 2 | `--diff` 単独指定 かつ CI 環境 | `GITHUB_BASE_REF` 等の PR base SHA |
-| 3 | `--diff` 単独指定 かつ ローカル | `git merge-base origin/main HEAD`、失敗時は `git merge-base main HEAD` |
-| 4 | フラグなし | フル走査（従来挙動） |
+| 1 | Explicit `--diff=<ref>` | `<ref>` |
+| 2 | `--diff` alone, inside CI | `GITHUB_BASE_REF` or equivalent PR base SHA |
+| 3 | `--diff` alone, running locally | `git merge-base origin/main HEAD`, falling back to `git merge-base main HEAD` |
+| 4 | No flag | Full scan (legacy behavior) |
 
-`<ref>` にはコミットハッシュ・ブランチ名・`A..B` 形式のリビジョン範囲・`pr:123` 等の短縮形を指定できる。
+`<ref>` accepts a commit hash, a branch name, an `A..B` revision range, or shortcuts like `pr:123`.
 
 ```bash
 monban all --diff=main
@@ -37,54 +39,54 @@ monban all --diff=HEAD~3
 monban all --diff=a1b2c3..HEAD
 ```
 
-### CI 環境の自動検出
+### CI auto-detection
 
-GitHub Actions では、以下のいずれかが設定されていれば `--diff` 単独指定で base を自動決定する:
+On GitHub Actions, if any of the following environment variables is set, `--diff` alone is enough to resolve the base:
 
-| 環境変数 | 用途 |
+| Env var | Purpose |
 |---|---|
-| `GITHUB_BASE_REF` | Pull Request の base ブランチ |
-| `GITHUB_EVENT_PATH` | イベントペイロードから `pull_request.base.sha` を取得 |
+| `GITHUB_BASE_REF` | Pull request base branch |
+| `GITHUB_EVENT_PATH` | `pull_request.base.sha` extracted from the event payload |
 
-CI 以外では `git merge-base origin/main HEAD` を試し、次に `main HEAD` にフォールバックする。どちらも解決できなければ exit code 2 で失敗する。
+Outside CI, monban tries `git merge-base origin/main HEAD`, then falls back to `main HEAD`. If neither resolves, it exits with code 2.
 
 ---
 
-## 粒度
+## Granularity
 
-`--diff-granularity` は差分の適用粒度を決める。
+`--diff-granularity` determines the granularity at which the diff is applied.
 
-| 値 | 挙動 |
+| Value | Behavior |
 |---|---|
-| `file`（既定） | 追加・変更されたファイル全体を検査 |
-| `line` | 追加行のみ検査（`git diff --unified=0` の追加行セット） |
+| `file` (default) | Inspect the entire added/modified file |
+| `line` | Inspect only the added lines (the add-only set from `git diff --unified=0`) |
 
-行粒度は誤検出が減るが、以下のケースを取りこぼすことがある:
+Line granularity reduces false positives, but can miss:
 
-- 関数削除に伴う呼び出し側の破綻
-- 依存削除に伴う未使用 import の残存
-- マニフェスト構造の依存整合（`deps` ルールは原則ファイル粒度で動く）
+- Call-site breakage caused by deleting a function
+- Leftover unused imports after removing a dependency
+- Manifest-structure dependency integrity (`deps` rules operate at file granularity by default)
 
-このため既定はファイル粒度。PR 時の「追加された TODO / console.log だけを叩きたい」用途で `line` を使う。
+For this reason, the default is file granularity. Use `line` for the typical "only flag newly added TODOs or console.logs in this PR" use case.
 
-### ルールごとの粒度適用
+### Per-rule granularity
 
-| コマンド | `file` 挙動 | `line` 挙動 |
+| Command | `file` behavior | `line` behavior |
 |---|---|---|
-| `path` | 追加・変更されたファイルのみ検査 | `line` は無意味（常に `file` 扱い） |
-| `content` | 変更されたファイル全体を検査 | 追加行だけを検査 |
-| `doc` | 変更された Markdown のみ検査 | 追加行中のリンク / `monban:ref` のみ検査 |
-| `github` | 変更された workflows のみ検査 | 追加行のみ検査（ただし YAML 構造解析は変更箇所を含む job / step 単位に拡張） |
-| `deps` | 変更されたマニフェストから **追加された依存** を検査（既存依存は除外） | `file` と同一 |
-| `git` | `--diff` で指定したコミット範囲を検査（`diff.ignored` は新規追加ファイルに限定） | `file` と同一 |
+| `path` | Inspect only added/modified files | `line` is meaningless (always treated as `file`) |
+| `content` | Inspect the entire modified file | Inspect only added lines |
+| `doc` | Inspect only modified Markdown | Inspect only the links and `monban:ref` markers in added lines |
+| `github` | Inspect only modified workflows | Inspect only added lines (the YAML structural analysis still extends to the enclosing job/step) |
+| `deps` | Inspect **newly added** dependencies in modified manifests (exclude pre-existing deps) | Same as `file` |
+| `git` | Inspect commits in the range given to `--diff` (`diff.ignored` is limited to newly added files) | Same as `file` |
 
-`path.required`（欠落検出）など、検査対象が「ファイルの存在しない状態」そのものであるルールは、`--diff` 指定時でも関連ディレクトリが diff に含まれればフル検査に格上げされる。
+For rules that inspect an *absence* (e.g. `path.required`), when `--diff` is set monban promotes the check back to a full scan if the related directory appears in the diff.
 
 ---
 
-## GitHub Actions 統合
+## GitHub Actions integration
 
-`mulyu/monban-action` を使う場合、`base` を渡すだけで diff 計算は monban 側で行う。
+When you use `mulyu/monban-action`, passing `base` is enough; monban computes the diff on its side.
 
 ```yaml
 - uses: mulyu/monban-action@v1
@@ -92,45 +94,45 @@ CI 以外では `git merge-base origin/main HEAD` を試し、次に `main HEAD`
     base: ${{ github.event.pull_request.base.sha }}
 ```
 
-素の GitHub Actions から直接呼ぶ場合:
+Calling from a plain GitHub Actions step:
 
 ```yaml
 - name: monban (diff only)
   run: npx @mulyu/monban all --diff=${{ github.event.pull_request.base.sha }}
 ```
 
-PR 外の push では `--diff` を外すか、明示的なベース（`main` 等）を指定する。
+On non-PR pushes, drop `--diff` or pass an explicit base such as `main`.
 
 ---
 
-## 実行例
+## Example run
 
 ```
 $ monban all --diff=main
 
 monban path     — 1 new file checked
-monban content  — 追加行のみ対象、既存 TODO は除外
-monban doc      — 変更された Markdown 内の参照のみ検査
-monban github   — .github/workflows 変更箇所のみ検査
-monban deps     — package.json の新規追加依存 3 件のみ検査
-monban git      — main...HEAD のコミット範囲を検査
+monban content  — added lines only; existing TODOs skipped
+monban doc      — checked only references inside modified Markdown
+monban github   — checked only changes in .github/workflows
+monban deps     — checked only the 3 newly added deps in package.json
+monban git      — inspected the commit range main...HEAD
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [deps]    1 error
-  package.json:5 ai-json-helper — npm レジストリに存在しません
+  package.json:5 ai-json-helper — not found in npm registry
 
 [content] 2 errors
-  src/handlers/payment.ts:42 不可視の Unicode 文字
-  src/db.ts:18 禁止パターン検出: debugger
+  src/handlers/payment.ts:42 invisible Unicode character
+  src/db.ts:18 forbidden pattern matched: debugger
 
 Summary: 3 errors. Blocking merge.
 ```
 
 ---
 
-## 注意事項
+## Notes
 
-- `--diff` は git リポジトリでのみ動作する。git 管理下でない場合は警告し、フル走査にフォールバックする
-- merge commit をベースにすると差分が膨らむことがある。`--diff=origin/main` のように明示ブランチの先端を指定するのが通常推奨
-- 初回コミット（親が存在しない）に対する `--diff` は全ファイル対象として扱う
+- `--diff` only works inside a git repository. Outside git, monban warns and falls back to a full scan.
+- Merge commits as the base can bloat the diff. Passing the tip of a named branch (`--diff=origin/main`) is usually recommended.
+- For the initial commit (no parent), `--diff` treats every file as in scope.
