@@ -24,6 +24,17 @@ path:
     - path: "src/rules/*"
       files: ["index.ts"]
 
+    # 日英二言語ドキュメント方針: 英語版（拡張子なし）に対応する .ja.md が存在すること
+    - path: "docs/*.md"
+      exclude: ["docs/*.ja.md"]
+      companions:
+        - pattern: "{stem}.ja.md"
+          required: true
+    - path: "README.md"
+      companions:
+        - pattern: "README.ja.md"
+          required: true
+
   naming:
     - path: "src/**/*.ts"
       style: kebab
@@ -57,6 +68,28 @@ path:
       severity: error
 
 content:
+  # 日英二言語ドキュメント方針: 各ファイル冒頭に言語セレクタヘッダーを置く
+  # 英語版: > [日本語](./xxx.ja.md) | **English**
+  # 日本語版: > **日本語** | [English](./xxx.md)
+  required:
+    - path: "docs/*.md"
+      exclude: ["docs/*.ja.md"]
+      pattern: '\*\*English\*\*'
+      within_lines: 6
+      message: "ドキュメンテーション方針: 英語版は冒頭に言語セレクタヘッダー（> [日本語](./xxx.ja.md) | **English**）を置く"
+    - path: "docs/*.ja.md"
+      pattern: '\*\*日本語\*\*'
+      within_lines: 6
+      message: "ドキュメンテーション方針: 日本語版は冒頭に言語セレクタヘッダー（> **日本語** | [English](./xxx.md)）を置く"
+    - path: "README.md"
+      pattern: '\*\*English\*\*'
+      within_lines: 6
+      message: "ドキュメンテーション方針: 英語 README は冒頭に言語セレクタヘッダーを置く"
+    - path: "README.ja.md"
+      pattern: '\*\*日本語\*\*'
+      within_lines: 6
+      message: "ドキュメンテーション方針: 日本語 README は冒頭に言語セレクタヘッダーを置く"
+
   forbidden:
     - path: "src/**/*.ts"
       bom: true
