@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { validateRuntimeConfig } from "../src/config/schema/runtime.js";
 import { checkRuntimeConsistency } from "../src/rules/runtime/consistency.js";
 
 const okCwd = resolve(import.meta.dirname, "fixtures/runtime");
@@ -107,6 +108,30 @@ describe("runtime/consistency", () => {
 		for (const r of results) {
 			expect(r.severity).toBe("warn");
 			expect(r.message).toBe("custom mismatch message");
+		}
+	});
+
+	it("works end-to-end with a node preset", async () => {
+		const config = validateRuntimeConfig({
+			consistency: [{ preset: "node" }],
+		});
+		const results = await checkRuntimeConsistency(
+			config.consistency ?? [],
+			mismatchCwd,
+			[],
+		);
+		const paths = new Set(results.map((r) => r.path));
+		expect(paths.has(".nvmrc")).toBe(true);
+		expect(paths.has("Dockerfile")).toBe(true);
+		expect(paths.has(".github/workflows/ci.yml")).toBe(true);
+		// package.json is NOT in the node preset (range syntax in engines.node), so it
+		// should not contribute even though it has a different value.
+		expect(paths.has("package.json")).toBe(false);
+		for (const r of results) {
+			expect(r.message).toContain("node");
+			expect(r.message).toContain("18.20.0");
+			expect(r.message).toContain("20.11.0");
+			expect(r.message).toContain("22.0.0");
 		}
 	});
 

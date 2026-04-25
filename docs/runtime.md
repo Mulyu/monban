@@ -27,8 +27,30 @@ The check is **N → 1**: every source must resolve to the same string. There is
 
 ## Configuration
 
+The shortest form uses a built-in **preset** that bundles the canonical pin locations for a runtime:
+
 ```yaml
 # monban.yml
+runtime:
+  consistency:
+    - preset: node
+    - preset: python
+```
+
+If you need to extend a preset with project-specific files, add `sources` — they are appended to the preset's built-in sources:
+
+```yaml
+runtime:
+  consistency:
+    - preset: node
+      sources:
+        - path: "infra/k8s/*.yaml"
+          yaml_key: "spec.template.spec.containers.*.image"
+```
+
+Or skip presets and write everything yourself:
+
+```yaml
 runtime:
   consistency:
     - name: "node"
@@ -43,6 +65,18 @@ runtime:
 ```
 
 Multiple rules can coexist (one per runtime / language). Each rule's `sources` list mixes extraction methods freely.
+
+### Built-in presets
+
+Each preset only includes locations whose values are bare version strings (e.g. `20.11.0`). Range-style declarations (`engines.node: ">=20"`, `requires-python: ">=3.12"`) are **omitted** because they would not match an exact version pin and would produce false positives. Add them as custom `sources` if you want them included.
+
+| Preset | Sources |
+|---|---|
+| `node` | `.nvmrc` · `.node-version` · `**/Dockerfile` (`FROM node:...`) · `.github/workflows/*.yml` (`with.node-version`) |
+| `python` | `.python-version` · `**/Dockerfile` (`FROM python:...`) · `.github/workflows/*.yml` (`with.python-version`) |
+| `ruby` | `.ruby-version` · `**/Dockerfile` (`FROM ruby:...`) · `.github/workflows/*.yml` (`with.ruby-version`) |
+| `go` | `go.mod` (`go ...`) · `**/Dockerfile` (`FROM golang:...`) · `.github/workflows/*.yml` (`with.go-version`) |
+| `rust` | `rust-toolchain.toml` (`channel = "..."`) · `rust-toolchain` · `.github/workflows/*.yml` (`with.toolchain`) |
 
 ---
 
@@ -80,10 +114,13 @@ runtime:
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `name` | string | Yes | Human label used in messages (e.g. `node`, `python`) |
-| `sources` | object[] | Yes | One or more sources to extract values from |
+| `preset` | string | No\* | Built-in preset name (`node` / `python` / `ruby` / `go` / `rust`). When set, expands into the preset's bundled `sources` |
+| `name` | string | No\* | Human label used in messages. Defaults to the preset name when `preset` is set |
+| `sources` | object[] | No\* | Sources to extract values from. Appended to the preset's sources when both are set |
 | `message` | string | No | Custom message in place of the default |
 | `severity` | `"error"` \| `"warn"` | No | Severity (default `error`) |
+
+\* At least one of `preset` or `name` is required, and the rule must end up with one or more sources. `preset` and `sources` are concatenated, never overridden.
 
 ### Source fields
 

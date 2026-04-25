@@ -27,8 +27,30 @@ monban runtime --json                 # JSON 出力
 
 ## 設定
 
+最短形は組み込み **preset** を指定するだけ。各ランタイムの典型的な pin 場所一式を一行で展開できます。
+
 ```yaml
 # monban.yml
+runtime:
+  consistency:
+    - preset: node
+    - preset: python
+```
+
+プロジェクト固有のファイルを追加したい場合は `sources` を併記すれば、preset の sources に **追記**（連結）されます。
+
+```yaml
+runtime:
+  consistency:
+    - preset: node
+      sources:
+        - path: "infra/k8s/*.yaml"
+          yaml_key: "spec.template.spec.containers.*.image"
+```
+
+preset を使わず全部自前で書くこともできます。
+
+```yaml
 runtime:
   consistency:
     - name: "node"
@@ -43,6 +65,18 @@ runtime:
 ```
 
 ランタイム/言語ごとに複数ルールを並べられます。各ルールの `sources` 配列内で抽出方法を自由に組み合わせ可能です。
+
+### 組み込み preset
+
+各 preset には「値が単一のバージョン文字列で書かれる場所」のみを含めています。range 表記（`engines.node: ">=20"` や `requires-python: ">=3.12"`）は厳密一致を崩して誤検出になるため **意図的に外してあります**。range も含めたい場合は `sources` で個別に追加してください。
+
+| Preset | Sources |
+|---|---|
+| `node` | `.nvmrc` · `.node-version` · `**/Dockerfile` (`FROM node:...`) · `.github/workflows/*.yml` (`with.node-version`) |
+| `python` | `.python-version` · `**/Dockerfile` (`FROM python:...`) · `.github/workflows/*.yml` (`with.python-version`) |
+| `ruby` | `.ruby-version` · `**/Dockerfile` (`FROM ruby:...`) · `.github/workflows/*.yml` (`with.ruby-version`) |
+| `go` | `go.mod` (`go ...`) · `**/Dockerfile` (`FROM golang:...`) · `.github/workflows/*.yml` (`with.go-version`) |
+| `rust` | `rust-toolchain.toml` (`channel = "..."`) · `rust-toolchain` · `.github/workflows/*.yml` (`with.toolchain`) |
 
 ---
 
@@ -80,10 +114,13 @@ runtime:
 
 | フィールド | 型 | 必須 | 説明 |
 |---|---|---|---|
-| `name` | string | はい | エラーメッセージに使うラベル（例: `node`, `python`） |
-| `sources` | object[] | はい | 値を抽出する source（1 件以上） |
+| `preset` | string | いいえ\* | 組み込み preset 名（`node` / `python` / `ruby` / `go` / `rust`）。指定すると preset の sources を展開 |
+| `name` | string | いいえ\* | エラーメッセージに使うラベル。`preset` 指定時は preset 名がデフォルト |
+| `sources` | object[] | いいえ\* | 値を抽出する source。`preset` と併用すると preset の sources に **連結** される |
 | `message` | string | いいえ | デフォルトメッセージを上書き |
 | `severity` | `"error"` \| `"warn"` | いいえ | 重大度（既定 `error`） |
+
+\* `preset` か `name` のどちらかが必須。最終的に sources が 1 件以上必要。`preset` と `sources` は連結されるのみで、上書きされることはない。
 
 ### source のフィールド
 

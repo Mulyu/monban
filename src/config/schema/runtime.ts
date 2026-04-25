@@ -1,3 +1,7 @@
+import {
+	RUNTIME_PRESET_NAMES,
+	RUNTIME_PRESETS,
+} from "../../rules/runtime/presets.js";
 import type {
 	RuntimeConfig,
 	RuntimeConsistencyRule,
@@ -38,17 +42,35 @@ function validateRuntimeConsistencyRule(
 	const label = `${field}[${index}]`;
 	assertObject(raw, label);
 
-	const name = requireString(raw, "name", label);
-
-	if (!Array.isArray(raw.sources)) {
-		throw new Error(`${label}.sources must be an array`);
+	const preset = optionalString(raw, "preset", label);
+	if (preset !== undefined && !(preset in RUNTIME_PRESETS)) {
+		throw new Error(
+			`${label}.preset must be one of: ${RUNTIME_PRESET_NAMES.join(", ")}`,
+		);
 	}
-	if (raw.sources.length === 0) {
+
+	const userName = optionalString(raw, "name", label);
+	const name = userName ?? preset;
+	if (name === undefined) {
+		throw new Error(`${label} must have either "name" or "preset"`);
+	}
+
+	let userSources: RuntimeConsistencySource[] = [];
+	if (raw.sources !== undefined) {
+		if (!Array.isArray(raw.sources)) {
+			throw new Error(`${label}.sources must be an array`);
+		}
+		userSources = raw.sources.map((item, i) =>
+			validateRuntimeConsistencySource(item, i, `${label}.sources`),
+		);
+	}
+
+	const presetSources = preset !== undefined ? RUNTIME_PRESETS[preset] : [];
+	const sources = [...presetSources, ...userSources];
+
+	if (sources.length === 0) {
 		throw new Error(`${label}.sources must contain at least one source`);
 	}
-	const sources = raw.sources.map((item, i) =>
-		validateRuntimeConsistencySource(item, i, `${label}.sources`),
-	);
 
 	const rule: RuntimeConsistencyRule = { name, sources };
 	const message = optionalString(raw, "message", label);
