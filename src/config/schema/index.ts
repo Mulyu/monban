@@ -8,6 +8,7 @@ import { validateExtends } from "./extends.js";
 import { validateGitConfig } from "./git.js";
 import { validateGithubConfig } from "./github.js";
 import { validatePathConfig } from "./path.js";
+import { validateRuntimeConfig } from "./runtime.js";
 
 export { validateExtends };
 
@@ -54,6 +55,10 @@ export function validateConfig(raw: unknown): MonbanConfig {
 
 	if (obj.agent !== undefined) {
 		config.agent = validateAgentConfig(obj.agent);
+	}
+
+	if (obj.runtime !== undefined) {
+		config.runtime = validateRuntimeConfig(obj.runtime);
 	}
 
 	return config;

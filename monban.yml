@@ -133,6 +133,9 @@ content:
     - path: "src/rules/git/*.ts"
       pattern: '^export (async )?function check(?!Git)[A-Z]'
       message: "src/rules/git/ の check 関数は checkGit* と命名してください。"
+    - path: "src/rules/runtime/*.ts"
+      pattern: '^export (async )?function check(?!Runtime)[A-Z]'
+      message: "src/rules/runtime/ の check 関数は checkRuntime* と命名してください。"
 
     # --- デバッグ残渣 / 型安全 ---
     - path: "src/**/*.ts"
@@ -316,3 +319,10 @@ agent:
       unpinned_npx: true
       env_secrets: true
       severity: error
+
+# ランタイムバージョン指定の複数ファイル整合
+# 現状は .nvmrc と node-version-file 経由の参照のみだが、将来 Dockerfile や
+# 他の inline 指定が増えたときの drift を CI で押さえる
+runtime:
+  consistency:
+    - preset: node

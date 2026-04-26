@@ -1,0 +1,6 @@
+{
+  "name": "runtime-mismatch-fixture",
+  "engines": {
+    "node": "22.0.0"
+  }
+}

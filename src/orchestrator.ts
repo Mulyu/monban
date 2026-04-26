@@ -7,6 +7,7 @@ import { runDocRules } from "./rules/doc/index.js";
 import { runGitRules } from "./rules/git/index.js";
 import { runGithubRules } from "./rules/github/index.js";
 import { runPathRules } from "./rules/path/index.js";
+import { runRuntimeRules } from "./rules/runtime/index.js";
 import type { DiffGranularity, DiffScope, MonbanConfig } from "./types.js";
 
 export type Category =
@@ -16,7 +17,8 @@ export type Category =
 	| "github"
 	| "deps"
 	| "git"
-	| "agent";
+	| "agent"
+	| "runtime";
 
 export const ALL_CATEGORIES: Category[] = [
 	"path",
@@ -26,6 +28,7 @@ export const ALL_CATEGORIES: Category[] = [
 	"deps",
 	"git",
 	"agent",
+	"runtime",
 ];
 
 export interface OrchestratorOpts {
@@ -93,6 +96,9 @@ async function execute(
 		case "agent":
 			if (!config.agent) return null;
 			return runAgentRules(config.agent, cwd, globalExclude, opts.rule);
+		case "runtime":
+			if (!config.runtime) return null;
+			return runRuntimeRules(config.runtime, cwd, globalExclude, opts.rule);
 	}
 }
 
