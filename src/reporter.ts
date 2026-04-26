@@ -22,6 +22,13 @@ export interface CategoryGroup {
 	results: CategoryRuleResult[];
 }
 
+interface ViolationStats {
+	totalErrors: number;
+	totalWarns: number;
+	totalViolations: number;
+	passedCount: number;
+}
+
 const CATEGORY_TITLES: Record<string, string> = {
 	path: "monban path — パスチェック",
 	content: "monban content — コンテンツチェック",
@@ -39,7 +46,11 @@ export function reportCategory(
 	json: boolean,
 ): void {
 	const title = CATEGORY_TITLES[category] ?? `monban ${category}`;
-	reportResults(title, ruleResults, json);
+	if (json) {
+		reportJson(ruleResults);
+		return;
+	}
+	reportText(title, ruleResults);
 }
 
 export function reportAllResults(groups: CategoryGroup[], json: boolean): void {
@@ -50,137 +61,86 @@ export function reportAllResults(groups: CategoryGroup[], json: boolean): void {
 	reportAllText(groups);
 }
 
-function reportResults(
-	title: string,
-	ruleResults: CategoryRuleResult[],
-	json: boolean,
-): void {
-	if (json) {
-		reportJson(ruleResults);
-		return;
-	}
-	reportText(title, ruleResults);
-}
-
 function reportJson(ruleResults: CategoryRuleResult[]): void {
-	const output = ruleResults.map((r) => ({
-		rule: r.name,
-		violations: r.results.map((v) => ({
-			path: v.path,
-			message: v.message,
-			severity: v.severity,
-		})),
-	}));
+	const output = ruleResults.map(toJsonRuleEntry);
 	console.log(JSON.stringify(output, null, 2));
 }
 
 function reportAllJson(groups: CategoryGroup[]): void {
 	const output: Record<string, unknown> = {};
 	for (const g of groups) {
-		output[g.category] = g.results.map((r) => ({
-			rule: r.name,
-			violations: r.results.map((v) => ({
-				path: v.path,
-				message: v.message,
-				severity: v.severity,
-			})),
-		}));
+		output[g.category] = g.results.map(toJsonRuleEntry);
 	}
 	console.log(JSON.stringify(output, null, 2));
 }
 
+function toJsonRuleEntry(r: CategoryRuleResult) {
+	return {
+		rule: r.name,
+		violations: r.results.map((v) => ({
+			path: v.path,
+			message: v.message,
+			severity: v.severity,
+		})),
+	};
+}
+
 function reportText(title: string, ruleResults: CategoryRuleResult[]): void {
-	const allResults = ruleResults.flatMap((r) => r.results);
-	const totalErrors = allResults.filter((r) => r.severity === "error").length;
-	const totalWarns = allResults.filter((r) => r.severity === "warn").length;
-	const totalViolations = totalErrors + totalWarns;
-	const passedCount = ruleResults.filter((r) => r.results.length === 0).length;
-
+	const stats = computeStats(ruleResults);
 	console.log(`\n${title}\n`);
-
-	printRuleList(ruleResults);
-
-	if (totalViolations > 0) {
+	printRuleList(ruleResults, "  ");
+	if (stats.totalViolations > 0) {
 		printViolationDetails(ruleResults);
 	}
-
-	printSummaryFooter(
-		totalViolations,
-		totalErrors,
-		totalWarns,
-		passedCount,
-		ruleResults.length,
-	);
+	printSummaryFooter(stats, ruleResults.length);
 }
 
 function reportAllText(groups: CategoryGroup[]): void {
 	const allRuleResults = groups.flatMap((g) => g.results);
-	const allResults = allRuleResults.flatMap((r) => r.results);
-	const totalErrors = allResults.filter((r) => r.severity === "error").length;
-	const totalWarns = allResults.filter((r) => r.severity === "warn").length;
-	const totalViolations = totalErrors + totalWarns;
-	const passedCount = allRuleResults.filter(
-		(r) => r.results.length === 0,
-	).length;
+	const stats = computeStats(allRuleResults);
 
 	console.log("\nmonban all — 全チェック\n");
 
 	for (const g of groups) {
 		console.log(`  ${g.category}`);
-		for (const rule of g.results) {
-			if (rule.results.length === 0) {
-				console.log(`    ✓ ${rule.name}`);
-			} else {
-				const errors = rule.results.filter(
-					(r) => r.severity === "error",
-				).length;
-				const warns = rule.results.filter((r) => r.severity === "warn").length;
-				const parts: string[] = [];
-				if (errors > 0)
-					parts.push(`${errors} violation${errors > 1 ? "s" : ""}`);
-				if (warns > 0)
-					parts.push(`${warns} violation${warns > 1 ? "s" : ""} (warn)`);
-				console.log(`    ✗ ${rule.name.padEnd(22)} ${parts.join(", ")}`);
-			}
-		}
+		printRuleList(g.results, "    ");
 	}
 
-	if (totalViolations > 0) {
-		console.log("");
-		for (const g of groups) {
-			for (const rule of g.results) {
-				for (const v of rule.results) {
-					const prefix = v.severity === "error" ? "ERROR" : "WARN ";
-					console.log(`${prefix} [${v.rule}] ${v.path}`);
-					console.log(`  ${v.message}`);
-					console.log("");
-				}
-			}
-		}
+	if (stats.totalViolations > 0) {
+		printViolationDetails(allRuleResults);
 	}
 
-	printSummaryFooter(
-		totalViolations,
-		totalErrors,
-		totalWarns,
-		passedCount,
-		allRuleResults.length,
-	);
+	printSummaryFooter(stats, allRuleResults.length);
 }
 
-function printRuleList(ruleResults: CategoryRuleResult[]): void {
+function computeStats(ruleResults: CategoryRuleResult[]): ViolationStats {
+	const allResults = ruleResults.flatMap((r) => r.results);
+	const totalErrors = allResults.filter((r) => r.severity === "error").length;
+	const totalWarns = allResults.filter((r) => r.severity === "warn").length;
+	return {
+		totalErrors,
+		totalWarns,
+		totalViolations: totalErrors + totalWarns,
+		passedCount: ruleResults.filter((r) => r.results.length === 0).length,
+	};
+}
+
+function printRuleList(
+	ruleResults: CategoryRuleResult[],
+	indent: string,
+): void {
 	for (const rule of ruleResults) {
 		if (rule.results.length === 0) {
-			console.log(`  ✓ ${rule.name}`);
-		} else {
-			const errors = rule.results.filter((r) => r.severity === "error").length;
-			const warns = rule.results.filter((r) => r.severity === "warn").length;
-			const parts: string[] = [];
-			if (errors > 0) parts.push(`${errors} violation${errors > 1 ? "s" : ""}`);
-			if (warns > 0)
-				parts.push(`${warns} violation${warns > 1 ? "s" : ""} (warn)`);
-			console.log(`  ✗ ${rule.name.padEnd(22)} ${parts.join(", ")}`);
+			console.log(`${indent}✓ ${rule.name}`);
+			continue;
 		}
+		const errors = rule.results.filter((r) => r.severity === "error").length;
+		const warns = rule.results.filter((r) => r.severity === "warn").length;
+		const parts: string[] = [];
+		if (errors > 0) parts.push(`${errors} violation${errors > 1 ? "s" : ""}`);
+		if (warns > 0)
+			parts.push(`${warns} violation${warns > 1 ? "s" : ""} (warn)`);
+		console.log(`${indent}✗ ${rule.name.padEnd(22)} ${parts.join(", ")}`);
 	}
 }
 
@@ -196,26 +156,24 @@ function printViolationDetails(ruleResults: CategoryRuleResult[]): void {
 	}
 }
 
-function printSummaryFooter(
-	totalViolations: number,
-	totalErrors: number,
-	totalWarns: number,
-	passedCount: number,
-	totalRules: number,
-): void {
+function printSummaryFooter(stats: ViolationStats, totalRules: number): void {
 	console.log("━".repeat(41));
 	console.log("");
 
-	if (totalViolations === 0) {
+	if (stats.totalViolations === 0) {
 		console.log("  All checks passed.");
 	} else {
 		const parts: string[] = [];
-		if (totalErrors > 0)
-			parts.push(`${totalErrors} error${totalErrors > 1 ? "s" : ""}`);
-		if (totalWarns > 0)
-			parts.push(`${totalWarns} warning${totalWarns > 1 ? "s" : ""}`);
-		console.log(`  ${totalViolations} violations (${parts.join(", ")})`);
-		console.log(`  ${passedCount}/${totalRules} rules passed`);
+		if (stats.totalErrors > 0)
+			parts.push(
+				`${stats.totalErrors} error${stats.totalErrors > 1 ? "s" : ""}`,
+			);
+		if (stats.totalWarns > 0)
+			parts.push(
+				`${stats.totalWarns} warning${stats.totalWarns > 1 ? "s" : ""}`,
+			);
+		console.log(`  ${stats.totalViolations} violations (${parts.join(", ")})`);
+		console.log(`  ${stats.passedCount}/${totalRules} rules passed`);
 	}
 
 	console.log("");

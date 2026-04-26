@@ -10,7 +10,7 @@ export function computeDiffScope(
 	cwd: string,
 	options: DiffOptions,
 ): DiffScope | null {
-	const base = resolveBase(cwd, options.base);
+	const base = resolveDiffBase(cwd, options.base);
 	if (!base) return null;
 
 	let changed: string[];
@@ -50,18 +50,20 @@ export function computeDiffScope(
 	return { files, addedLines, granularity };
 }
 
+const HUNK_HEADER_RE = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/;
+
 function collectAddedLines(
 	cwd: string,
 	base: string,
 	file: string,
 ): Set<number> {
 	const set = new Set<number>();
-	const trySources = [
+	const sources: string[][] = [
 		["diff", "--unified=0", `${base}...HEAD`, "--", file],
 		["diff", "--unified=0", "--", file],
 		["diff", "--unified=0", "--staged", "--", file],
 	];
-	for (const args of trySources) {
+	for (const args of sources) {
 		let out: string;
 		try {
 			out = runGit(cwd, args);
@@ -69,19 +71,14 @@ function collectAddedLines(
 			continue;
 		}
 		for (const line of out.split("\n")) {
-			const m = line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/);
-			if (m) {
-				const start = Number.parseInt(m[1], 10);
-				const count = m[2] !== undefined ? Number.parseInt(m[2], 10) : 1;
-				for (let i = 0; i < count; i++) set.add(start + i);
-			}
+			const m = line.match(HUNK_HEADER_RE);
+			if (!m) continue;
+			const start = Number.parseInt(m[1], 10);
+			const count = m[2] !== undefined ? Number.parseInt(m[2], 10) : 1;
+			for (let i = 0; i < count; i++) set.add(start + i);
 		}
 	}
 	return set;
-}
-
-function resolveBase(cwd: string, base?: string): string | null {
-	return resolveDiffBase(cwd, base);
 }
 
 export function resolveDiffBase(cwd: string, base?: string): string | null {
@@ -121,17 +118,7 @@ export function applyDiffFilter(
 }
 
 function inScope(path: string, scope: DiffScope): boolean {
-	const idx = path.lastIndexOf(":");
-	let file = path;
-	let line: number | undefined;
-	if (idx !== -1) {
-		const lineStr = path.slice(idx + 1);
-		if (/^\d+$/.test(lineStr)) {
-			file = path.slice(0, idx);
-			line = Number.parseInt(lineStr, 10);
-		}
-	}
-
+	const { file, line } = splitPathLine(path);
 	if (!scope.files.has(file)) return false;
 	if (scope.granularity === "line" && line !== undefined) {
 		const lines = scope.addedLines.get(file);
@@ -139,4 +126,12 @@ function inScope(path: string, scope: DiffScope): boolean {
 		return lines.has(line);
 	}
 	return true;
+}
+
+function splitPathLine(path: string): { file: string; line?: number } {
+	const idx = path.lastIndexOf(":");
+	if (idx === -1) return { file: path };
+	const lineStr = path.slice(idx + 1);
+	if (!/^\d+$/.test(lineStr)) return { file: path };
+	return { file: path.slice(0, idx), line: Number.parseInt(lineStr, 10) };
 }

@@ -6,7 +6,7 @@ import { validateDepsConfig } from "./deps.js";
 import { validateDocConfig } from "./doc.js";
 import { validateExtends } from "./extends.js";
 import { validateGitConfig } from "./git.js";
-import { validateGithubConfig } from "./github.js";
+import { validateGithubConfig } from "./github/index.js";
 import { validatePathConfig } from "./path.js";
 import { validateRuntimeConfig } from "./runtime.js";
 

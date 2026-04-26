@@ -19,9 +19,14 @@ path:
       message: "schema.ts は schema/ ディレクトリと共存させず、schema/index.ts に統合してください。"
     - path: "src/registry/client.ts"
       message: "client.ts は registry/ ディレクトリと共存させず、registry/index.ts または責務別ファイル (ecosysteme.ts, offline.ts など) に分割してください。"
+    # アンダースコア接頭辞は使用禁止。カテゴリ内ヘルパは internal/ サブディレクトリに配置する
+    - path: "src/**/_*.ts"
+      message: "アンダースコア接頭辞は使用禁止。カテゴリ内ヘルパは internal/ サブディレクトリに配置してください (例: src/rules/agent/internal/runner.ts)。"
 
   required:
     - path: "src/rules/*"
+      files: ["index.ts"]
+    - path: "src/config/schema/github"
       files: ["index.ts"]
 
     # 日英二言語ドキュメント方針: 英語版（拡張子なし）に対応する .ja.md が存在すること

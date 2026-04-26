@@ -1,8 +1,8 @@
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
-import fg from "fast-glob";
-import { parse as parseYaml } from "yaml";
+import { parseYaml } from "../../ports/parse-yaml.js";
 import type { AgentInstructionsRule, RuleResult } from "../../types.js";
+import { listAgentFiles } from "./internal/file-list.js";
 
 const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---\n?/;
 
@@ -15,12 +15,7 @@ export async function checkAgentInstructions(
 
 	for (const rule of rules) {
 		const severity = rule.severity ?? "warn";
-		const files = await fg(rule.path, {
-			cwd,
-			dot: true,
-			onlyFiles: true,
-			ignore: [...globalExclude, ...(rule.exclude ?? [])],
-		});
+		const files = await listAgentFiles(rule, cwd, globalExclude);
 
 		if (files.length === 0) {
 			results.push({
@@ -110,13 +105,11 @@ function normalize(s: string): string {
 function extractFrontmatter(content: string): Record<string, unknown> | null {
 	const m = content.match(FRONTMATTER_RE);
 	if (!m) return null;
-	try {
-		const doc = parseYaml(m[1]);
-		if (doc && typeof doc === "object" && !Array.isArray(doc)) {
-			return doc as Record<string, unknown>;
-		}
-	} catch {
-		// invalid YAML in frontmatter — silent
+	const parsed = parseYaml(m[1]);
+	if (!parsed.ok) return null;
+	const doc = parsed.value;
+	if (doc && typeof doc === "object" && !Array.isArray(doc)) {
+		return doc as Record<string, unknown>;
 	}
 	return null;
 }

@@ -1,11 +1,11 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import fg from "fast-glob";
+import { parseJson } from "../../ports/parse-json.js";
 import type { AgentMcpRule, RuleResult } from "../../types.js";
+import { listAgentFiles } from "./internal/file-list.js";
+import { isUnpinnedNpxArg, NPX_COMMAND_RE } from "./internal/npx.js";
 
 const DEFAULT_FORBIDDEN_COMMANDS = ["curl", "wget", "sh", "bash", "zsh"];
-const NPX_UNPINNED = /^npx?(\.cmd)?$/;
-const NPX_LATEST_ARG = /(?:^|@)latest$/;
 
 interface ServerEntry {
 	name: string;
@@ -34,20 +34,13 @@ export async function checkAgentMcp(
 			: null;
 		const forbiddenServers = new Set(rule.forbidden_servers ?? []);
 
-		const files = await fg(rule.path, {
-			cwd,
-			dot: true,
-			onlyFiles: true,
-			ignore: [...globalExclude, ...(rule.exclude ?? [])],
-		});
+		const files = await listAgentFiles(rule, cwd, globalExclude);
 
 		for (const file of files) {
 			const abs = join(cwd, file);
 			const raw = await readFile(abs, "utf-8");
-			let parsed: unknown;
-			try {
-				parsed = JSON.parse(raw);
-			} catch {
+			const parsed = parseJson(raw);
+			if (!parsed.ok) {
 				results.push({
 					rule: "mcp",
 					path: file,
@@ -57,7 +50,7 @@ export async function checkAgentMcp(
 				continue;
 			}
 
-			const servers = extractServers(parsed);
+			const servers = extractServers(parsed.value);
 			if (servers === null) continue; // file does not declare mcpServers; skip silently
 
 			for (const server of servers) {
@@ -96,23 +89,21 @@ export async function checkAgentMcp(
 				if (
 					checkUnpinnedNpx &&
 					server.command &&
-					NPX_UNPINNED.test(server.command)
+					NPX_COMMAND_RE.test(server.command)
 				) {
 					const args = (server.args ?? []).filter(
 						(a): a is string => typeof a === "string",
 					);
 					const pkgArg = args.find((a) => !a.startsWith("-"));
-					if (pkgArg !== undefined) {
-						if (!pkgArg.includes("@") || NPX_LATEST_ARG.test(pkgArg)) {
-							results.push({
-								rule: "mcp",
-								path: `${file}:${server.name}`,
-								message:
-									rule.message ??
-									`npx の MCP server がバージョン固定されていません: ${pkgArg} (供給網侵害時に自動被弾)`,
-								severity,
-							});
-						}
+					if (pkgArg !== undefined && isUnpinnedNpxArg(pkgArg)) {
+						results.push({
+							rule: "mcp",
+							path: `${file}:${server.name}`,
+							message:
+								rule.message ??
+								`npx の MCP server がバージョン固定されていません: ${pkgArg} (供給網侵害時に自動被弾)`,
+							severity,
+						});
 					}
 				}
 

@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import fg from "fast-glob";
 import type { AgentIgnoreRule, RuleResult } from "../../types.js";
+import { listAgentFiles } from "./internal/file-list.js";
 
 const DEFAULT_REQUIRED = [
 	".env",
@@ -23,12 +23,7 @@ export async function checkAgentIgnore(
 		const severity = rule.severity ?? "warn";
 		const required = rule.required ?? DEFAULT_REQUIRED;
 
-		const files = await fg(rule.path, {
-			cwd,
-			dot: true,
-			onlyFiles: true,
-			ignore: [...globalExclude, ...(rule.exclude ?? [])],
-		});
+		const files = await listAgentFiles(rule, cwd, globalExclude);
 
 		if (files.length === 0) {
 			results.push({

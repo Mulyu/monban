@@ -106,7 +106,7 @@ github:
 
 ## 1. actions.required
 
-<!-- monban:ref ../src/rules/github/required.ts sha256:2f2ae5a0de6966983aa3e172b959da82ef95f068ab8b5672fb3baf4ead84c1d9 -->
+<!-- monban:ref ../src/rules/github/required.ts sha256:3ef31502e6cc0fbc44561c3f91260542c0fbe0e45c7200d17397f1b46c2a9713 -->
 
 必須ワークフローファイルの存在と、ワークフロー内の必須ステップを検証する。
 
@@ -142,7 +142,7 @@ ERROR [actions.required] .github/workflows/lint.yml
 
 ## 2. actions.forbidden
 
-<!-- monban:ref ../src/rules/github/forbidden.ts sha256:d52b87a8fe6081b2f202197468e2ede3fb010045c36117302d34ee6e80ec7fc9 -->
+<!-- monban:ref ../src/rules/github/forbidden.ts sha256:d81e1d81398871834a330895cc9487bbd6e0efd3d5d1517c20d867f1795e19fd -->
 
 使用を禁止するアクションを検出する。
 
@@ -176,7 +176,7 @@ github:
 
 ## 3. actions.pinned
 
-<!-- monban:ref ../src/rules/github/pinned.ts sha256:2bdd15a8cbd7f1951916c5d9d91fddfb6ef311ee9c26abceb735d9ba94452b69 -->
+<!-- monban:ref ../src/rules/github/pinned.ts sha256:f0f9d069ddf10641ddd17e221029b2065f2679b2168182a30728b5fdba985236 -->
 
 `uses` で指定された参照がコミットハッシュで固定されているかを検証する。
 
@@ -220,7 +220,7 @@ ERROR [actions.pinned] .github/workflows/test.yml
 
 ## 4. actions.permissions
 
-<!-- monban:ref ../src/rules/github/permissions.ts sha256:804e2a3db48a047b84bb3cfba25bbd09aea3d71a624d597a7f1a0f49353fb1d3 -->
+<!-- monban:ref ../src/rules/github/permissions.ts sha256:2fa692234029ec4545792a554aff4734f6c7b6c91263be211e993331ae847259 -->
 
 ワークフローの `permissions:` 宣言を検証する。GitHub は `permissions:` 未宣言時に `GITHUB_TOKEN` へ広い権限を与えるため、明示宣言が望ましい。
 
@@ -262,7 +262,7 @@ ERROR [actions.permissions] .github/workflows/ci.yml
 
 ## 5. actions.triggers
 
-<!-- monban:ref ../src/rules/github/triggers.ts sha256:a8f07ca4dcac248b849d193d09767e512cfd4bcd1e5b017c949d2b9426b1447a -->
+<!-- monban:ref ../src/rules/github/triggers.ts sha256:9bfa8aa8a37dd99d570a59fba964eb7db6bfd9b80952a904405cb451198460fc -->
 
 ワークフローの `on:` イベントを検証する。
 
@@ -299,7 +299,7 @@ github:
 
 ## 6. actions.runner
 
-<!-- monban:ref ../src/rules/github/runner.ts sha256:d7d7236d94705ff8bce5df41778e263e66a6d53bc2fa25644c9ee952a8e8506a -->
+<!-- monban:ref ../src/rules/github/runner.ts sha256:4e4efee1d9d080f4427b8a71cebe7715182696952ebcdd9ed6b3726632ebdca5 -->
 
 job の `runs-on:` の allowlist を検証する。
 
@@ -341,7 +341,7 @@ github:
 
 ## 7. actions.timeout
 
-<!-- monban:ref ../src/rules/github/timeout.ts sha256:083121fda708eaa894666cee9857642085fa6a999cc1fb5e1e5c16894822d732 -->
+<!-- monban:ref ../src/rules/github/timeout.ts sha256:345304dc27cb52eacd5fee8b68a7a107af9087a91edbf7628ad1c0e41208a56c -->
 
 全 job に `timeout-minutes:` が設定されているか、かつ上限値を超えていないかを検証する。
 
@@ -375,7 +375,7 @@ reusable workflow 呼び出し（job 直下 `uses:`）は job 内でタイムア
 
 ## 8. actions.concurrency
 
-<!-- monban:ref ../src/rules/github/concurrency.ts sha256:3b30195589ab48181f9c02835bf45a8b6f0ecdf3e2390e7eba357039a46523b5 -->
+<!-- monban:ref ../src/rules/github/concurrency.ts sha256:7017de12c26e1d75aa72f6e3a170947d88d9e0164160b0c03696c1c174823e0a -->
 
 ワークフロー単位の `concurrency:` 宣言を必須化する。
 
@@ -406,7 +406,7 @@ github:
 
 ## 9. actions.consistency
 
-<!-- monban:ref ../src/rules/github/consistency.ts sha256:2401bc1fac0b098cb45db13696c2bd67727483e60f3c60c32d93c5bb89d6aa79 -->
+<!-- monban:ref ../src/rules/github/consistency.ts sha256:2fb885f0110c24332501b16a17387959a6575ad8c6963653f083c9d6839c8d1f -->
 
 同一アクションが複数ファイルで同じバージョン（ref）に揃っているかを検証する。
 
@@ -445,7 +445,7 @@ ERROR [actions.consistency] .github/workflows/test.yml
 
 ## 10. actions.secrets
 
-<!-- monban:ref ../src/rules/github/secrets.ts sha256:4e97b007d07dc4a4ba08e4fb327bcc79d06bcc224b9c96117a3dc1cbc4d1ffd6 -->
+<!-- monban:ref ../src/rules/github/secrets.ts sha256:51fb4aa8ae585098eb73c496113b61bb9cccb83ca69a88fcad253dbef81c07e9 -->
 
 ワークフロー内の `${{ secrets.X }}` 参照が allowlist 内にあるかを検証する。
 
@@ -487,7 +487,7 @@ github:
 
 ## 11. actions.danger
 
-<!-- monban:ref ../src/rules/github/danger.ts sha256:8496dd37d92b9da94220c6586bba1d67de30686f399c649a5218b147cfe6c357 -->
+<!-- monban:ref ../src/rules/github/danger.ts sha256:e530c6fbf72210aa8036fb7f0fd341b9c9215e48940d319fec3aadffc6bc6db1 -->
 
 ワークフローに含まれる **危険な定型パターン** を検出する。tj-actions/changed-files (CVE-2025-30066) 後に GitHub / OpenSSF が示した Actions ハードニングのうち、以下の 2 点を検査:
 
@@ -525,7 +525,7 @@ ERROR [actions.danger] .github/workflows/pr.yml:build
 
 ## 12. actions.injection
 
-<!-- monban:ref ../src/rules/github/injection.ts sha256:197ae6148a99ce7867f147e2ddc6a7a3ff3364ad722679cd62ec086c63416692 -->
+<!-- monban:ref ../src/rules/github/injection.ts sha256:c6da9a5f3644fb6040196ac8d754abbfcfa3810eb8bbcfcdff82105795b06148 -->
 
 `${{ github.event.*.body }}` などの **信頼できない入力** が `run:` ステップ内に直接埋め込まれていないかを検出する。GitHub の security hardening ガイドが「最も悪用されやすい経路」と明示している script injection 攻撃の検出。
 

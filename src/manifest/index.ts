@@ -1,12 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import type { DepsEcosystem } from "../types.js";
-import { parseCargoToml } from "./cargo.js";
-import { parseWorkflow } from "./github-actions.js";
-import { parseGoMod } from "./go.js";
-import { parseNpmPackage } from "./npm.js";
-import { parsePyproject, parseRequirementsTxt } from "./pypi.js";
-import { parseGemfile } from "./rubygems.js";
+import { parseManifestContent } from "./internal/registry.js";
 
 export interface ManifestEntry {
 	name: string;
@@ -60,21 +55,7 @@ export async function loadManifest(
 
 	let result: ParseResult = { entries: [] };
 	try {
-		if (ecosystem === "npm") result = parseNpmPackage(content);
-		else if (ecosystem === "go") result = { entries: parseGoMod(content) };
-		else if (ecosystem === "rubygems")
-			result = { entries: parseGemfile(content) };
-		else if (ecosystem === "cargo")
-			result = { entries: parseCargoToml(content) };
-		else if (ecosystem === "github-actions")
-			result = { entries: parseWorkflow(content) };
-		else if (ecosystem === "pypi") {
-			result = {
-				entries: file.endsWith("pyproject.toml")
-					? parsePyproject(content)
-					: parseRequirementsTxt(content),
-			};
-		}
+		result = parseManifestContent(file, content, ecosystem);
 	} catch {
 		// Unparseable manifest — treat as empty.
 		return { file, ecosystem, entries: [] };

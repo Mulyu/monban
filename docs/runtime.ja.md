@@ -82,7 +82,7 @@ runtime:
 
 ## 1. consistency
 
-<!-- monban:ref ../src/rules/runtime/consistency.ts sha256:98f652223a558344e304d7631bdfa8b7f9fbeb53e0f610f50d725edb29b8c984 -->
+<!-- monban:ref ../src/rules/runtime/consistency.ts sha256:4246aa95cb56c949f1fc751f5f3ab2a39f3500284af884e60e8eae3f0d64da19 -->
 
 複数の source から抽出したランタイムバージョンが同一文字列に揃っていることを検証します。
 

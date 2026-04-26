@@ -1,5 +1,5 @@
 import type { GithubConsistencyRule, RuleResult } from "../../types.js";
-import { extractAllUses, loadWorkflows } from "./workflow.js";
+import { extractAllUses, loadWorkflows } from "./internal/workflow.js";
 
 function parseUses(uses: string): { name: string; ref: string } | null {
 	const atIndex = uses.lastIndexOf("@");

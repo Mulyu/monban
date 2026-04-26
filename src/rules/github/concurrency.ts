@@ -1,5 +1,5 @@
 import type { GithubConcurrencyRule, RuleResult } from "../../types.js";
-import { loadWorkflows } from "./workflow.js";
+import { loadWorkflows } from "./internal/workflow.js";
 
 export async function checkGithubConcurrency(
 	rules: GithubConcurrencyRule[],

@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import { parse } from "yaml";
+import { parseYaml } from "../../../ports/parse-yaml.js";
 
 export interface WorkflowFile {
 	file: string;
@@ -25,11 +25,9 @@ export async function loadWorkflows(
 	for (const file of files) {
 		const abs = join(cwd, file);
 		const content = await readFile(abs, "utf-8");
-		try {
-			const doc = parse(content);
-			workflows.push({ file, content, doc });
-		} catch {
-			// skip unparsable YAML
+		const parsed = parseYaml(content);
+		if (parsed.ok) {
+			workflows.push({ file, content, doc: parsed.value });
 		}
 	}
 	return workflows;

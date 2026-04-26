@@ -3,7 +3,7 @@ import { validateContentConfig } from "../src/config/schema/content.js";
 import { validateDepsConfig } from "../src/config/schema/deps.js";
 import { validateDocConfig } from "../src/config/schema/doc.js";
 import { validateGitConfig } from "../src/config/schema/git.js";
-import { validateGithubConfig } from "../src/config/schema/github.js";
+import { validateGithubConfig } from "../src/config/schema/github/index.js";
 import { validateConfig } from "../src/config/schema/index.js";
 import { validatePathConfig } from "../src/config/schema/path.js";
 
