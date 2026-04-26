@@ -20,6 +20,7 @@ Index of user-facing monban docs.
 | [deps.md](deps.md) | Dependency packages (`existence` / `freshness` / `popularity` / `cross_ecosystem` / `typosquat` / `allowed` / `forbidden`) |
 | [git.md](git.md) | Git metadata (`commit.message` / `commit.trailers` / `commit.references` / `diff.size` / `diff.ignored` / `branch_name` / `tag_name`) |
 | [agent.md](agent.md) | AI agent configuration (`instructions` / `mcp` / `ignore`) |
+| [runtime.md](runtime.md) | Runtime version pins — cross-file consistency (`consistency`) |
 
 ## CLI
 

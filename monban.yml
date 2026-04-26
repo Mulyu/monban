@@ -133,6 +133,9 @@ content:
     - path: "src/rules/git/*.ts"
       pattern: '^export (async )?function check(?!Git)[A-Z]'
       message: "src/rules/git/ の check 関数は checkGit* と命名してください。"
+    - path: "src/rules/runtime/*.ts"
+      pattern: '^export (async )?function check(?!Runtime)[A-Z]'
+      message: "src/rules/runtime/ の check 関数は checkRuntime* と命名してください。"
 
     # --- デバッグ残渣 / 型安全 ---
     - path: "src/**/*.ts"

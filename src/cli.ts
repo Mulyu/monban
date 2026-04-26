@@ -19,6 +19,7 @@ import { DOC_RULE_NAMES } from "./rules/doc/index.js";
 import { GIT_RULE_NAMES } from "./rules/git/index.js";
 import { GITHUB_RULE_NAMES } from "./rules/github/index.js";
 import { RULE_NAMES as PATH_RULE_NAMES } from "./rules/path/index.js";
+import { RUNTIME_RULE_NAMES } from "./rules/runtime/index.js";
 
 interface CommonOpts extends OrchestratorOpts {
 	json?: boolean;
@@ -32,6 +33,7 @@ const RULE_NAMES_BY_CATEGORY: Record<Category, readonly string[]> = {
 	deps: DEPS_RULE_NAMES,
 	git: GIT_RULE_NAMES,
 	agent: AGENT_RULE_NAMES,
+	runtime: RUNTIME_RULE_NAMES,
 };
 
 async function runSingle(category: Category, opts: CommonOpts): Promise<void> {
@@ -143,6 +145,11 @@ export function createCli(): Command {
 		program,
 		"agent",
 		"エージェントチェック: AGENTS.md / .mcp.json / AI ignore ファイルの構造を検証",
+	);
+	addCategoryCommand(
+		program,
+		"runtime",
+		"ランタイムチェック: 複数ファイルに散らばるランタイムバージョン指定の整合を検証",
 	);
 
 	return program;

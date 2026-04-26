@@ -491,6 +491,26 @@ export interface AgentConfig {
 	settings?: AgentSettingsRule[];
 }
 
+// --- Runtime config types ---
+
+export interface RuntimeConsistencySource {
+	path: string;
+	pattern?: string;
+	json_key?: string;
+	yaml_key?: string;
+}
+
+export interface RuntimeConsistencyRule {
+	name: string;
+	sources: RuntimeConsistencySource[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface RuntimeConfig {
+	consistency?: RuntimeConsistencyRule[];
+}
+
 // --- Extends types ---
 
 export interface ExtendsLocal {
@@ -517,6 +537,7 @@ export interface MonbanConfig {
 	deps?: DepsConfig;
 	git?: GitConfig;
 	agent?: AgentConfig;
+	runtime?: RuntimeConfig;
 }
 
 // --- Diff scope types ---
