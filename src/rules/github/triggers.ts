@@ -1,5 +1,5 @@
 import type { GithubTriggersRule, RuleResult } from "../../types.js";
-import { loadWorkflows } from "./workflow.js";
+import { loadWorkflows } from "./internal/workflow.js";
 
 function extractEvents(on: unknown): string[] {
 	if (typeof on === "string") return [on];

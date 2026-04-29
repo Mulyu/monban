@@ -1,9 +1,9 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { parse } from "yaml";
+import { parseYaml } from "../../ports/parse-yaml.js";
 import type { GithubRequiredRule, RuleResult } from "../../types.js";
-import { extractStepUses } from "./workflow.js";
+import { extractStepUses } from "./internal/workflow.js";
 
 export async function checkGithubRequired(
 	rules: GithubRequiredRule[],
@@ -39,14 +39,10 @@ export async function checkGithubRequired(
 				continue;
 			}
 
-			let doc: unknown;
-			try {
-				doc = parse(content);
-			} catch {
-				continue;
-			}
+			const parsed = parseYaml(content);
+			if (!parsed.ok) continue;
 
-			const usesEntries = extractStepUses(doc);
+			const usesEntries = extractStepUses(parsed.value);
 			for (const requiredStep of rule.steps) {
 				const found = usesEntries.some((u) => u.startsWith(requiredStep));
 				if (!found) {

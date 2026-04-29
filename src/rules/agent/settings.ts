@@ -1,7 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import fg from "fast-glob";
+import { parseJson } from "../../ports/parse-json.js";
 import type { AgentSettingsRule, RuleResult } from "../../types.js";
+import { listAgentFiles } from "./internal/file-list.js";
+import { isUnpinnedNpxArg, NPX_IN_COMMAND } from "./internal/npx.js";
 
 const DEFAULT_FORBIDDEN_PERMISSIONS = [
 	"^Bash\\(\\*\\)$",
@@ -21,9 +23,6 @@ const DEFAULT_FORBIDDEN_HOOK_COMMANDS = [
 	"zsh",
 	"sudo",
 ];
-
-const NPX_IN_COMMAND = /\bnpx?(?:\.cmd)?\s+([^\s;&|]+)/g;
-const NPX_LATEST_ARG = /(?:^|@)latest$/;
 
 interface HookCommandEntry {
 	event: string;
@@ -50,20 +49,13 @@ export async function checkAgentSettings(
 		);
 		const checkUnpinnedNpx = rule.unpinned_npx ?? true;
 
-		const files = await fg(rule.path, {
-			cwd,
-			dot: true,
-			onlyFiles: true,
-			ignore: [...globalExclude, ...(rule.exclude ?? [])],
-		});
+		const files = await listAgentFiles(rule, cwd, globalExclude);
 
 		for (const file of files) {
 			const abs = join(cwd, file);
 			const raw = await readFile(abs, "utf-8");
-			let parsed: unknown;
-			try {
-				parsed = JSON.parse(raw);
-			} catch {
+			const parsed = parseJson(raw);
+			if (!parsed.ok) {
 				results.push({
 					rule: "settings",
 					path: file,
@@ -73,7 +65,7 @@ export async function checkAgentSettings(
 				continue;
 			}
 
-			for (const entry of extractPermissions(parsed)) {
+			for (const entry of extractPermissions(parsed.value)) {
 				for (const re of forbiddenPermRegexes) {
 					if (re.test(entry)) {
 						results.push({
@@ -101,7 +93,7 @@ export async function checkAgentSettings(
 				}
 			}
 
-			for (const hook of extractHookCommands(parsed)) {
+			for (const hook of extractHookCommands(parsed.value)) {
 				const tokens = tokenizeCommand(hook.command);
 				for (const token of tokens) {
 					if (forbiddenHookTokens.has(token)) {
@@ -120,7 +112,7 @@ export async function checkAgentSettings(
 				if (checkUnpinnedNpx) {
 					for (const match of hook.command.matchAll(NPX_IN_COMMAND)) {
 						const pkg = match[1];
-						if (!pkg.includes("@") || NPX_LATEST_ARG.test(pkg)) {
+						if (isUnpinnedNpxArg(pkg)) {
 							results.push({
 								rule: "settings",
 								path: `${file}:hooks.${hook.event}`,

@@ -3,7 +3,7 @@ import type {
 	GithubPinnedTarget,
 	RuleResult,
 } from "../../types.js";
-import { extractAllUses, loadWorkflows } from "./workflow.js";
+import { extractAllUses, loadWorkflows } from "./internal/workflow.js";
 
 const COMMIT_HASH = /^[0-9a-f]{40}$/;
 const DOCKER_SHA = /@sha256:[0-9a-f]{64}$/;

@@ -2,10 +2,7 @@ import type {
 	GithubActionsConfig,
 	GithubActionsDangerRule,
 	GithubActionsInjectionRule,
-	GithubCodeownersConfig,
-	GithubCodeownersRule,
 	GithubConcurrencyRule,
-	GithubConfig,
 	GithubConsistencyRule,
 	GithubForbiddenRule,
 	GithubPermissionsRule,
@@ -16,7 +13,7 @@ import type {
 	GithubSecretsRule,
 	GithubTimeoutRule,
 	GithubTriggersRule,
-} from "../../types.js";
+} from "../../../types.js";
 import {
 	assertObject,
 	optionalString,
@@ -25,27 +22,9 @@ import {
 	requireString,
 	validateArray,
 	validateSeverity,
-} from "./common.js";
+} from "../common.js";
 
-export function validateGithubConfig(raw: unknown): GithubConfig {
-	if (typeof raw !== "object" || raw === null) {
-		throw new Error("github must be an object");
-	}
-
-	const obj = raw as Record<string, unknown>;
-	const config: GithubConfig = {};
-
-	if (obj.actions !== undefined) {
-		config.actions = validateGithubActionsConfig(obj.actions);
-	}
-	if (obj.codeowners !== undefined) {
-		config.codeowners = validateGithubCodeownersConfig(obj.codeowners);
-	}
-
-	return config;
-}
-
-function validateGithubActionsConfig(raw: unknown): GithubActionsConfig {
+export function validateGithubActionsConfig(raw: unknown): GithubActionsConfig {
 	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
 		throw new Error("github.actions must be an object");
 	}
@@ -171,25 +150,6 @@ function validateGithubActionsInjectionRule(
 	const allowed = optionalStringArray(raw, "allowed_contexts", label);
 	if (allowed !== undefined) rule.allowed_contexts = allowed;
 	return rule;
-}
-
-function validateGithubCodeownersConfig(raw: unknown): GithubCodeownersConfig {
-	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
-		throw new Error("github.codeowners must be an object");
-	}
-
-	const obj = raw as Record<string, unknown>;
-	const config: GithubCodeownersConfig = {};
-
-	if (obj.ownership !== undefined) {
-		config.ownership = validateArray(
-			obj.ownership,
-			"github.codeowners.ownership",
-			validateGithubCodeownersRule,
-		);
-	}
-
-	return config;
 }
 
 function validateGithubPinnedRule(
@@ -441,26 +401,5 @@ function validateGithubSecretsRule(
 	};
 	if (allowed) rule.allowed = allowed;
 	if (forbidden) rule.forbidden = forbidden;
-	return rule;
-}
-
-function validateGithubCodeownersRule(
-	raw: unknown,
-	index: number,
-	field: string,
-): GithubCodeownersRule {
-	const label = `${field}[${index}]`;
-	assertObject(raw, label);
-
-	const owners = optionalStringArray(raw, "owners", label);
-	if (!owners || owners.length === 0) {
-		throw new Error(`${label}.owners must be a non-empty string array`);
-	}
-
-	const rule: GithubCodeownersRule = {
-		path: requireString(raw, "path", label),
-		owners,
-	};
-	rule.message = optionalString(raw, "message", label);
 	return rule;
 }

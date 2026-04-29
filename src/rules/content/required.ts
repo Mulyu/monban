@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
+import { resolveJsonKey } from "../../ports/json-key-resolver.js";
+import { parseJson } from "../../ports/parse-json.js";
 import type { ContentRequiredRule, RuleResult } from "../../types.js";
-import { resolveJsonKey } from "./forbidden.js";
 
 export async function checkContentRequired(
 	rules: ContentRequiredRule[],
@@ -27,10 +28,8 @@ export async function checkContentRequired(
 
 			if (rule.json_key) {
 				const raw = await readFile(abs, "utf-8");
-				let parsed: unknown;
-				try {
-					parsed = JSON.parse(raw);
-				} catch {
+				const parsed = parseJson(raw);
+				if (!parsed.ok) {
 					results.push({
 						rule: "required",
 						path: file,
@@ -39,7 +38,7 @@ export async function checkContentRequired(
 					});
 					continue;
 				}
-				const matches = resolveJsonKey(parsed, rule.json_key);
+				const matches = resolveJsonKey(parsed.value, rule.json_key);
 				if (matches.length === 0) {
 					results.push({
 						rule: "required",

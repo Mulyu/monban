@@ -1,81 +1,20 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
+import { BIDI_REGEX, lookupBidi } from "../../ports/detectors/bidi.js";
+import { CONFLICT_MARKERS } from "../../ports/detectors/conflict.js";
+import {
+	INJECTION_PHRASES,
+	TAG_BLOCK_REGEX,
+} from "../../ports/detectors/injection.js";
+import {
+	INVISIBLE_REGEX,
+	lookupInvisible,
+} from "../../ports/detectors/invisible.js";
+import { SECRET_DETECTORS } from "../../ports/detectors/secret.js";
+import { resolveJsonKey } from "../../ports/json-key-resolver.js";
+import { parseJson } from "../../ports/parse-json.js";
 import type { ContentForbiddenRule, RuleResult } from "../../types.js";
-
-const INVISIBLE_CHARS: [string, number, string][] = [
-	["\u200B", 0x200b, "Zero Width Space"],
-	["\u200C", 0x200c, "Zero Width Non-Joiner"],
-	["\u200D", 0x200d, "Zero Width Joiner"],
-	["\u2060", 0x2060, "Word Joiner"],
-	["\u00AD", 0x00ad, "Soft Hyphen"],
-	["\uFEFF", 0xfeff, "Zero Width No-Break Space"],
-	["\u2061", 0x2061, "Function Application"],
-	["\u2062", 0x2062, "Invisible Times"],
-	["\u2063", 0x2063, "Invisible Separator"],
-	["\u2064", 0x2064, "Invisible Plus"],
-];
-
-const INVISIBLE_REGEX = new RegExp(
-	`[${INVISIBLE_CHARS.map(([ch]) => ch).join("")}]`,
-	"g",
-);
-
-const BIDI_CONTROLS: [number, string][] = [
-	[0x202a, "Left-to-Right Embedding"],
-	[0x202b, "Right-to-Left Embedding"],
-	[0x202c, "Pop Directional Formatting"],
-	[0x202d, "Left-to-Right Override"],
-	[0x202e, "Right-to-Left Override"],
-	[0x2066, "Left-to-Right Isolate"],
-	[0x2067, "Right-to-Left Isolate"],
-	[0x2068, "First Strong Isolate"],
-	[0x2069, "Pop Directional Isolate"],
-];
-
-const BIDI_REGEX = new RegExp(
-	`[${BIDI_CONTROLS.map(([c]) => `\\u${c.toString(16).padStart(4, "0")}`).join("")}]`,
-	"g",
-);
-
-const TAG_BLOCK_REGEX = /[\u{E0000}-\u{E007F}]/gu;
-
-const INJECTION_PHRASES: RegExp[] = [
-	/\bignore\s+(?:all\s+)?(?:previous|prior|above|preceding)\s+instructions?\b/i,
-	/\bdisregard\s+(?:all\s+)?(?:previous|prior|above|the\s+system)\s+(?:instructions?|prompt|rules?)\b/i,
-	/\byou\s+are\s+now\s+(?:a\s+|an\s+)?[a-z]/i,
-	/\bforget\s+(?:everything|all)\s+(?:you\s+)?(?:know|were\s+told)\b/i,
-	/\b(?:new|updated)\s+(?:system\s+)?(?:prompt|instructions?)[:\s]/i,
-];
-
-const CONFLICT_MARKERS: [RegExp, string][] = [
-	[/^<{7}(?:\s|$)/, "start marker (<<<<<<<)"],
-	[/^={7}$/, "separator (=======)"],
-	[/^>{7}(?:\s|$)/, "end marker (>>>>>>>)"],
-];
-
-const SECRET_DETECTORS: { name: string; pattern: RegExp }[] = [
-	{ name: "AWS Access Key ID", pattern: /\bAKIA[0-9A-Z]{16}\b/ },
-	{ name: "GitHub Personal Access Token", pattern: /\bghp_[0-9A-Za-z]{36}\b/ },
-	{ name: "GitHub OAuth Token", pattern: /\bgho_[0-9A-Za-z]{36}\b/ },
-	{ name: "GitHub App Token", pattern: /\b(?:ghu|ghs)_[0-9A-Za-z]{36}\b/ },
-	{ name: "GitHub Refresh Token", pattern: /\bghr_[0-9A-Za-z]{36}\b/ },
-	{ name: "Google API Key", pattern: /\bAIza[0-9A-Za-z\-_]{35}\b/ },
-	{ name: "Slack Token", pattern: /\bxox[baprs]-[0-9A-Za-z-]{10,}\b/ },
-	{
-		name: "Stripe Live Key",
-		pattern: /\b(?:sk|pk|rk)_live_[0-9A-Za-z]{24,}\b/,
-	},
-	{ name: "NPM Token", pattern: /\bnpm_[0-9A-Za-z]{36}\b/ },
-	{
-		name: "JWT",
-		pattern: /\beyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_\-+/=]{10,}\b/,
-	},
-	{
-		name: "Private Key Block",
-		pattern: /-----BEGIN (?:RSA|OPENSSH|DSA|EC|PGP) PRIVATE KEY-----/,
-	},
-];
 
 export async function checkContentForbidden(
 	rules: ContentForbiddenRule[],
@@ -113,10 +52,8 @@ export async function checkContentForbidden(
 
 			if (rule.json_key) {
 				const raw = await readFile(abs, "utf-8");
-				let parsed: unknown;
-				try {
-					parsed = JSON.parse(raw);
-				} catch {
+				const parsed = parseJson(raw);
+				if (!parsed.ok) {
 					results.push({
 						rule: "forbidden",
 						path: file,
@@ -126,7 +63,10 @@ export async function checkContentForbidden(
 					continue;
 				}
 				const re = rule.pattern ? new RegExp(rule.pattern) : null;
-				for (const { key, value } of resolveJsonKey(parsed, rule.json_key)) {
+				for (const { key, value } of resolveJsonKey(
+					parsed.value,
+					rule.json_key,
+				)) {
 					if (re === null) {
 						results.push({
 							rule: "forbidden",
@@ -178,19 +118,19 @@ export async function checkContentForbidden(
 					}
 
 					if (rule.invisible) {
-						const matches = line.matchAll(INVISIBLE_REGEX);
-						for (const m of matches) {
-							const ch = m[0];
-							const info = INVISIBLE_CHARS.find(([c]) => c === ch);
+						for (const m of line.matchAll(INVISIBLE_REGEX)) {
+							const info = lookupInvisible(m[0]);
 							if (info) {
-								const [, code, name] = info;
-								const hex = code.toString(16).toUpperCase().padStart(4, "0");
+								const hex = info.codePoint
+									.toString(16)
+									.toUpperCase()
+									.padStart(4, "0");
 								results.push({
 									rule: "forbidden",
 									path: `${file}:${lineNum}`,
 									message:
 										rule.message ??
-										`不可視の Unicode 文字が検出されました: U+${hex} (${name})`,
+										`不可視の Unicode 文字が検出されました: U+${hex} (${info.name})`,
 									severity: rule.severity ?? "error",
 								});
 							}
@@ -225,8 +165,8 @@ export async function checkContentForbidden(
 						}
 						for (const m of line.matchAll(BIDI_REGEX)) {
 							const code = m[0].codePointAt(0) ?? 0;
-							const info = BIDI_CONTROLS.find(([c]) => c === code);
-							const name = info?.[1] ?? "Bidi Control";
+							const info = lookupBidi(code);
+							const name = info?.name ?? "Bidi Control";
 							const hex = code.toString(16).toUpperCase().padStart(4, "0");
 							results.push({
 								rule: "forbidden",
@@ -253,13 +193,14 @@ export async function checkContentForbidden(
 					}
 
 					if (rule.conflict) {
-						for (const [marker, label_] of CONFLICT_MARKERS) {
-							if (marker.test(line)) {
+						for (const marker of CONFLICT_MARKERS) {
+							if (marker.pattern.test(line)) {
 								results.push({
 									rule: "forbidden",
 									path: `${file}:${lineNum}`,
 									message:
-										rule.message ?? `マージコンフリクトマーカー検出: ${label_}`,
+										rule.message ??
+										`マージコンフリクトマーカー検出: ${marker.label}`,
 									severity: rule.severity ?? "error",
 								});
 								break;
@@ -272,41 +213,6 @@ export async function checkContentForbidden(
 	}
 
 	return results;
-}
-
-interface JsonKeyMatch {
-	key: string;
-	value: unknown;
-}
-
-export function resolveJsonKey(doc: unknown, path: string): JsonKeyMatch[] {
-	const segments = path.split(".");
-	return walk(doc, segments, []);
-}
-
-function walk(
-	node: unknown,
-	segments: string[],
-	visited: string[],
-): JsonKeyMatch[] {
-	if (segments.length === 0) {
-		return [{ key: visited.join("."), value: node }];
-	}
-	const [head, ...rest] = segments;
-	if (head === "*") {
-		if (!node || typeof node !== "object" || Array.isArray(node)) return [];
-		const out: JsonKeyMatch[] = [];
-		for (const [childKey, childValue] of Object.entries(
-			node as Record<string, unknown>,
-		)) {
-			out.push(...walk(childValue, rest, [...visited, childKey]));
-		}
-		return out;
-	}
-	if (!node || typeof node !== "object" || Array.isArray(node)) return [];
-	const next = (node as Record<string, unknown>)[head];
-	if (next === undefined) return [];
-	return walk(next, rest, [...visited, head]);
 }
 
 function truncate(value: string): string {

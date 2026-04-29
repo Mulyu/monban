@@ -62,7 +62,7 @@ content:
 
 ## 1. required
 
-<!-- monban:ref ../src/rules/content/required.ts sha256:e63e65945a1cfcc349914a9516379c52419c04d58d5d4b078d6903723d753c73 -->
+<!-- monban:ref ../src/rules/content/required.ts sha256:6d91f06543796ba891f94eb0781f049fb7112d31b1950f52407280795a079452 -->
 
 Declare text patterns that a file must contain.
 
@@ -134,7 +134,7 @@ ERROR [required] src/generated/api.ts
 
 ## 2. forbidden
 
-<!-- monban:ref ../src/rules/content/forbidden.ts sha256:71b92106e4fef145863246b77d05a07b41dbd53f90c84263bc2efb5a144d65ff -->
+<!-- monban:ref ../src/rules/content/forbidden.ts sha256:e06a72fa0f7418a1cae9d94b0435ae83ec8550b099715d609e9160ba34e88986 -->
 
 Declare things that must not appear in a file. A single rule shape handles six kinds: text patterns, BOM, invisible Unicode characters, secrets, prompt injection, and merge-conflict markers. In addition, the `json_key` modifier lets you target a specific key inside a JSON file and pattern-match its value.
 

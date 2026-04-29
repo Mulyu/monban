@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import { parse as parseYaml } from "yaml";
+import { parseJson } from "../../ports/parse-json.js";
+import { parseYaml } from "../../ports/parse-yaml.js";
 import type {
 	RuleResult,
 	RuntimeConsistencyRule,
@@ -88,22 +89,14 @@ async function extractValues(
 		return extractByPattern(raw, source.pattern);
 	}
 	if (source.json_key) {
-		let doc: unknown;
-		try {
-			doc = JSON.parse(raw);
-		} catch {
-			return [];
-		}
-		return resolveKey(doc, source.json_key);
+		const parsed = parseJson(raw);
+		if (!parsed.ok) return [];
+		return resolveKey(parsed.value, source.json_key);
 	}
 	if (source.yaml_key) {
-		let doc: unknown;
-		try {
-			doc = parseYaml(raw);
-		} catch {
-			return [];
-		}
-		return resolveKey(doc, source.yaml_key);
+		const parsed = parseYaml(raw);
+		if (!parsed.ok) return [];
+		return resolveKey(parsed.value, source.yaml_key);
 	}
 
 	const trimmed = raw.trim();
