@@ -19,6 +19,7 @@
     "test:watch": "vitest",
     "check": "biome check .",
     "check:fix": "biome check --fix .",
+    "monban": "node dist/bin.mjs",
     "prepublishOnly": "npm run check && npm run build && npm test"
   },
   "repository": {
