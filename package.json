@@ -45,12 +45,12 @@
     "provenance": true
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.11",
+    "@biomejs/biome": "2.4.13",
     "@types/node": "25.6.0",
     "@types/picomatch": "4.0.3",
-    "tsdown": "0.21.7",
-    "typescript": "6.0.2",
-    "vitest": "4.1.4"
+    "tsdown": "0.21.10",
+    "typescript": "6.0.3",
+    "vitest": "4.1.5"
   },
   "dependencies": {
     "commander": "14.0.3",
