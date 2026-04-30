@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.2.6](https://github.com/Mulyu/monban/compare/monban-v0.2.5...monban-v0.2.6) (2026-04-30)
+
+
+### Features
+
+* **agent, content:** agent.settings ルールと content の json_key モディファイア追加 ([fe8ba6e](https://github.com/Mulyu/monban/commit/fe8ba6ed4d9ed2ad9e40457395dcb53b2b49e8b4))
+* **agent, content:** agent.settings ルールと content の json_key モディファイア追加 ([c0e5f7e](https://github.com/Mulyu/monban/commit/c0e5f7ef5f73f3e8a0ca614deddac6fdedacd961))
+* **runtime:** add command for cross-file version consistency ([9d17827](https://github.com/Mulyu/monban/commit/9d178276554b3dab76ca14957f6d51f050e210cb))
+* **runtime:** add monban runtime command for cross-file version pin consistency ([4191a65](https://github.com/Mulyu/monban/commit/4191a65f70397a65c89ddb92bdbebcc32aed0d96))
+* **runtime:** add presets for node/python/ruby/go/rust ([a81558a](https://github.com/Mulyu/monban/commit/a81558a9514d60210888dabcb3245b52bfaab7e8))
+
+
+### Bug Fixes
+
+* **docs:** CI の monban all を通す ([c44cbe4](https://github.com/Mulyu/monban/commit/c44cbe4d4ca4bc1e7559e49c2382551147238263))
+
+
+### Documentation
+
+* **skill:** documentation スキルを追加 ([1652958](https://github.com/Mulyu/monban/commit/1652958168fbef16e2e818749097d6a59b5c9098))
+* **skill:** 日英二言語ドキュメント方針を documentation スキルとして明文化 ([222774b](https://github.com/Mulyu/monban/commit/222774b40f3e0a36b0084fcff347875829773791))
+* **thinking:** 最終案を末尾に配置して結論を見つけやすくする ([bb6963a](https://github.com/Mulyu/monban/commit/bb6963a695f7208420e5fea221814f5a4a5ed62c))
+* **thinking:** 最終案を末尾に配置して結論を見つけやすくする ([65ba393](https://github.com/Mulyu/monban/commit/65ba3937266e6ac9f9ccbb07fbb6458bb06435f2))
+* 英訳ドキュメントを追加して日英相互リンクを整備 ([fd567cf](https://github.com/Mulyu/monban/commit/fd567cff086ac1d294d1289e968d3dece947d29a))
+* 英訳ドキュメントを追加して日英相互リンクを整備 ([2253be4](https://github.com/Mulyu/monban/commit/2253be4305ea5a959049c11ec2b1d79b76126582))
+
+
+### Refactoring
+
+* **docs:** ファイル命名を xxx.ja.md / xxx.en.md に統一 ([503256f](https://github.com/Mulyu/monban/commit/503256f1f5b19bd0e6c76cfe28f1d4c67e254bb5))
+* **docs:** 英語を既定（拡張子なし）、日本語を .ja.md に ([af2c24e](https://github.com/Mulyu/monban/commit/af2c24e9071d94138adaf52ac7f84d86beb1157d))
+* 共通パーサと internal/ ヘルパへの整理 ([608077b](https://github.com/Mulyu/monban/commit/608077b2f973c89ece82ba5fdf2aa5381ead738c))
+* 既存機能を維持したまま重複・配置の整理 ([c101b19](https://github.com/Mulyu/monban/commit/c101b196e91a146fe1ef1a7dfd568e5a26156434))
+
 ## [0.2.5](https://github.com/Mulyu/monban/compare/monban-v0.2.4...monban-v0.2.5) (2026-04-20)
 
 
