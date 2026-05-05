@@ -6,7 +6,7 @@ import {
 	validateArray,
 	validatePositiveInteger,
 	validateSeverity,
-} from "../../config/schema/common.js";
+} from "../../config/common.js";
 import type {
 	GitBranchNameRule,
 	GitCommitConfig,

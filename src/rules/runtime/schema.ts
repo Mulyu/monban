@@ -4,7 +4,7 @@ import {
 	requireString,
 	validateArray,
 	validateSeverity,
-} from "../../config/schema/common.js";
+} from "../../config/common.js";
 import {
 	RUNTIME_PRESET_NAMES,
 	RUNTIME_PRESETS,

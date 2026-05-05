@@ -4,7 +4,7 @@ import { parse } from "yaml";
 import { ConfigError } from "../engine/errors.js";
 import type { MonbanConfig } from "../engine/types.js";
 import { resolveExtends } from "./extends/index.js";
-import { validateConfig, validateExtends } from "./schema/index.js";
+import { validateConfig, validateExtends } from "./schema.js";
 
 const CONFIG_FILENAMES = ["monban.yml", "monban.yaml"];
 

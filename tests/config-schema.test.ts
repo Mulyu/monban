@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateConfig } from "../src/config/schema/index.js";
+import { validateConfig } from "../src/config/schema.js";
 import { validateContentConfig } from "../src/rules/content/schema.js";
 import { validateDepsConfig } from "../src/rules/deps/schema.js";
 import { validateDocConfig } from "../src/rules/doc/schema.js";
