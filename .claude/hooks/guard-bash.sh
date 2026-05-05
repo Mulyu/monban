@@ -1,7 +1,5 @@
 #!/bin/bash
-# monban 固有の Bash 禁止ルール。
-# 汎用ガード（force push to main / --no-verify / git config 改変）は okite プラグインの
-# guard-bash が担当する。ここでは monban 固有の npx 禁止のみを扱う。
+# monban 固有の Bash 禁止ルール（npx 禁止）。
 set -euo pipefail
 
 INPUT=$(cat)

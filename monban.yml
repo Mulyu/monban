@@ -1,6 +1,3 @@
-# 共通の security baseline は Mulyu/okite から継承する。
-# baseline の中身: secret / conflict / invisible / injection 検出、GitHub Actions ハードニング、
-#                  npm サプライチェーン対策、MCP 設定検査、.gitignore 対象の誤コミット検出。
 extends:
   - type: github
     repo: Mulyu/okite
@@ -98,14 +95,11 @@ content:
       message: "ドキュメンテーション方針: 日本語 README は冒頭に言語セレクタヘッダーを置く"
 
   forbidden:
-    # baseline の content.forbidden（conflict/secret/invisible/injection）は okite から継承される。
-    # ここには monban 固有の TypeScript 規約・命名規約のみ残す。
     - path: "src/**/*.ts"
       bom: true
       message: "BOM を含めないでください。"
 
-    # injection ルール自身の説明を含むドキュメントは baseline では擬陽性になる。
-    # 本リポ固有の例外として exclude 付きで再宣言する（baseline の汎用版と並走）。
+    # injection ルール自身の説明を含むドキュメントは擬陽性になるため exclude する。
     - path: "**/*.md"
       exclude:
         - "tests/fixtures/**"
@@ -152,15 +146,12 @@ content:
       pattern: '@ts-(ignore|nocheck)'
       message: "@ts-ignore / @ts-nocheck は禁止。@ts-expect-error + 理由コメントを使ってください。"
 
-# baseline で monban CLI の test.yml を必須にしているわけではないので、
-# monban 固有の required ジョブ定義はここで宣言する。
 github:
   actions:
     required:
       - file: ".github/workflows/test.yml"
       - path: ".github/workflows/test.yml"
         steps: ["actions/checkout", "actions/setup-node"]
-    # baseline は GITHUB_TOKEN のみ。NPM_TOKEN を concat で追加（リリース用）
     secrets:
       - path: ".github/workflows/**/*.yml"
         allowed: ["NPM_TOKEN"]
