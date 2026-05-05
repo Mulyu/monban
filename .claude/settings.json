@@ -1,15 +1,16 @@
 {
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
-          }
-        ]
+  "extraKnownMarketplaces": {
+    "mulyu-okite": {
+      "source": {
+        "source": "github",
+        "repo": "Mulyu/okite"
       }
-    ],
+    }
+  },
+  "enabledPlugins": {
+    "okite@mulyu-okite": true
+  },
+  "hooks": {
     "PreToolUse": [
       {
         "matcher": "Bash",

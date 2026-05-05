@@ -1,5 +1,10 @@
+extends:
+  - type: github
+    repo: Mulyu/okite
+    ref: main
+    path: monban.yml
+
 exclude:
-  - "**/node_modules/**"
   - "**/dist/**"
   - "**/fixtures/**"
 
@@ -63,10 +68,6 @@ path:
     - path: "src/rules/git"
       max: 12
 
-  # シンボリックリンクは禁止（CI でビルド成果物が壊れたり、依存解決が壊れたりするため）
-  # path.forbidden の type: symlink を使う
-  # ※ 既存の forbidden ブロックは上で定義済み
-
   # 大文字小文字違いで衝突するファイル名を検出
   case_conflict:
     - path: "**/*"
@@ -74,8 +75,6 @@ path:
 
 content:
   # 日英二言語ドキュメント方針: 各ファイル冒頭に言語セレクタヘッダーを置く
-  # 英語版: > [日本語](./xxx.ja.md) | **English**
-  # 日本語版: > **日本語** | [English](./xxx.md)
   required:
     - path: "docs/*.md"
       exclude: ["docs/*.ja.md"]
@@ -99,27 +98,16 @@ content:
     - path: "src/**/*.ts"
       bom: true
       message: "BOM を含めないでください。"
-    - path: "src/**/*.ts"
-      invisible: true
-      message: "不可視の Unicode 文字が含まれています。"
-    - path: "src/**/*.ts"
-      secret: true
-      message: "シークレットらしき文字列が検出されました。"
 
-    # マージコンフリクトマーカーの残置を検出
-    - path: "**/*.{ts,md,yml,yaml,json}"
-      exclude: ["tests/fixtures/**"]
-      conflict: true
-      message: "未解決のマージコンフリクトが残っています。"
-
-    # AI エージェント向けドキュメントに混入したプロンプトインジェクションを検出
+    # injection ルール自身の説明を含むドキュメントは擬陽性になるため exclude する。
     - path: "**/*.md"
       exclude:
         - "tests/fixtures/**"
-        - "docs/content.md"        # injection ルール自身の説明例を含む（英語版）
-        - "docs/content.ja.md"     # 同上（日本語版）
+        - "docs/content.md"
+        - "docs/content.ja.md"
       injection: true
       message: "ドキュメントに不審な指示や不可視文字が含まれています。"
+
     - path: "src/rules/path/*.ts"
       pattern: '^export (async )?function check(?!Path)[A-Z]'
       message: "src/rules/path/ の check 関数は checkPath* と命名してください (例: checkPathRequired)。他カテゴリと一貫させる。"
@@ -160,120 +148,15 @@ content:
 
 github:
   actions:
-    pinned:
-      - path: ".github/workflows/**/*.yml"
     required:
       - file: ".github/workflows/test.yml"
       - path: ".github/workflows/test.yml"
         steps: ["actions/checkout", "actions/setup-node"]
-
-    # GITHUB_TOKEN への過剰権限付与を防ぐ。未宣言はデフォルト広範権限
-    permissions:
-      - path: ".github/workflows/**/*.yml"
-        required: true
-        forbidden: ["write-all", "read-all"]
-
-    # 暴走ジョブによるコスト流出を防ぐ
-    timeout:
-      - path: ".github/workflows/**/*.yml"
-        max: 20
-
-    # 冗長ビルド抑制（CI コスト・ランナー枠の節約）
-    concurrency:
-      - path: ".github/workflows/**/*.yml"
-
-    # フォーク PR からのトークン奪取経路になりうるトリガーを禁止
-    triggers:
-      - path: ".github/workflows/**/*.yml"
-        forbidden: ["pull_request_target"]
-
-    # 想定外のランナーへのジョブ投入を防ぐ
-    runner:
-      - path: ".github/workflows/**/*.yml"
-        allowed: ["ubuntu-latest"]
-
-    # シークレット名のタイポや未定義参照を静的検出
     secrets:
       - path: ".github/workflows/**/*.yml"
-        allowed: ["GITHUB_TOKEN", "NPM_TOKEN"]
+        allowed: ["NPM_TOKEN"]
 
-    # actions のバージョン混在を防ぐ
-    consistency:
-      - path: ".github/workflows/**/*.yml"
-        actions: ["actions/checkout", "actions/setup-node"]
-
-    # 廃止・代替のあるアクションを禁止
-    forbidden:
-      - path: ".github/workflows/**/*.yml"
-        uses: "actions/create-release"
-
-    # フォーク PR からの secret 窃取経路を検出
-    danger:
-      - path: ".github/workflows/**/*.yml"
-
-    # 信頼できない入力を run: に直埋めする script injection を検出
-    injection:
-      - path: ".github/workflows/**/*.yml"
-        message: "release-please を使ってください。"
-
-# 依存のサプライチェーン安全性（全 severity を error に揃える）
-deps:
-  # ハルシネーション / slopsquat 対策（存在しないパッケージ名の検出）
-  existence:
-    - path: "package.json"
-    - path: ".github/workflows/**/*.yml"
-
-  # 人気パッケージに類似した名前（typosquat）の検出
-  # vitest/vite のような実在の別物が誤検出されないよう距離 1 に絞る
-  typosquat:
-    - path: "package.json"
-      max_distance: 1
-      severity: error
-
-  # 公開直後の新規パッケージ（攻撃で頻出）を警告
-  freshness:
-    - path: "package.json"
-      max_age_hours: 72
-      severity: error
-
-  # 低人気パッケージを警告
-  popularity:
-    - path: "package.json"
-      min_downloads: 1000
-      severity: error
-
-  # エコシステム取り違え（AI エージェントの典型ミス）検出
-  cross_ecosystem:
-    - path: "package.json"
-      severity: error
-
-  # 既知の compromise 事例を明示的に拒否
-  forbidden:
-    - path: "package.json"
-      names:
-        - event-stream
-        - flatmap-stream
-      message: "過去に compromise されたパッケージです。"
-
-  # npm lifecycle hook は任意コード実行の攻撃面（Shai-Hulud 等）
-  install_scripts:
-    - path: "package.json"
-      severity: error
-      message: "npm lifecycle hook はサプライチェーン攻撃の主要ベクトル。正当性を PR でレビュー。"
-
-  # レジストリ外依存はレジストリ監査が効かない
-  git_dependency:
-    - path: "package.json"
-      severity: error
-
-  # 浮動バージョンは新規パッケージ侵害時に自動的に被弾する
-  floating_version:
-    - path: "package.json"
-      severity: error
-      exclude:
-        - "tests/fixtures/**"
-
-# コミット品質 / 誤コミット検出
+# コミット品質
 git:
   commit:
     message:
@@ -292,10 +175,6 @@ git:
         - "**/*.lock"
         - "**/*.ja.md"   # 英語原文のミラー翻訳。レビュー負荷の指標にカウントしない
       severity: error
-    # .gitignore 対象ファイル（.env 等）の誤追跡を検出
-    ignored:
-      scope: diff
-      severity: error
 
   # ブランチ命名規約（main / claude/* / feat/* / fix/* / chore/* / docs/*）
   branch_name:
@@ -303,7 +182,7 @@ git:
     allowed: ["main"]
     severity: error
 
-  # SemVer 形式のタグのみ許容（過去タグの整理が完了したら scope を all に切替）
+  # SemVer 形式のタグのみ許容
   tag_name:
     pattern: "^v\\d+\\.\\d+\\.\\d+(-[a-z0-9.]+)?$"
     severity: error
@@ -316,18 +195,7 @@ doc:
     - path: "docs/**/*.md"
     - path: "*.md"
 
-# エージェント向けリポジトリ設定の整合性（2025-26 の MCP 関連 CVE 対応）
-agent:
-  # .mcp.json は存在しない場合は当然スキップされる（glob が 0 マッチ）
-  mcp:
-    - path: "{.mcp.json,.claude/settings.json,.cursor/mcp.json}"
-      unpinned_npx: true
-      env_secrets: true
-      severity: error
-
 # ランタイムバージョン指定の複数ファイル整合
-# 現状は .nvmrc と node-version-file 経由の参照のみだが、将来 Dockerfile や
-# 他の inline 指定が増えたときの drift を CI で押さえる
 runtime:
   consistency:
     - preset: node
