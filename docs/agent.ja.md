@@ -63,7 +63,7 @@ agent:
 
 ## 1. instructions
 
-<!-- monban:ref ../src/rules/agent/instructions.ts sha256:6dc14d1e918d7eefc613b670ea5f806e86d1004d0aabe2a5598dabc1bf7f2991 -->
+<!-- monban:ref ../src/rules/agent/instructions.ts sha256:3030f5266cc75e726972ef0fc114b934f100a96187596d2b71a43d0c43424b00 -->
 
 エージェント指示書（`AGENTS.md` / `CLAUDE.md`）の構造を検証する。
 
@@ -113,7 +113,7 @@ WARN  [instructions] AGENTS.md
 
 ## 2. mcp
 
-<!-- monban:ref ../src/rules/agent/mcp.ts sha256:d459f7a97d753acee6e69487ef492be2186d3d60ec052ca1fb61f46f2634d7d5 -->
+<!-- monban:ref ../src/rules/agent/mcp.ts sha256:7fe8dbee1bbbe1d5365e6d338b1de0904504f76adc051ec18543507f74f53d88 -->
 
 MCP（Model Context Protocol）設定ファイルの構造と安全性を検証する。`.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` が対象。
 
@@ -181,7 +181,7 @@ WARN  [mcp] .mcp.json:hardcoded-secret.env.GITHUB_TOKEN
 
 ## 3. settings
 
-<!-- monban:ref ../src/rules/agent/settings.ts sha256:8f4f41599eedf0de59e9fcd848fdbf0dc8e20ad39a661601f86cdd964662df26 -->
+<!-- monban:ref ../src/rules/agent/settings.ts sha256:b7a253cb591747c40665630372b9173bd0617653e14cc18225892d620d934c4c -->
 
 Claude Code のハーネス設定ファイル（`.claude/settings.json` / `.claude/settings.local.json`）の `permissions` と `hooks` を検証する。`agent.mcp` が `mcpServers` のみを対象にするのに対し、このルールはハーネス全体の許可・フックを見る。
 
@@ -268,7 +268,7 @@ WARN  [settings] .claude/settings.json:hooks.SessionStart
 
 ## 4. ignore
 
-<!-- monban:ref ../src/rules/agent/ignore.ts sha256:5d6e8f39dd660222b76fe7f24382f7e86623e658210d65011c7dcb92717d42a0 -->
+<!-- monban:ref ../src/rules/agent/ignore.ts sha256:8a6394686a54df4b8ebbab9fd11845c2052f82dc25e182be76854bf79db00328 -->
 
 AI ignore ファイル（`.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore`）が機密ファイルをカバーしているかを検証する。
 

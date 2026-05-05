@@ -63,7 +63,7 @@ agent:
 
 ## 1. instructions
 
-<!-- monban:ref ../src/rules/agent/instructions.ts sha256:6dc14d1e918d7eefc613b670ea5f806e86d1004d0aabe2a5598dabc1bf7f2991 -->
+<!-- monban:ref ../src/rules/agent/instructions.ts sha256:3030f5266cc75e726972ef0fc114b934f100a96187596d2b71a43d0c43424b00 -->
 
 Validates the structure of agent instruction files (`AGENTS.md` / `CLAUDE.md`).
 
@@ -113,7 +113,7 @@ WARN  [instructions] AGENTS.md
 
 ## 2. mcp
 
-<!-- monban:ref ../src/rules/agent/mcp.ts sha256:d459f7a97d753acee6e69487ef492be2186d3d60ec052ca1fb61f46f2634d7d5 -->
+<!-- monban:ref ../src/rules/agent/mcp.ts sha256:7fe8dbee1bbbe1d5365e6d338b1de0904504f76adc051ec18543507f74f53d88 -->
 
 Validates the structure and safety of MCP (Model Context Protocol) configuration files. Targets `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json`.
 
@@ -181,7 +181,7 @@ Many of these make the configuration file itself an attack surface. This rule ai
 
 ## 3. settings
 
-<!-- monban:ref ../src/rules/agent/settings.ts sha256:8f4f41599eedf0de59e9fcd848fdbf0dc8e20ad39a661601f86cdd964662df26 -->
+<!-- monban:ref ../src/rules/agent/settings.ts sha256:b7a253cb591747c40665630372b9173bd0617653e14cc18225892d620d934c4c -->
 
 Validates the `permissions` and `hooks` blocks of Claude Code harness settings (`.claude/settings.json` / `.claude/settings.local.json`). While `agent.mcp` targets only `mcpServers`, this rule inspects the harness itself — the permission grants and the event-driven hooks.
 
@@ -268,7 +268,7 @@ Both may target the same `.claude/settings.json`, but they look at different par
 
 ## 4. ignore
 
-<!-- monban:ref ../src/rules/agent/ignore.ts sha256:5d6e8f39dd660222b76fe7f24382f7e86623e658210d65011c7dcb92717d42a0 -->
+<!-- monban:ref ../src/rules/agent/ignore.ts sha256:8a6394686a54df4b8ebbab9fd11845c2052f82dc25e182be76854bf79db00328 -->
 
 Validates that AI ignore files (`.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore`) cover sensitive files.
 

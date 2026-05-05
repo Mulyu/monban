@@ -82,7 +82,7 @@ Each preset only includes locations whose values are bare version strings (e.g. 
 
 ## 1. consistency
 
-<!-- monban:ref ../src/rules/runtime/consistency.ts sha256:4246aa95cb56c949f1fc751f5f3ab2a39f3500284af884e60e8eae3f0d64da19 -->
+<!-- monban:ref ../src/rules/runtime/consistency.ts sha256:c3d607b88f4d3a49292fe68e903e13813becbd251d8a8b7119ab38fa416dceae -->
 
 Verifies that the runtime version pinned in multiple places resolves to the same string.
 

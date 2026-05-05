@@ -28,7 +28,7 @@ path:
       message: "helpers.ts は曖昧な命名。具体的な責務を表すファイル名にしてください。"
     - path: "src/config/schema.ts"
       message: "schema.ts は schema/ ディレクトリと共存させず、schema/index.ts に統合してください。"
-    - path: "src/registry/client.ts"
+    - path: "src/rules/deps/registry/client.ts"
       message: "client.ts は registry/ ディレクトリと共存させず、registry/index.ts または責務別ファイル (ecosysteme.ts, offline.ts など) に分割してください。"
     # アンダースコア接頭辞は使用禁止。カテゴリ内ヘルパは internal/ サブディレクトリに配置する
     - path: "src/**/_*.ts"
@@ -37,7 +37,7 @@ path:
   required:
     - path: "src/rules/*"
       files: ["index.ts"]
-    - path: "src/config/schema/github"
+    - path: "src/rules/github/schema"
       files: ["index.ts"]
 
     # 日英二言語ドキュメント方針: 英語版（拡張子なし）に対応する .ja.md が存在すること
@@ -63,20 +63,28 @@ path:
       max: 4
 
   count:
+    # ルール本体のファイル数だけを上限管理する。types.ts / schema.ts は構造ファイルなので除外する。
     - path: "src/rules/path"
-      max: 12
+      max: 10
+      exclude: ["types.ts", "schema.ts"]
     - path: "src/rules/content"
-      max: 10
+      max: 8
+      exclude: ["types.ts", "schema.ts"]
     - path: "src/rules/doc"
-      max: 10
+      max: 8
+      exclude: ["types.ts", "schema.ts"]
     - path: "src/rules/github"
-      max: 18
+      max: 16
+      exclude: ["types.ts"]
     - path: "src/rules/git"
       max: 12
+      exclude: ["types.ts", "schema.ts"]
     - path: "src/rules/license"
-      max: 6
+      max: 4
+      exclude: ["types.ts", "schema.ts"]
     - path: "src/rules/docker"
-      max: 8
+      max: 6
+      exclude: ["types.ts", "schema.ts"]
 
   # 大文字小文字違いで衝突するファイル名を検出
   case_conflict:
