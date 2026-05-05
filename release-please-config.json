@@ -5,7 +5,6 @@
   "include-component-in-tag": false,
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
-  "last-release-sha": "6f708a8f47fd006367ab604ecd478c9903cf2769",
   "packages": {
     ".": {
       "package-name": "@mulyu/monban",
