@@ -1,8 +1,9 @@
-import type { AgentConfig, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { checkAgentIgnore } from "./ignore.js";
 import { checkAgentInstructions } from "./instructions.js";
 import { checkAgentMcp } from "./mcp.js";
 import { checkAgentSettings } from "./settings.js";
+import type { AgentConfig } from "./types.js";
 
 export interface AgentRuleResult {
 	name: string;

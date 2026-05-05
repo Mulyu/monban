@@ -1,5 +1,6 @@
-import type { GitBranchNameRule, RuleResult, Severity } from "../../types.js";
+import type { RuleResult, Severity } from "../../types.js";
 import { tryRunGit } from "./git-exec.js";
+import type { GitBranchNameRule } from "./types.js";
 
 export function checkGitBranchName(
 	rule: GitBranchNameRule | undefined,

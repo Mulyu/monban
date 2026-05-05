@@ -1,7 +1,8 @@
 import { stat } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import type { PathSizeRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
+import type { PathSizeRule } from "./types.js";
 
 export async function checkPathSize(
 	rules: PathSizeRule[],

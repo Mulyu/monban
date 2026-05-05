@@ -1,4 +1,4 @@
-import type { GithubConfig, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { checkGithubCodeowners } from "./codeowners.js";
 import { checkGithubConcurrency } from "./concurrency.js";
 import { checkGithubConsistency } from "./consistency.js";
@@ -12,6 +12,7 @@ import { checkGithubRunner } from "./runner.js";
 import { checkGithubSecrets } from "./secrets.js";
 import { checkGithubTimeout } from "./timeout.js";
 import { checkGithubTriggers } from "./triggers.js";
+import type { GithubConfig } from "./types.js";
 
 export interface GithubRuleResult {
 	name: string;

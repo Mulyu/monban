@@ -1,5 +1,6 @@
-import type { GitTagNameRule, RuleResult, Severity } from "../../types.js";
+import type { RuleResult, Severity } from "../../types.js";
 import { tryRunGit } from "./git-exec.js";
+import type { GitTagNameRule } from "./types.js";
 
 export function checkGitTagName(
 	rule: GitTagNameRule | undefined,

@@ -6,7 +6,7 @@ import {
 	resolveDiffBase,
 } from "../src/diff.js";
 import type { DiffScope, RuleResult } from "../src/types.js";
-import { commit, createGitRepo, git, writeAndAdd } from "./git-helpers.js";
+import { commit, createGitRepo, git, writeAndAdd } from "./git/helpers.js";
 
 function makeScope(
 	files: string[],

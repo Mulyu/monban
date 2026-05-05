@@ -1,7 +1,8 @@
-import type { ContentConfig, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { checkContentForbidden } from "./forbidden.js";
 import { checkContentRequired } from "./required.js";
 import { checkContentSize } from "./size.js";
+import type { ContentConfig } from "./types.js";
 
 export interface ContentRuleResult {
 	name: string;

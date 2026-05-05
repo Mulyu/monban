@@ -1,5 +1,6 @@
-import type { GithubRunnerRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { getJobs, loadWorkflows } from "./internal/workflow.js";
+import type { GithubRunnerRule } from "./types.js";
 
 function extractRunners(runsOn: unknown): string[] {
 	if (typeof runsOn === "string") return [runsOn];

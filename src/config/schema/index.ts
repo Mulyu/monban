@@ -1,16 +1,16 @@
+import { validateAgentConfig } from "../../rules/agent/schema.js";
+import { validateContentConfig } from "../../rules/content/schema.js";
+import { validateDepsConfig } from "../../rules/deps/schema.js";
+import { validateDocConfig } from "../../rules/doc/schema.js";
+import { validateDockerConfig } from "../../rules/docker/schema.js";
+import { validateGitConfig } from "../../rules/git/schema.js";
+import { validateGithubConfig } from "../../rules/github/schema/index.js";
+import { validateLicenseConfig } from "../../rules/license/schema.js";
+import { validatePathConfig } from "../../rules/path/schema.js";
+import { validateRuntimeConfig } from "../../rules/runtime/schema.js";
 import type { MonbanConfig } from "../../types.js";
-import { validateAgentConfig } from "./agent.js";
 import { optionalStringArray } from "./common.js";
-import { validateContentConfig } from "./content.js";
-import { validateDepsConfig } from "./deps.js";
-import { validateDocConfig } from "./doc.js";
-import { validateDockerConfig } from "./docker.js";
 import { validateExtends } from "./extends.js";
-import { validateGitConfig } from "./git.js";
-import { validateGithubConfig } from "./github/index.js";
-import { validateLicenseConfig } from "./license.js";
-import { validatePathConfig } from "./path.js";
-import { validateRuntimeConfig } from "./runtime.js";
 
 export { validateExtends };
 

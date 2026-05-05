@@ -2,7 +2,8 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import fg from "fast-glob";
-import type { DocLinkRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
+import type { DocLinkRule } from "./types.js";
 
 const MD_LINK = /\[(?:[^\]]*)\]\(([^)]+)\)/g;
 

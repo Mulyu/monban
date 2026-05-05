@@ -1,8 +1,9 @@
 import { networkWarning } from "../../errors.js";
-import type { RegistryClient } from "../../registry/index.js";
-import { RegistryLookupError } from "../../registry/index.js";
-import type { DepsPopularityRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
+import type { RegistryClient } from "./registry/index.js";
+import { RegistryLookupError } from "./registry/index.js";
+import type { DepsPopularityRule } from "./types.js";
 
 const DEFAULT_MIN_DOWNLOADS = 100;
 

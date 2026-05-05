@@ -3,7 +3,8 @@ import { join } from "node:path";
 import fg from "fast-glob";
 import { resolveJsonKey } from "../../ports/json-key-resolver.js";
 import { parseJson } from "../../ports/parse-json.js";
-import type { ContentRequiredRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
+import type { ContentRequiredRule } from "./types.js";
 
 export async function checkContentRequired(
 	rules: ContentRequiredRule[],

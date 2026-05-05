@@ -1,5 +1,6 @@
-import type { GithubSecretsRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { loadWorkflows } from "./internal/workflow.js";
+import type { GithubSecretsRule } from "./types.js";
 
 const SECRET_REF = /\$\{\{\s*secrets\.([A-Za-z_][A-Za-z0-9_]*)\s*\}\}/g;
 

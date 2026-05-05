@@ -1,4 +1,4 @@
-import type { PathConfig, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { checkPathCaseConflict } from "./case-conflict.js";
 import { checkPathCount } from "./count.js";
 import { checkPathDepth } from "./depth.js";
@@ -7,6 +7,7 @@ import { checkPathHash } from "./hash.js";
 import { checkPathNaming } from "./naming.js";
 import { checkPathRequired } from "./required.js";
 import { checkPathSize } from "./size.js";
+import type { PathConfig } from "./types.js";
 
 export interface PathRuleResult {
 	name: string;

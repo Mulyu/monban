@@ -62,7 +62,7 @@ content:
 
 ## 1. required
 
-<!-- monban:ref ../src/rules/content/required.ts sha256:6d91f06543796ba891f94eb0781f049fb7112d31b1950f52407280795a079452 -->
+<!-- monban:ref ../src/rules/content/required.ts sha256:001b448a2d34223d90eb5ab39d6a785a2773d0085994651694c843cc2ac9dad8 -->
 
 Declare text patterns that a file must contain.
 
@@ -134,7 +134,7 @@ ERROR [required] src/generated/api.ts
 
 ## 2. forbidden
 
-<!-- monban:ref ../src/rules/content/forbidden.ts sha256:e06a72fa0f7418a1cae9d94b0435ae83ec8550b099715d609e9160ba34e88986 -->
+<!-- monban:ref ../src/rules/content/forbidden.ts sha256:c10a3d69375ac452bd256a09c095071d3af587019c962619bc8a3d9d37658f0f -->
 
 Declare things that must not appear in a file. A single rule shape handles six kinds: text patterns, BOM, invisible Unicode characters, secrets, prompt injection, and merge-conflict markers. In addition, the `json_key` modifier lets you target a specific key inside a JSON file and pattern-match its value.
 
@@ -347,7 +347,7 @@ ERROR [forbidden] src/legacy/module.ts:12
 
 ## 3. size
 
-<!-- monban:ref ../src/rules/content/size.ts sha256:0c136a6bcc0a68958ef21e1ddebd9af9893c8e02c823b6ac6ff71ba5cb3db5b4 -->
+<!-- monban:ref ../src/rules/content/size.ts sha256:aff8a756975537ef73920dafb03282539896b0afe7b25f0a33bb075c8fdc3fc2 -->
 
 Verify that a file's line count stays under a threshold. Coding agents tend to cram functionality into one file; this rule surfaces bloat from a readability and responsibility-split perspective.
 

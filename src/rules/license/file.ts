@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import type { LicenseFileRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { detectLicenseFromText } from "./internal/spdx.js";
+import type { LicenseFileRule } from "./types.js";
 
 export async function checkLicenseFile(
 	rules: LicenseFileRule[],

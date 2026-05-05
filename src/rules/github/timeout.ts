@@ -1,5 +1,6 @@
-import type { GithubTimeoutRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { getJobs, loadWorkflows } from "./internal/workflow.js";
+import type { GithubTimeoutRule } from "./types.js";
 
 export async function checkGithubTimeout(
 	rules: GithubTimeoutRule[],

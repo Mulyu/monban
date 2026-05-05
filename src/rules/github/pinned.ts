@@ -1,9 +1,6 @@
-import type {
-	GithubPinnedRule,
-	GithubPinnedTarget,
-	RuleResult,
-} from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { extractAllUses, loadWorkflows } from "./internal/workflow.js";
+import type { GithubPinnedRule, GithubPinnedTarget } from "./types.js";
 
 const COMMIT_HASH = /^[0-9a-f]{40}$/;
 const DOCKER_SHA = /@sha256:[0-9a-f]{64}$/;

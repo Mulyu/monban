@@ -1,20 +1,15 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import { BIDI_REGEX, lookupBidi } from "../../ports/detectors/bidi.js";
-import { CONFLICT_MARKERS } from "../../ports/detectors/conflict.js";
-import {
-	INJECTION_PHRASES,
-	TAG_BLOCK_REGEX,
-} from "../../ports/detectors/injection.js";
-import {
-	INVISIBLE_REGEX,
-	lookupInvisible,
-} from "../../ports/detectors/invisible.js";
-import { SECRET_DETECTORS } from "../../ports/detectors/secret.js";
 import { resolveJsonKey } from "../../ports/json-key-resolver.js";
 import { parseJson } from "../../ports/parse-json.js";
-import type { ContentForbiddenRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
+import { BIDI_REGEX, lookupBidi } from "./detectors/bidi.js";
+import { CONFLICT_MARKERS } from "./detectors/conflict.js";
+import { INJECTION_PHRASES, TAG_BLOCK_REGEX } from "./detectors/injection.js";
+import { INVISIBLE_REGEX, lookupInvisible } from "./detectors/invisible.js";
+import { SECRET_DETECTORS } from "./detectors/secret.js";
+import type { ContentForbiddenRule } from "./types.js";
 
 export async function checkContentForbidden(
 	rules: ContentForbiddenRule[],

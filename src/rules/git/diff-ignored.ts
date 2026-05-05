@@ -1,6 +1,7 @@
 import picomatch from "picomatch";
-import type { GitDiffIgnoredRule, RuleResult, Severity } from "../../types.js";
+import type { RuleResult, Severity } from "../../types.js";
 import { tryRunGit } from "./git-exec.js";
+import type { GitDiffIgnoredRule } from "./types.js";
 
 export function checkGitDiffIgnored(
 	rule: GitDiffIgnoredRule | undefined,

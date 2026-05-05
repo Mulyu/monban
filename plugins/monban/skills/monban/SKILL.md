@@ -19,13 +19,13 @@ npx @mulyu/monban all --json                   # JSON 出力
 
 ## コマンド対応表
 
-<!-- monban:ref ../../../../docs/path.ja.md sha256:b15bc70569a25fdd23071fffd37403e8603828e1a67c6ddc997688c70f641ea3 -->
-<!-- monban:ref ../../../../docs/content.ja.md sha256:41bc0d9ff93220d08be53ed31ae26dc8add3d29b43b4e91d2f30aa328fcbab6d -->
-<!-- monban:ref ../../../../docs/doc.ja.md sha256:7142c36f91579151803e2294e97f799237f10d86ebadaed8be18b7c644320375 -->
-<!-- monban:ref ../../../../docs/github.ja.md sha256:183f1bf4b63ab6f46aec07c5a69a3d71ea9e97b0ddb1bbb424229cf27556af7c -->
-<!-- monban:ref ../../../../docs/deps.ja.md sha256:659e5232d2709358e96e13ef3946a2b07e4db5b4a4456732b337f907feb6e250 -->
-<!-- monban:ref ../../../../docs/git.ja.md sha256:43fce569e67a1a217f41b0f23efd8d58c541cbd18dc047e8517af55e52037899 -->
-<!-- monban:ref ../../../../docs/agent.ja.md sha256:89f7a1ef8063105adc04617b925c0d7f3410ff211ae237dcef0c7128dfce9733 -->
+<!-- monban:ref ../../../../docs/path.ja.md sha256:dd00dc5332c5e7f8cb214496506db190c0d2ff18e2df1a551a6bb50de4fc4f23 -->
+<!-- monban:ref ../../../../docs/content.ja.md sha256:eede4548c852aa29dcfe4a4e1260b1b0885f3a7a2498a8a10af721422974b2a8 -->
+<!-- monban:ref ../../../../docs/doc.ja.md sha256:46fe0a49b9099b122c9362e5dba6ab6d7871280555c02227b4432e6064f343c2 -->
+<!-- monban:ref ../../../../docs/github.ja.md sha256:336989e77a02f405345d983840f8b2622416cc1d96f031e399f09ce9ef3ba189 -->
+<!-- monban:ref ../../../../docs/deps.ja.md sha256:462c3b2541fc1657babcf1e4740a2b9364032542f0bcbaf6dd5ac4b77fd704f1 -->
+<!-- monban:ref ../../../../docs/git.ja.md sha256:ce85bb0be006721b585fac3964e5058bb66bcbbd1379750e40b18c1f514c02eb -->
+<!-- monban:ref ../../../../docs/agent.ja.md sha256:777254bca86627fc47d84ccc37039314fd0954a1c1b007b9953b67fa51ba3ac6 -->
 <!-- monban:ref ../../../../docs/diff.ja.md sha256:5726e9f22a61138d0af1ea57653fd2d6019f94ab2a2c38c9aec2aeaac2718e9c -->
 <!-- monban:ref ../../../../docs/extends.ja.md sha256:83d96111afd903aef0f70b2e1cffc6893340f592166345c4dfed404726327b10 -->
 

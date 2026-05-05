@@ -1,0 +1,52 @@
+import {
+	assertObject,
+	requireString,
+	validateArray,
+	validateSeverity,
+} from "../../config/schema/common.js";
+import type {
+	DocConfig,
+	DocLinkRule,
+	DocRefRule,
+} from "../../rules/doc/types.js";
+
+export function validateDocConfig(raw: unknown): DocConfig {
+	if (typeof raw !== "object" || raw === null) {
+		throw new Error("doc must be an object");
+	}
+
+	const obj = raw as Record<string, unknown>;
+	const config: DocConfig = {};
+
+	if (obj.ref !== undefined) {
+		config.ref = validateArray(obj.ref, "doc.ref", validateDocRefRule);
+	}
+	if (obj.link !== undefined) {
+		config.link = validateArray(obj.link, "doc.link", validateDocLinkRule);
+	}
+
+	return config;
+}
+
+function validateDocRefRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DocRefRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+	return { path: requireString(raw, "path", label) };
+}
+
+function validateDocLinkRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): DocLinkRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+	const rule: DocLinkRule = { path: requireString(raw, "path", label) };
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
