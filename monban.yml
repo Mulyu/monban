@@ -7,6 +7,12 @@ extends:
 exclude:
   - "**/dist/**"
   - "**/fixtures/**"
+  # invisible/injection 検出ルール自身を解説するドキュメント。
+  # 検出対象（不可視文字・指示上書きフレーズ）を表として掲載しているため擬陽性になる。
+  # okite から継承された invisible/injection ルールはルールレベルの exclude では除外できないので
+  # ここで全ルール対象から除外する。
+  - "docs/content.md"
+  - "docs/content.ja.md"
 
 path:
   forbidden:
