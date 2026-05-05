@@ -1,27 +1,27 @@
 import { Command } from "commander";
-import { loadConfig } from "./config/loader.js";
+import { loadConfig } from "../config/loader.js";
 import {
 	type Category,
 	type OrchestratorOpts,
 	runAll,
 	runCategory,
-} from "./orchestrator.js";
+} from "../orchestrator.js";
+import { AGENT_RULE_NAMES } from "../rules/agent/index.js";
+import { CONTENT_RULE_NAMES } from "../rules/content/index.js";
+import { DEPS_RULE_NAMES } from "../rules/deps/index.js";
+import { DOC_RULE_NAMES } from "../rules/doc/index.js";
+import { DOCKER_RULE_NAMES } from "../rules/docker/index.js";
+import { GIT_RULE_NAMES } from "../rules/git/index.js";
+import { GITHUB_RULE_NAMES } from "../rules/github/index.js";
+import { LICENSE_RULE_NAMES } from "../rules/license/index.js";
+import { RULE_NAMES as PATH_RULE_NAMES } from "../rules/path/index.js";
+import { RUNTIME_RULE_NAMES } from "../rules/runtime/index.js";
 import {
 	hasErrors,
 	hasErrorsInGroups,
 	reportAllResults,
 	reportCategory,
 } from "./reporter.js";
-import { AGENT_RULE_NAMES } from "./rules/agent/index.js";
-import { CONTENT_RULE_NAMES } from "./rules/content/index.js";
-import { DEPS_RULE_NAMES } from "./rules/deps/index.js";
-import { DOC_RULE_NAMES } from "./rules/doc/index.js";
-import { DOCKER_RULE_NAMES } from "./rules/docker/index.js";
-import { GIT_RULE_NAMES } from "./rules/git/index.js";
-import { GITHUB_RULE_NAMES } from "./rules/github/index.js";
-import { LICENSE_RULE_NAMES } from "./rules/license/index.js";
-import { RULE_NAMES as PATH_RULE_NAMES } from "./rules/path/index.js";
-import { RUNTIME_RULE_NAMES } from "./rules/runtime/index.js";
 
 interface CommonOpts extends OrchestratorOpts {
 	json?: boolean;

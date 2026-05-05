@@ -1,13 +1,13 @@
-import type { AgentRuleResult } from "./rules/agent/index.js";
-import type { ContentRuleResult } from "./rules/content/index.js";
-import type { DepsRuleResult } from "./rules/deps/index.js";
-import type { DocRuleResult } from "./rules/doc/index.js";
-import type { DockerRuleResult } from "./rules/docker/index.js";
-import type { GitRuleResult } from "./rules/git/index.js";
-import type { GithubRuleResult } from "./rules/github/index.js";
-import type { LicenseRuleResult } from "./rules/license/index.js";
-import type { PathRuleResult } from "./rules/path/index.js";
-import type { RuntimeRuleResult } from "./rules/runtime/index.js";
+import type { AgentRuleResult } from "../rules/agent/index.js";
+import type { ContentRuleResult } from "../rules/content/index.js";
+import type { DepsRuleResult } from "../rules/deps/index.js";
+import type { DocRuleResult } from "../rules/doc/index.js";
+import type { DockerRuleResult } from "../rules/docker/index.js";
+import type { GitRuleResult } from "../rules/git/index.js";
+import type { GithubRuleResult } from "../rules/github/index.js";
+import type { LicenseRuleResult } from "../rules/license/index.js";
+import type { PathRuleResult } from "../rules/path/index.js";
+import type { RuntimeRuleResult } from "../rules/runtime/index.js";
 
 export type CategoryRuleResult =
 	| PathRuleResult

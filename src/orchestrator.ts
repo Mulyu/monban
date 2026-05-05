@@ -1,5 +1,5 @@
+import type { CategoryGroup, CategoryRuleResult } from "./cli/reporter.js";
 import { applyDiffFilter, computeDiffScope } from "./diff.js";
-import type { CategoryGroup, CategoryRuleResult } from "./reporter.js";
 import { runAgentRules } from "./rules/agent/index.js";
 import { runContentRules } from "./rules/content/index.js";
 import { runDepsRules } from "./rules/deps/index.js";

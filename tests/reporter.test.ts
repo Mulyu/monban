@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { CategoryGroup, CategoryRuleResult } from "../src/reporter.js";
+import type { CategoryGroup, CategoryRuleResult } from "../src/cli/reporter.js";
 import {
 	hasErrors,
 	hasErrorsInGroups,
 	reportAllResults,
 	reportCategory,
-} from "../src/reporter.js";
+} from "../src/cli/reporter.js";
 
 function passing(name: string): CategoryRuleResult {
 	return { name, results: [] };
