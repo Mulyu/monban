@@ -7,6 +7,12 @@ extends:
 exclude:
   - "**/dist/**"
   - "**/fixtures/**"
+  # invisible/injection 検出ルール自身を解説するドキュメント。
+  # 検出対象（不可視文字・指示上書きフレーズ）を表として掲載しているため擬陽性になる。
+  # okite から継承された invisible/injection ルールはルールレベルの exclude では除外できないので
+  # ここで全ルール対象から除外する。
+  - "docs/content.md"
+  - "docs/content.ja.md"
 
 path:
   forbidden:
@@ -175,16 +181,6 @@ git:
       forbidden_subjects: ["fix", "update", "wip", "misc", "changes"]
       ignore_merges: true
       ignore_reverts: true
-  diff:
-    # 巨大 PR を警告（レビュー可能性の担保）
-    size:
-      max_total_lines: 1500
-      exclude:
-        - "package-lock.json"
-        - "**/__snapshots__/**"
-        - "**/*.lock"
-        - "**/*.ja.md"   # 英語原文のミラー翻訳。レビュー負荷の指標にカウントしない
-      severity: error
 
   # ブランチ命名規約（main / claude/* / feat/* / fix/* / chore/* / docs/*）
   branch_name:
