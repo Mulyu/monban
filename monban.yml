@@ -16,6 +16,10 @@ exclude:
 
 path:
   forbidden:
+    # src/ 直下に直接ファイルを置かない。責務別サブディレクトリに分類する。
+    - path: "src/*"
+      type: file
+      message: "src/ 直下にファイルを配置しないでください。責務別のサブディレクトリ (cli/ engine/ rules/ ...) に分類してください。"
     - path: "**/utils/**"
       message: "utils/ は使用禁止。適切なモジュールに配置してください。"
     - path: "**/helpers/**"
@@ -26,6 +30,8 @@ path:
       message: "utils.ts は曖昧な命名。具体的な責務を表すファイル名にしてください (例: manifest-loader.ts, workflow.ts)。"
     - path: "src/**/helpers.ts"
       message: "helpers.ts は曖昧な命名。具体的な責務を表すファイル名にしてください。"
+    - path: "src/config/schema.ts"
+      message: "schema.ts は schema/ ディレクトリと共存させず、schema/index.ts に統合してください。"
     - path: "src/rules/deps/registry/client.ts"
       message: "client.ts は registry/ ディレクトリと共存させず、registry/index.ts または責務別ファイル (ecosysteme.ts, offline.ts など) に分割してください。"
     # アンダースコア接頭辞は使用禁止。カテゴリ内ヘルパは internal/ サブディレクトリに配置する
@@ -158,10 +164,12 @@ content:
       message: "debugger を残さないでください。"
     - path: "src/**/*.ts"
       exclude:
-        - "src/cli/**"
+        - "src/cli/bin.ts"
+        - "src/cli/program.ts"
+        - "src/cli/reporter.ts"
         - "src/engine/orchestrator.ts"
       pattern: 'console\.(log|error|warn)'
-      message: "console 出力は src/cli/ と engine/orchestrator.ts に限定してください。"
+      message: "console 出力は bin/CLI/orchestrator/reporter に限定してください。"
     - path: "src/**/*.ts"
       pattern: '@ts-(ignore|nocheck)'
       message: "@ts-ignore / @ts-nocheck は禁止。@ts-expect-error + 理由コメントを使ってください。"
