@@ -1,13 +1,13 @@
-import type { AgentConfig } from "./rules/agent/types.js";
-import type { ContentConfig } from "./rules/content/types.js";
-import type { DepsConfig } from "./rules/deps/types.js";
-import type { DocConfig } from "./rules/doc/types.js";
-import type { DockerConfig } from "./rules/docker/types.js";
-import type { GitConfig } from "./rules/git/types.js";
-import type { GithubConfig } from "./rules/github/types.js";
-import type { LicenseConfig } from "./rules/license/types.js";
-import type { PathConfig } from "./rules/path/types.js";
-import type { RuntimeConfig } from "./rules/runtime/types.js";
+import type { AgentConfig } from "../rules/agent/types.js";
+import type { ContentConfig } from "../rules/content/types.js";
+import type { DepsConfig } from "../rules/deps/types.js";
+import type { DocConfig } from "../rules/doc/types.js";
+import type { DockerConfig } from "../rules/docker/types.js";
+import type { GitConfig } from "../rules/git/types.js";
+import type { GithubConfig } from "../rules/github/types.js";
+import type { LicenseConfig } from "../rules/license/types.js";
+import type { PathConfig } from "../rules/path/types.js";
+import type { RuntimeConfig } from "../rules/runtime/types.js";
 
 export type Severity = "error" | "warn";
 

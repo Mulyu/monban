@@ -1,15 +1,15 @@
-import type { CategoryGroup, CategoryRuleResult } from "./cli/reporter.js";
+import type { CategoryGroup, CategoryRuleResult } from "../cli/reporter.js";
+import { runAgentRules } from "../rules/agent/index.js";
+import { runContentRules } from "../rules/content/index.js";
+import { runDepsRules } from "../rules/deps/index.js";
+import { runDocRules } from "../rules/doc/index.js";
+import { runDockerRules } from "../rules/docker/index.js";
+import { runGitRules } from "../rules/git/index.js";
+import { runGithubRules } from "../rules/github/index.js";
+import { runLicenseRules } from "../rules/license/index.js";
+import { runPathRules } from "../rules/path/index.js";
+import { runRuntimeRules } from "../rules/runtime/index.js";
 import { applyDiffFilter, computeDiffScope } from "./diff.js";
-import { runAgentRules } from "./rules/agent/index.js";
-import { runContentRules } from "./rules/content/index.js";
-import { runDepsRules } from "./rules/deps/index.js";
-import { runDocRules } from "./rules/doc/index.js";
-import { runDockerRules } from "./rules/docker/index.js";
-import { runGitRules } from "./rules/git/index.js";
-import { runGithubRules } from "./rules/github/index.js";
-import { runLicenseRules } from "./rules/license/index.js";
-import { runPathRules } from "./rules/path/index.js";
-import { runRuntimeRules } from "./rules/runtime/index.js";
 import type { DiffGranularity, DiffScope, MonbanConfig } from "./types.js";
 
 export type Category =

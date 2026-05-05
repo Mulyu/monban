@@ -2,7 +2,7 @@ import type {
 	ExtendsGitHub,
 	ExtendsLocal,
 	ExtendsSource,
-} from "../../types.js";
+} from "../../engine/types.js";
 import {
 	assertObject,
 	optionalString,

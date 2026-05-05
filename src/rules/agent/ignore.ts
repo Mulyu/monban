@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { listAgentFiles } from "./internal/file-list.js";
 import type { AgentIgnoreRule } from "./types.js";
 

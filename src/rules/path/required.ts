@@ -1,7 +1,7 @@
 import { access } from "node:fs/promises";
 import { join, parse as parsePath } from "node:path";
 import fg from "fast-glob";
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import type { RequiredRule } from "./types.js";
 
 export async function checkPathRequired(

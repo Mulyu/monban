@@ -1,4 +1,4 @@
-import type { Severity } from "../../types.js";
+import type { Severity } from "../../engine/types.js";
 
 export interface LicenseFileRule {
 	path: string;

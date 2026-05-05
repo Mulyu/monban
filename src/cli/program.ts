@@ -5,7 +5,7 @@ import {
 	type OrchestratorOpts,
 	runAll,
 	runCategory,
-} from "../orchestrator.js";
+} from "../engine/orchestrator.js";
 import { AGENT_RULE_NAMES } from "../rules/agent/index.js";
 import { CONTENT_RULE_NAMES } from "../rules/content/index.js";
 import { DEPS_RULE_NAMES } from "../rules/deps/index.js";

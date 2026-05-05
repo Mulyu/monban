@@ -1,8 +1,8 @@
 import { rm } from "node:fs/promises";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { runAll, runCategory } from "../src/orchestrator.js";
-import type { MonbanConfig } from "../src/types.js";
+import { runAll, runCategory } from "../src/engine/orchestrator.js";
+import type { MonbanConfig } from "../src/engine/types.js";
 import { commit, createGitRepo, writeAndAdd } from "./git/helpers.js";
 
 const contentCwd = resolve(import.meta.dirname, "fixtures/content");

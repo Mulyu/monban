@@ -1,4 +1,4 @@
-import type { ExtendsSource } from "../../types.js";
+import type { ExtendsSource } from "../../engine/types.js";
 import { loadGitHubExtends } from "./github.js";
 import { loadLocalExtends } from "./local.js";
 import { mergeRawConfigs } from "./merge.js";

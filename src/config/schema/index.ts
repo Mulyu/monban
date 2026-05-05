@@ -1,3 +1,4 @@
+import type { MonbanConfig } from "../../engine/types.js";
 import { validateAgentConfig } from "../../rules/agent/schema.js";
 import { validateContentConfig } from "../../rules/content/schema.js";
 import { validateDepsConfig } from "../../rules/deps/schema.js";
@@ -8,7 +9,6 @@ import { validateGithubConfig } from "../../rules/github/schema/index.js";
 import { validateLicenseConfig } from "../../rules/license/schema.js";
 import { validatePathConfig } from "../../rules/path/schema.js";
 import { validateRuntimeConfig } from "../../rules/runtime/schema.js";
-import type { MonbanConfig } from "../../types.js";
 import { optionalStringArray } from "./common.js";
 import { validateExtends } from "./extends.js";
 

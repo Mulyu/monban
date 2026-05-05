@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
 import { matchAny } from "./match.js";
 import type { DepsForbiddenRule } from "./types.js";

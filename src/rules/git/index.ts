@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { checkGitBranchName } from "./branch-name.js";
 import { checkGitCommitMessage } from "./commit-message.js";
 import { checkGitCommitReferences } from "./commit-references.js";

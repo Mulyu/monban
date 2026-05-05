@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { checkDocLink } from "./link.js";
 import { checkDocRef } from "./ref.js";
 import type { DocConfig } from "./types.js";

@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { checkLicenseFile } from "./file.js";
 import { checkLicenseHeader } from "./header.js";
 import type { LicenseConfig } from "./types.js";

@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { checkGithubCodeowners } from "./codeowners.js";
 import { checkGithubConcurrency } from "./concurrency.js";
 import { checkGithubConsistency } from "./consistency.js";

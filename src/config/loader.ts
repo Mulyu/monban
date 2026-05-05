@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { parse } from "yaml";
-import { ConfigError } from "../errors.js";
-import type { MonbanConfig } from "../types.js";
+import { ConfigError } from "../engine/errors.js";
+import type { MonbanConfig } from "../engine/types.js";
 import { resolveExtends } from "./extends/index.js";
 import { validateConfig, validateExtends } from "./schema/index.js";
 

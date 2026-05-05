@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { checkPathCaseConflict } from "./case-conflict.js";
 import { checkPathCount } from "./count.js";
 import { checkPathDepth } from "./depth.js";

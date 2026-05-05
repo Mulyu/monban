@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { checkDepsAllowed } from "./allowed.js";
 import { checkDepsCrossEcosystem } from "./cross-ecosystem.js";
 import { checkDepsExistence } from "./existence.js";

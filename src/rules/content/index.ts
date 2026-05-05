@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { checkContentForbidden } from "./forbidden.js";
 import { checkContentRequired } from "./required.js";
 import { checkContentSize } from "./size.js";

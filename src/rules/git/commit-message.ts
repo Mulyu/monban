@@ -1,4 +1,4 @@
-import type { RuleResult, Severity } from "../../types.js";
+import type { RuleResult, Severity } from "../../engine/types.js";
 import { type GitCommit, getCommits } from "./commits.js";
 import type { GitCommitMessagePreset, GitCommitMessageRule } from "./types.js";
 

@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { checkAgentIgnore } from "./ignore.js";
 import { checkAgentInstructions } from "./instructions.js";
 import { checkAgentMcp } from "./mcp.js";

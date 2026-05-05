@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { checkDockerForbidden } from "./forbidden.js";
 import { checkDockerHealthcheck } from "./healthcheck.js";
 import { checkDockerPinned } from "./pinned.js";

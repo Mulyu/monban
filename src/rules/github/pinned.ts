@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { extractAllUses, loadWorkflows } from "./internal/workflow.js";
 import type { GithubPinnedRule, GithubPinnedTarget } from "./types.js";
 
