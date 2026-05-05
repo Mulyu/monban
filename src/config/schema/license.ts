@@ -2,7 +2,7 @@ import type {
 	LicenseConfig,
 	LicenseFileRule,
 	LicenseHeaderRule,
-} from "../../types.js";
+} from "../../rules/license/types.js";
 import {
 	assertObject,
 	optionalString,

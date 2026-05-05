@@ -11,7 +11,7 @@ import type {
 	PathHashRule,
 	PathSizeRule,
 	RequiredRule,
-} from "../../types.js";
+} from "../../rules/path/types.js";
 import {
 	assertObject,
 	NAMING_STYLES,

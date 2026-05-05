@@ -1,9 +1,10 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parseJson } from "../../ports/parse-json.js";
-import type { AgentMcpRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { listAgentFiles } from "./internal/file-list.js";
 import { isUnpinnedNpxArg, NPX_COMMAND_RE } from "./internal/npx.js";
+import type { AgentMcpRule } from "./types.js";
 
 const DEFAULT_FORBIDDEN_COMMANDS = ["curl", "wget", "sh", "bash", "zsh"];
 

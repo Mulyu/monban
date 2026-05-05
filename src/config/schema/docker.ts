@@ -5,7 +5,7 @@ import type {
 	DockerHealthcheckRule,
 	DockerPinnedRule,
 	DockerUserRule,
-} from "../../types.js";
+} from "../../rules/docker/types.js";
 import {
 	assertObject,
 	optionalString,

@@ -10,7 +10,7 @@ import type {
 	DepsInstallScriptsRule,
 	DepsPopularityRule,
 	DepsTyposquatRule,
-} from "../../types.js";
+} from "../../rules/deps/types.js";
 import {
 	assertObject,
 	optionalString,

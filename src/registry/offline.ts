@@ -1,4 +1,4 @@
-import type { DepsEcosystem } from "../types.js";
+import type { DepsEcosystem } from "../rules/deps/types.js";
 import type { PackageInfo, RegistryClient } from "./types.js";
 
 export class OfflineRegistryClient implements RegistryClient {

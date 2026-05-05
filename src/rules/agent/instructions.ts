@@ -1,8 +1,9 @@
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { parseYaml } from "../../ports/parse-yaml.js";
-import type { AgentInstructionsRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { listAgentFiles } from "./internal/file-list.js";
+import type { AgentInstructionsRule } from "./types.js";
 
 const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---\n?/;
 

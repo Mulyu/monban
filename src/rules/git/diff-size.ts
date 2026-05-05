@@ -1,6 +1,7 @@
 import picomatch from "picomatch";
-import type { GitDiffSizeRule, RuleResult, Severity } from "../../types.js";
+import type { RuleResult, Severity } from "../../types.js";
 import { tryRunGit } from "./git-exec.js";
+import type { GitDiffSizeRule } from "./types.js";
 
 interface FileStat {
 	path: string;

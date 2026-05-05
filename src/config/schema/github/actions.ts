@@ -13,7 +13,7 @@ import type {
 	GithubSecretsRule,
 	GithubTimeoutRule,
 	GithubTriggersRule,
-} from "../../../types.js";
+} from "../../../rules/github/types.js";
 import {
 	assertObject,
 	optionalString,

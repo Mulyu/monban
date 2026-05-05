@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import type { DockerForbiddenRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { parseDockerfile } from "./internal/dockerfile.js";
+import type { DockerForbiddenRule } from "./types.js";
 
 export async function checkDockerForbidden(
 	rules: DockerForbiddenRule[],

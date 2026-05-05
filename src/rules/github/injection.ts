@@ -1,5 +1,6 @@
-import type { GithubActionsInjectionRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { getJobs, loadWorkflows } from "./internal/workflow.js";
+import type { GithubActionsInjectionRule } from "./types.js";
 
 // Untrusted input contexts most often abused in script injection attacks.
 // Reference: GitHub security hardening guide, OWASP CI/CD Top 10.

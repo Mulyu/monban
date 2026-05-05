@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { AgentIgnoreRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { listAgentFiles } from "./internal/file-list.js";
+import type { AgentIgnoreRule } from "./types.js";
 
 const DEFAULT_REQUIRED = [
 	".env",

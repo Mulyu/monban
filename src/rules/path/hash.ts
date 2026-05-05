@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import type { PathHashRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
+import type { PathHashRule } from "./types.js";
 
 export async function checkPathHash(
 	rules: PathHashRule[],

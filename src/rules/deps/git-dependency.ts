@@ -1,5 +1,6 @@
-import type { DepsGitDependencyRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
+import type { DepsGitDependencyRule } from "./types.js";
 
 const GIT_PREFIX = /^(git\+|git:|git@|ssh:\/\/)/;
 const FILE_PREFIX = /^(file:|\.{1,2}\/|\/)/;

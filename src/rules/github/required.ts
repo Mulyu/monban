@@ -2,8 +2,9 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parseYaml } from "../../ports/parse-yaml.js";
-import type { GithubRequiredRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { extractStepUses } from "./internal/workflow.js";
+import type { GithubRequiredRule } from "./types.js";
 
 export async function checkGithubRequired(
 	rules: GithubRequiredRule[],

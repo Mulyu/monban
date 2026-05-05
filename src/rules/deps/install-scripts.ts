@@ -1,5 +1,6 @@
-import type { DepsInstallScriptsRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
+import type { DepsInstallScriptsRule } from "./types.js";
 
 const DEFAULT_FORBIDDEN = ["preinstall", "install", "postinstall", "prepare"];
 

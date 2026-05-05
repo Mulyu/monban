@@ -1,9 +1,10 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parseJson } from "../../ports/parse-json.js";
-import type { AgentSettingsRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { listAgentFiles } from "./internal/file-list.js";
 import { isUnpinnedNpxArg, NPX_IN_COMMAND } from "./internal/npx.js";
+import type { AgentSettingsRule } from "./types.js";
 
 const DEFAULT_FORBIDDEN_PERMISSIONS = [
 	"^Bash\\(\\*\\)$",

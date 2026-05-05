@@ -1,7 +1,7 @@
 import type {
 	GithubCodeownersConfig,
 	GithubCodeownersRule,
-} from "../../../types.js";
+} from "../../../rules/github/types.js";
 import {
 	assertObject,
 	optionalString,

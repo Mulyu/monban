@@ -6,7 +6,7 @@ import type {
 	RuntimeConfig,
 	RuntimeConsistencyRule,
 	RuntimeConsistencySource,
-} from "../../types.js";
+} from "../../rules/runtime/types.js";
 import {
 	assertObject,
 	optionalString,

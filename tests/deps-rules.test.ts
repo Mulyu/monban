@@ -10,8 +10,8 @@ import { checkDepsFreshness } from "../src/rules/deps/freshness.js";
 import { checkDepsGitDependency } from "../src/rules/deps/git-dependency.js";
 import { checkDepsInstallScripts } from "../src/rules/deps/install-scripts.js";
 import { checkDepsPopularity } from "../src/rules/deps/popularity.js";
+import type { DepsEcosystem } from "../src/rules/deps/types.js";
 import { checkDepsTyposquat } from "../src/rules/deps/typosquat.js";
-import type { DepsEcosystem } from "../src/types.js";
 
 const cwd = resolve(import.meta.dirname, "fixtures/deps");
 

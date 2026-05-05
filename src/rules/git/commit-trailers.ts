@@ -1,11 +1,10 @@
+import type { RuleResult, Severity } from "../../types.js";
+import { type GitTrailer, getCommits } from "./commits.js";
 import type {
 	GitCommitTrailersRule,
 	GitTrailerForbiddenEntry,
 	GitTrailerRequiredEntry,
-	RuleResult,
-	Severity,
-} from "../../types.js";
-import { type GitTrailer, getCommits } from "./commits.js";
+} from "./types.js";
 
 export function checkGitCommitTrailers(
 	rule: GitCommitTrailersRule | undefined,

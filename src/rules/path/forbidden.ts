@@ -1,7 +1,8 @@
 import { lstat } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import type { ForbiddenRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
+import type { ForbiddenRule } from "./types.js";
 
 export async function checkPathForbidden(
 	rules: ForbiddenRule[],

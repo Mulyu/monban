@@ -14,7 +14,8 @@ import {
 import { SECRET_DETECTORS } from "../../ports/detectors/secret.js";
 import { resolveJsonKey } from "../../ports/json-key-resolver.js";
 import { parseJson } from "../../ports/parse-json.js";
-import type { ContentForbiddenRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
+import type { ContentForbiddenRule } from "./types.js";
 
 export async function checkContentForbidden(
 	rules: ContentForbiddenRule[],

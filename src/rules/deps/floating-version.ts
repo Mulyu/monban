@@ -1,6 +1,7 @@
 import picomatch from "picomatch";
-import type { DepsFloatingVersionRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
+import type { DepsFloatingVersionRule } from "./types.js";
 
 export async function checkDepsFloatingVersion(
 	rules: DepsFloatingVersionRule[],

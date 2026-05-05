@@ -1,6 +1,7 @@
-import type { LicenseConfig, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { checkLicenseFile } from "./file.js";
 import { checkLicenseHeader } from "./header.js";
+import type { LicenseConfig } from "./types.js";
 
 export interface LicenseRuleResult {
 	name: string;

@@ -1,4 +1,8 @@
-import type { DocConfig, DocLinkRule, DocRefRule } from "../../types.js";
+import type {
+	DocConfig,
+	DocLinkRule,
+	DocRefRule,
+} from "../../rules/doc/types.js";
 import {
 	assertObject,
 	requireString,

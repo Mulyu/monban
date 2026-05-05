@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { runPathRules } from "../src/rules/path/index.js";
-import type { PathConfig } from "../src/types.js";
+import type { PathConfig } from "../src/rules/path/types.js";
 
 const cwd = resolve(import.meta.dirname, "fixtures/project");
 

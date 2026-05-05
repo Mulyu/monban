@@ -1,6 +1,7 @@
-import type { DocConfig, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { checkDocLink } from "./link.js";
 import { checkDocRef } from "./ref.js";
+import type { DocConfig } from "./types.js";
 
 export interface DocRuleResult {
 	name: string;

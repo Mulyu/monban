@@ -1,5 +1,6 @@
-import type { GithubPermissionsRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { getJobs, loadWorkflows } from "./internal/workflow.js";
+import type { GithubPermissionsRule } from "./types.js";
 
 export async function checkGithubPermissions(
 	rules: GithubPermissionsRule[],

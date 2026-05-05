@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { basename, join } from "node:path";
-import type { DepsEcosystem } from "../types.js";
+import type { DepsEcosystem } from "../rules/deps/types.js";
 import { parseManifestContent } from "./internal/registry.js";
 
 export interface ManifestEntry {

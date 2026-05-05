@@ -15,7 +15,7 @@ import type {
 	GitTrailerAllowedEntry,
 	GitTrailerForbiddenEntry,
 	GitTrailerRequiredEntry,
-} from "../../types.js";
+} from "../../rules/git/types.js";
 import {
 	assertObject,
 	optionalString,

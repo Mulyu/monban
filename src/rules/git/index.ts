@@ -1,4 +1,4 @@
-import type { GitConfig, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { checkGitBranchName } from "./branch-name.js";
 import { checkGitCommitMessage } from "./commit-message.js";
 import { checkGitCommitReferences } from "./commit-references.js";
@@ -7,6 +7,7 @@ import { checkGitDiffIgnored } from "./diff-ignored.js";
 import { checkGitDiffSize } from "./diff-size.js";
 import { resolveGitRange } from "./range.js";
 import { checkGitTagName } from "./tag-name.js";
+import type { GitConfig } from "./types.js";
 
 export interface GitRuleResult {
 	name: string;

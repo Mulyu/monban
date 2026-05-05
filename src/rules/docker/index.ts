@@ -1,7 +1,8 @@
-import type { DockerConfig, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { checkDockerForbidden } from "./forbidden.js";
 import { checkDockerHealthcheck } from "./healthcheck.js";
 import { checkDockerPinned } from "./pinned.js";
+import type { DockerConfig } from "./types.js";
 import { checkDockerUser } from "./user.js";
 
 export interface DockerRuleResult {

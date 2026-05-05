@@ -9,7 +9,7 @@ import { checkDepsCrossEcosystem } from "../src/rules/deps/cross-ecosystem.js";
 import { checkDepsExistence } from "../src/rules/deps/existence.js";
 import { checkDepsFreshness } from "../src/rules/deps/freshness.js";
 import { checkDepsPopularity } from "../src/rules/deps/popularity.js";
-import type { DepsEcosystem } from "../src/types.js";
+import type { DepsEcosystem } from "../src/rules/deps/types.js";
 
 const cwd = resolve(import.meta.dirname, "fixtures/deps");
 

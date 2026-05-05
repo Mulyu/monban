@@ -1,9 +1,6 @@
-import type {
-	GitCommitReferencesRule,
-	RuleResult,
-	Severity,
-} from "../../types.js";
+import type { RuleResult, Severity } from "../../types.js";
 import { type GitCommit, getCommits } from "./commits.js";
+import type { GitCommitReferencesRule } from "./types.js";
 
 export function checkGitCommitReferences(
 	rule: GitCommitReferencesRule | undefined,

@@ -1,6 +1,7 @@
 import { parse as parsePath } from "node:path";
 import fg from "fast-glob";
-import type { NamingRule, NamingStyle, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
+import type { NamingRule, NamingStyle } from "./types.js";
 
 const STYLE_VALIDATORS: Record<NamingStyle, (name: string) => boolean> = {
 	pascal: (name) => /^[A-Z][a-zA-Z0-9]*$/.test(name),

@@ -1,5 +1,6 @@
-import type { GithubActionsDangerRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { getJobs, loadWorkflows } from "./internal/workflow.js";
+import type { GithubActionsDangerRule } from "./types.js";
 
 interface RawWorkflow {
 	on?: unknown;

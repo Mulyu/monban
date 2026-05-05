@@ -1,6 +1,7 @@
-import type { DepsAllowedRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
 import { matchAny } from "./match.js";
+import type { DepsAllowedRule } from "./types.js";
 
 export async function checkDepsAllowed(
 	rules: DepsAllowedRule[],

@@ -3,7 +3,7 @@ import {
 	OfflineRegistryClient,
 	type RegistryClient,
 } from "../../registry/index.js";
-import type { DepsConfig, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { checkDepsAllowed } from "./allowed.js";
 import { checkDepsCrossEcosystem } from "./cross-ecosystem.js";
 import { checkDepsExistence } from "./existence.js";
@@ -13,6 +13,7 @@ import { checkDepsFreshness } from "./freshness.js";
 import { checkDepsGitDependency } from "./git-dependency.js";
 import { checkDepsInstallScripts } from "./install-scripts.js";
 import { checkDepsPopularity } from "./popularity.js";
+import type { DepsConfig } from "./types.js";
 import { checkDepsTyposquat } from "./typosquat.js";
 
 export interface DepsRuleResult {

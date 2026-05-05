@@ -4,7 +4,7 @@ import type {
 	AgentInstructionsRule,
 	AgentMcpRule,
 	AgentSettingsRule,
-} from "../../types.js";
+} from "../../rules/agent/types.js";
 import {
 	assertObject,
 	optionalString,

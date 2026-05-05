@@ -4,7 +4,7 @@ import type {
 	ContentRequiredRule,
 	ContentRequiredScope,
 	ContentSizeRule,
-} from "../../types.js";
+} from "../../rules/content/types.js";
 import {
 	assertObject,
 	CONTENT_REQUIRED_SCOPES,

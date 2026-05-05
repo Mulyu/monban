@@ -1,5 +1,6 @@
-import type { RuleResult, RuntimeConfig } from "../../types.js";
+import type { RuleResult } from "../../types.js";
 import { checkRuntimeConsistency } from "./consistency.js";
+import type { RuntimeConfig } from "./types.js";
 
 export interface RuntimeRuleResult {
 	name: string;

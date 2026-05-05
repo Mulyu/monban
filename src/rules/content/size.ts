@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import type { ContentSizeRule, RuleResult } from "../../types.js";
+import type { RuleResult } from "../../types.js";
+import type { ContentSizeRule } from "./types.js";
 
 export async function checkContentSize(
 	rules: ContentSizeRule[],

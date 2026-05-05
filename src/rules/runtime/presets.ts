@@ -1,4 +1,4 @@
-import type { RuntimeConsistencySource } from "../../types.js";
+import type { RuntimeConsistencySource } from "./types.js";
 
 export const RUNTIME_PRESETS: Record<string, RuntimeConsistencySource[]> = {
 	node: [

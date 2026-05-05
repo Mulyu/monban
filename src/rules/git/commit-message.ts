@@ -1,10 +1,6 @@
-import type {
-	GitCommitMessagePreset,
-	GitCommitMessageRule,
-	RuleResult,
-	Severity,
-} from "../../types.js";
+import type { RuleResult, Severity } from "../../types.js";
 import { type GitCommit, getCommits } from "./commits.js";
+import type { GitCommitMessagePreset, GitCommitMessageRule } from "./types.js";
 
 const PRESET_PATTERNS: Record<GitCommitMessagePreset, string> = {
 	conventional:
