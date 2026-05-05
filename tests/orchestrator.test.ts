@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { runAll, runCategory } from "../src/orchestrator.js";
 import type { MonbanConfig } from "../src/types.js";
-import { commit, createGitRepo, writeAndAdd } from "./git-helpers.js";
+import { commit, createGitRepo, writeAndAdd } from "./git/helpers.js";
 
 const contentCwd = resolve(import.meta.dirname, "fixtures/content");
 const projectCwd = resolve(import.meta.dirname, "fixtures/project");
