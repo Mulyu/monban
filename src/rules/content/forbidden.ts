@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import { resolveJsonKey } from "../../ports/json-key-resolver.js";
-import { parseJson } from "../../ports/parse-json.js";
+import { resolveJsonKey } from "../../shared/json-key-resolver.js";
+import { parseJson } from "../../shared/parse-json.js";
 import type { RuleResult } from "../../types.js";
 import { BIDI_REGEX, lookupBidi } from "./detectors/bidi.js";
 import { CONFLICT_MARKERS } from "./detectors/conflict.js";

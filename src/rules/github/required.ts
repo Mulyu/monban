@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { parseYaml } from "../../ports/parse-yaml.js";
+import { parseYaml } from "../../shared/parse-yaml.js";
 import type { RuleResult } from "../../types.js";
 import { extractStepUses } from "./internal/workflow.js";
 import type { GithubRequiredRule } from "./types.js";

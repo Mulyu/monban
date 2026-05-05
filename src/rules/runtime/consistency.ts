@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import { parseJson } from "../../ports/parse-json.js";
-import { parseYaml } from "../../ports/parse-yaml.js";
+import { parseJson } from "../../shared/parse-json.js";
+import { parseYaml } from "../../shared/parse-yaml.js";
 import type { RuleResult } from "../../types.js";
 import type {
 	RuntimeConsistencyRule,

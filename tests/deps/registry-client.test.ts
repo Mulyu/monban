@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { TtlCache } from "../../src/ports/cache.js";
-import {
-	type HttpPort,
-	HttpPortError,
-	type HttpResponse,
-} from "../../src/ports/http.js";
 import {
 	EcosystemeClient,
 	OfflineRegistryClient,
 	RegistryLookupError,
 } from "../../src/rules/deps/registry/index.js";
+import { TtlCache } from "../../src/shared/cache.js";
+import {
+	type HttpPort,
+	HttpPortError,
+	type HttpResponse,
+} from "../../src/shared/http.js";
 
 class StubHttpPort implements HttpPort {
 	public calls: string[] = [];

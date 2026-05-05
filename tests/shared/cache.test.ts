@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TtlCache } from "../src/ports/cache.js";
+import { TtlCache } from "../../src/shared/cache.js";
 
 describe("TtlCache", () => {
 	it("returns undefined for unknown keys", () => {

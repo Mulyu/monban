@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { FetchHttpPort, HttpPortError } from "../src/ports/http.js";
+import { FetchHttpPort, HttpPortError } from "../../src/shared/http.js";
 
 describe("FetchHttpPort", () => {
 	const originalFetch = globalThis.fetch;

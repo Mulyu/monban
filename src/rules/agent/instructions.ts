@@ -1,6 +1,6 @@
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
-import { parseYaml } from "../../ports/parse-yaml.js";
+import { parseYaml } from "../../shared/parse-yaml.js";
 import type { RuleResult } from "../../types.js";
 import { listAgentFiles } from "./internal/file-list.js";
 import type { AgentInstructionsRule } from "./types.js";
