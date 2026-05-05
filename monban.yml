@@ -67,6 +67,10 @@ path:
       max: 18
     - path: "src/rules/git"
       max: 12
+    - path: "src/rules/license"
+      max: 6
+    - path: "src/rules/docker"
+      max: 8
 
   # 大文字小文字違いで衝突するファイル名を検出
   case_conflict:
@@ -129,6 +133,12 @@ content:
     - path: "src/rules/runtime/*.ts"
       pattern: '^export (async )?function check(?!Runtime)[A-Z]'
       message: "src/rules/runtime/ の check 関数は checkRuntime* と命名してください。"
+    - path: "src/rules/license/*.ts"
+      pattern: '^export (async )?function check(?!License)[A-Z]'
+      message: "src/rules/license/ の check 関数は checkLicense* と命名してください。"
+    - path: "src/rules/docker/*.ts"
+      pattern: '^export (async )?function check(?!Docker)[A-Z]'
+      message: "src/rules/docker/ の check 関数は checkDocker* と命名してください。"
 
     # --- デバッグ残渣 / 型安全 ---
     - path: "src/**/*.ts"

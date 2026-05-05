@@ -21,6 +21,8 @@ Index of user-facing monban docs.
 | [git.md](git.md) | Git metadata (`commit.message` / `commit.trailers` / `commit.references` / `diff.size` / `diff.ignored` / `branch_name` / `tag_name`) |
 | [agent.md](agent.md) | AI agent configuration (`instructions` / `mcp` / `ignore`) |
 | [runtime.md](runtime.md) | Runtime version pins — cross-file consistency (`consistency`) |
+| [license.md](license.md) | License identifiers (`file` / `header`) |
+| [docker.md](docker.md) | Dockerfile checks (`pinned` / `user` / `healthcheck` / `forbidden`) |
 
 ## CLI
 

@@ -2,8 +2,10 @@ import type { AgentRuleResult } from "./rules/agent/index.js";
 import type { ContentRuleResult } from "./rules/content/index.js";
 import type { DepsRuleResult } from "./rules/deps/index.js";
 import type { DocRuleResult } from "./rules/doc/index.js";
+import type { DockerRuleResult } from "./rules/docker/index.js";
 import type { GitRuleResult } from "./rules/git/index.js";
 import type { GithubRuleResult } from "./rules/github/index.js";
+import type { LicenseRuleResult } from "./rules/license/index.js";
 import type { PathRuleResult } from "./rules/path/index.js";
 import type { RuntimeRuleResult } from "./rules/runtime/index.js";
 
@@ -15,7 +17,9 @@ export type CategoryRuleResult =
 	| DepsRuleResult
 	| GitRuleResult
 	| AgentRuleResult
-	| RuntimeRuleResult;
+	| RuntimeRuleResult
+	| LicenseRuleResult
+	| DockerRuleResult;
 
 export interface CategoryGroup {
 	category: string;
@@ -38,6 +42,8 @@ const CATEGORY_TITLES: Record<string, string> = {
 	git: "monban git — Git チェック",
 	agent: "monban agent — エージェントチェック",
 	runtime: "monban runtime — ランタイムチェック",
+	license: "monban license — ライセンスチェック",
+	docker: "monban docker — Docker チェック",
 };
 
 export function reportCategory(

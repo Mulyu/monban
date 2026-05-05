@@ -511,6 +511,76 @@ export interface RuntimeConfig {
 	consistency?: RuntimeConsistencyRule[];
 }
 
+// --- License config types ---
+
+export interface LicenseFileRule {
+	path: string;
+	allowed?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface LicenseHeaderRule {
+	path: string;
+	exclude?: string[];
+	allowed?: string[];
+	within_lines?: number;
+	message?: string;
+	severity?: Severity;
+}
+
+export interface LicenseConfig {
+	file?: LicenseFileRule[];
+	header?: LicenseHeaderRule[];
+}
+
+// --- Docker config types ---
+
+export interface DockerPinnedRule {
+	path: string;
+	exclude?: string[];
+	digest?: boolean;
+	message?: string;
+	severity?: Severity;
+}
+
+export interface DockerUserRule {
+	path: string;
+	exclude?: string[];
+	required?: boolean;
+	forbidden?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface DockerHealthcheckRule {
+	path: string;
+	exclude?: string[];
+	required?: boolean;
+	message?: string;
+	severity?: Severity;
+}
+
+export interface DockerForbiddenInstruction {
+	name: string;
+	pattern?: string;
+	message?: string;
+}
+
+export interface DockerForbiddenRule {
+	path: string;
+	exclude?: string[];
+	instructions: DockerForbiddenInstruction[];
+	severity?: Severity;
+}
+
+export interface DockerConfig {
+	pinned?: DockerPinnedRule[];
+	user?: DockerUserRule[];
+	healthcheck?: DockerHealthcheckRule[];
+	forbidden?: DockerForbiddenRule[];
+}
+
 // --- Extends types ---
 
 export interface ExtendsLocal {
@@ -538,6 +608,8 @@ export interface MonbanConfig {
 	git?: GitConfig;
 	agent?: AgentConfig;
 	runtime?: RuntimeConfig;
+	license?: LicenseConfig;
+	docker?: DockerConfig;
 }
 
 // --- Diff scope types ---

@@ -23,6 +23,8 @@ For the design philosophy, see [docs/concepts.md](docs/concepts.md).
 | `monban deps` | Validate manifest dependency names against registries: existence, freshness, popularity, similarity | [docs/deps.md](docs/deps.md) |
 | `monban git` | Commit messages, trailers, issue references, change granularity, ignore bypasses | [docs/git.md](docs/git.md) |
 | `monban runtime` | Runtime version pins (`.nvmrc` / `engines` / `Dockerfile FROM` / GitHub Actions matrix) — cross-file consistency | [docs/runtime.md](docs/runtime.md) |
+| `monban license` | LICENSE file detection (SPDX tag / template) and source-header SPDX identifiers | [docs/license.md](docs/license.md) |
+| `monban docker` | Dockerfile checks: tag pinning, USER, HEALTHCHECK, forbidden instructions | [docs/docker.md](docs/docker.md) |
 
 The `--diff` flag, which scopes a run to a PR diff, works on every command ([docs/diff.md](docs/diff.md)). For reusing organization-wide rule sets, see [docs/extends.md](docs/extends.md).
 
@@ -58,6 +60,8 @@ monban github
 monban deps
 monban git
 monban runtime
+monban license
+monban docker
 
 # Run a single rule
 monban path --rule forbidden
@@ -92,6 +96,8 @@ github:  { ... }   # docs/github.md
 deps:    { ... }   # docs/deps.md
 git:     { ... }   # docs/git.md
 runtime: { ... }   # docs/runtime.md
+license: { ... }   # docs/license.md
+docker:  { ... }   # docs/docker.md
 ```
 
 ---

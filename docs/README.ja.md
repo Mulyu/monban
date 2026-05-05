@@ -21,6 +21,8 @@ monban のユーザー向けドキュメント索引。
 | [git.md](git.ja.md) | Git メタデータ（`commit.message` / `commit.trailers` / `commit.references` / `diff.size` / `diff.ignored` / `branch_name` / `tag_name`） |
 | [agent.md](agent.ja.md) | AI エージェント設定（`instructions` / `mcp` / `ignore`） |
 | [runtime.md](runtime.ja.md) | ランタイムバージョン指定の複数ファイル整合（`consistency`） |
+| [license.md](license.ja.md) | ライセンス識別子（`file` / `header`） |
+| [docker.md](docker.ja.md) | Dockerfile チェック（`pinned` / `user` / `healthcheck` / `forbidden`） |
 
 ## CLI
 
