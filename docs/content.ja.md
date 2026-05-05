@@ -62,7 +62,7 @@ content:
 
 ## 1. required
 
-<!-- monban:ref ../src/rules/content/required.ts sha256:001b448a2d34223d90eb5ab39d6a785a2773d0085994651694c843cc2ac9dad8 -->
+<!-- monban:ref ../src/rules/content/required.ts sha256:53700ec48a374177fc94c107752b0bf627785711172597306b56fe00c06c5c89 -->
 
 ファイル内に含まれるべきテキストパターンを定義する。
 
@@ -134,7 +134,7 @@ ERROR [required] src/generated/api.ts
 
 ## 2. forbidden
 
-<!-- monban:ref ../src/rules/content/forbidden.ts sha256:c10a3d69375ac452bd256a09c095071d3af587019c962619bc8a3d9d37658f0f -->
+<!-- monban:ref ../src/rules/content/forbidden.ts sha256:1babc83fd5c5a8a2208bd2eeaa96c016c0713ed53fde842fd8088ea4d60f7687 -->
 
 ファイル内にあってはならないものを定義する。テキストパターン、BOM、不可視 Unicode 文字、シークレット、プロンプトインジェクション、マージコンフリクトマーカーの 6 種類を同じルールで扱う。加えて、JSON ファイルの特定キーを対象に値をパターン検査する `json_key` モディファイアがある。
 
@@ -347,7 +347,7 @@ ERROR [forbidden] src/legacy/module.ts:12
 
 ## 3. size
 
-<!-- monban:ref ../src/rules/content/size.ts sha256:aff8a756975537ef73920dafb03282539896b0afe7b25f0a33bb075c8fdc3fc2 -->
+<!-- monban:ref ../src/rules/content/size.ts sha256:24e187a74ed0d2afa59e371ee11ea1254d1cda00504d38b91e990fe4ad507589 -->
 
 ファイルの行数（line count）が閾値以内に収まっているかを検証する。AIエージェントは 1 ファイルに機能を詰め込みがちで、可読性や責務分割の観点で肥大化を検出したい場面がある。
 

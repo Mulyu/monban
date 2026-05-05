@@ -1,30 +1,4 @@
-import type { AgentRuleResult } from "../rules/agent/index.js";
-import type { ContentRuleResult } from "../rules/content/index.js";
-import type { DepsRuleResult } from "../rules/deps/index.js";
-import type { DocRuleResult } from "../rules/doc/index.js";
-import type { DockerRuleResult } from "../rules/docker/index.js";
-import type { GitRuleResult } from "../rules/git/index.js";
-import type { GithubRuleResult } from "../rules/github/index.js";
-import type { LicenseRuleResult } from "../rules/license/index.js";
-import type { PathRuleResult } from "../rules/path/index.js";
-import type { RuntimeRuleResult } from "../rules/runtime/index.js";
-
-export type CategoryRuleResult =
-	| PathRuleResult
-	| ContentRuleResult
-	| DocRuleResult
-	| GithubRuleResult
-	| DepsRuleResult
-	| GitRuleResult
-	| AgentRuleResult
-	| RuntimeRuleResult
-	| LicenseRuleResult
-	| DockerRuleResult;
-
-export interface CategoryGroup {
-	category: string;
-	results: CategoryRuleResult[];
-}
+import type { CategoryGroup, RuleGroupResult } from "../engine/types.js";
 
 interface ViolationStats {
 	totalErrors: number;
@@ -48,7 +22,7 @@ const CATEGORY_TITLES: Record<string, string> = {
 
 export function reportCategory(
 	category: string,
-	ruleResults: CategoryRuleResult[],
+	ruleResults: RuleGroupResult[],
 	json: boolean,
 ): void {
 	const title = CATEGORY_TITLES[category] ?? `monban ${category}`;
@@ -67,7 +41,7 @@ export function reportAllResults(groups: CategoryGroup[], json: boolean): void {
 	reportAllText(groups);
 }
 
-function reportJson(ruleResults: CategoryRuleResult[]): void {
+function reportJson(ruleResults: RuleGroupResult[]): void {
 	const output = ruleResults.map(toJsonRuleEntry);
 	console.log(JSON.stringify(output, null, 2));
 }
@@ -80,7 +54,7 @@ function reportAllJson(groups: CategoryGroup[]): void {
 	console.log(JSON.stringify(output, null, 2));
 }
 
-function toJsonRuleEntry(r: CategoryRuleResult) {
+function toJsonRuleEntry(r: RuleGroupResult) {
 	return {
 		rule: r.name,
 		violations: r.results.map((v) => ({
@@ -91,7 +65,7 @@ function toJsonRuleEntry(r: CategoryRuleResult) {
 	};
 }
 
-function reportText(title: string, ruleResults: CategoryRuleResult[]): void {
+function reportText(title: string, ruleResults: RuleGroupResult[]): void {
 	const stats = computeStats(ruleResults);
 	console.log(`\n${title}\n`);
 	printRuleList(ruleResults, "  ");
@@ -119,7 +93,7 @@ function reportAllText(groups: CategoryGroup[]): void {
 	printSummaryFooter(stats, allRuleResults.length);
 }
 
-function computeStats(ruleResults: CategoryRuleResult[]): ViolationStats {
+function computeStats(ruleResults: RuleGroupResult[]): ViolationStats {
 	const allResults = ruleResults.flatMap((r) => r.results);
 	const totalErrors = allResults.filter((r) => r.severity === "error").length;
 	const totalWarns = allResults.filter((r) => r.severity === "warn").length;
@@ -131,10 +105,7 @@ function computeStats(ruleResults: CategoryRuleResult[]): ViolationStats {
 	};
 }
 
-function printRuleList(
-	ruleResults: CategoryRuleResult[],
-	indent: string,
-): void {
+function printRuleList(ruleResults: RuleGroupResult[], indent: string): void {
 	for (const rule of ruleResults) {
 		if (rule.results.length === 0) {
 			console.log(`${indent}✓ ${rule.name}`);
@@ -150,7 +121,7 @@ function printRuleList(
 	}
 }
 
-function printViolationDetails(ruleResults: CategoryRuleResult[]): void {
+function printViolationDetails(ruleResults: RuleGroupResult[]): void {
 	console.log("");
 	for (const rule of ruleResults) {
 		for (const v of rule.results) {
@@ -185,7 +156,7 @@ function printSummaryFooter(stats: ViolationStats, totalRules: number): void {
 	console.log("");
 }
 
-export function hasErrors(ruleResults: CategoryRuleResult[]): boolean {
+export function hasErrors(ruleResults: RuleGroupResult[]): boolean {
 	return ruleResults.some((r) => r.results.some((v) => v.severity === "error"));
 }
 

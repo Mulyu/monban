@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../engine/types.js";
+import type { Check, RuleGroupResult, RuleResult } from "../../engine/types.js";
 import { checkPathCaseConflict } from "./case-conflict.js";
 import { checkPathCount } from "./count.js";
 import { checkPathDepth } from "./depth.js";
@@ -6,13 +6,9 @@ import { checkPathForbidden } from "./forbidden.js";
 import { checkPathHash } from "./hash.js";
 import { checkPathNaming } from "./naming.js";
 import { checkPathRequired } from "./required.js";
+import { validatePathConfig } from "./schema.js";
 import { checkPathSize } from "./size.js";
 import type { PathConfig } from "./types.js";
-
-export interface PathRuleResult {
-	name: string;
-	results: RuleResult[];
-}
 
 const RULE_RUNNERS: Record<
 	string,
@@ -33,25 +29,26 @@ const RULE_RUNNERS: Record<
 		checkPathCaseConflict(c.case_conflict ?? [], cwd, ex),
 };
 
-export const RULE_NAMES = Object.keys(RULE_RUNNERS);
+const RULE_NAMES = Object.keys(RULE_RUNNERS);
 
-export async function runPathRules(
-	config: PathConfig,
-	cwd: string,
-	globalExclude: string[],
-	ruleFilter?: string,
-): Promise<PathRuleResult[]> {
-	const names = ruleFilter ? [ruleFilter] : RULE_NAMES;
-	const results: PathRuleResult[] = [];
-
-	for (const name of names) {
-		const runner = RULE_RUNNERS[name];
-		if (!runner) {
-			throw new Error(`Unknown path rule: ${name}`);
+export const pathCheck: Check = {
+	category: "path",
+	description:
+		"パスチェック: ファイル・ディレクトリの存在、命名、深度、数を検証",
+	ruleNames: RULE_NAMES,
+	validate: validatePathConfig,
+	run: async (config, cwd, opts) => {
+		if (!config.path) return null;
+		const names = opts.ruleFilter ? [opts.ruleFilter] : RULE_NAMES;
+		const results: RuleGroupResult[] = [];
+		for (const name of names) {
+			const runner = RULE_RUNNERS[name];
+			if (!runner) {
+				throw new Error(`Unknown path rule: ${name}`);
+			}
+			const ruleResults = await runner(config.path, cwd, opts.globalExclude);
+			results.push({ name, results: ruleResults });
 		}
-		const ruleResults = await runner(config, cwd, globalExclude);
-		results.push({ name, results: ruleResults });
-	}
-
-	return results;
-}
+		return results;
+	},
+};

@@ -58,3 +58,39 @@ export interface DiffScope {
 	addedLines: Map<string, Set<number>>;
 	granularity: DiffGranularity;
 }
+
+// --- Check registry types ---
+
+export interface RuleGroupResult {
+	name: string;
+	results: RuleResult[];
+}
+
+export interface CategoryGroup {
+	category: string;
+	results: RuleGroupResult[];
+}
+
+export interface CheckRunOptions {
+	globalExclude: string[];
+	ruleFilter?: string;
+	diff?: string | boolean;
+	offline?: boolean;
+}
+
+export interface Check {
+	/** Category name, also the CLI subcommand (e.g. "path"). */
+	category: string;
+	/** CLI description shown in --help. */
+	description: string;
+	/** Rule names within this category (used for --rule completion and listing). */
+	ruleNames: readonly string[];
+	/** Validate the raw `monban.yml` field for this category. */
+	validate: (raw: unknown) => unknown;
+	/** Run the check. Returns null when the category is not configured. */
+	run: (
+		config: MonbanConfig,
+		cwd: string,
+		opts: CheckRunOptions,
+	) => Promise<RuleGroupResult[] | null>;
+}

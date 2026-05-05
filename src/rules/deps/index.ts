@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../engine/types.js";
+import type { Check, RuleGroupResult, RuleResult } from "../../engine/types.js";
 import { checkDepsAllowed } from "./allowed.js";
 import { checkDepsCrossEcosystem } from "./cross-ecosystem.js";
 import { checkDepsExistence } from "./existence.js";
@@ -13,18 +13,9 @@ import {
 	OfflineRegistryClient,
 	type RegistryClient,
 } from "./registry/index.js";
+import { validateDepsConfig } from "./schema.js";
 import type { DepsConfig } from "./types.js";
 import { checkDepsTyposquat } from "./typosquat.js";
-
-export interface DepsRuleResult {
-	name: string;
-	results: RuleResult[];
-}
-
-export interface DepsRunOptions {
-	offline?: boolean;
-	registry?: RegistryClient;
-}
 
 const NETWORK_RULES = new Set([
 	"existence",
@@ -60,35 +51,39 @@ const RULE_RUNNERS: Record<string, RuleRunner> = {
 		checkDepsFloatingVersion(c.floating_version ?? [], cwd, ex),
 };
 
-export const DEPS_RULE_NAMES = Object.keys(RULE_RUNNERS);
+const RULE_NAMES = Object.keys(RULE_RUNNERS);
 
-export async function runDepsRules(
-	config: DepsConfig,
-	cwd: string,
-	globalExclude: string[],
-	ruleFilter?: string,
-	options: DepsRunOptions = {},
-): Promise<DepsRuleResult[]> {
-	const offline = options.offline ?? false;
-	const registry =
-		options.registry ??
-		(offline ? new OfflineRegistryClient() : new EcosystemeClient());
-
-	const names = ruleFilter ? [ruleFilter] : DEPS_RULE_NAMES;
-	const results: DepsRuleResult[] = [];
-
-	for (const name of names) {
-		const runner = RULE_RUNNERS[name];
-		if (!runner) {
-			throw new Error(`Unknown deps rule: ${name}`);
+export const depsCheck: Check = {
+	category: "deps",
+	description:
+		"依存チェック: マニフェストの依存名をレジストリで検証（実在・鮮度・人気度・類似性）",
+	ruleNames: RULE_NAMES,
+	validate: validateDepsConfig,
+	run: async (config, cwd, opts) => {
+		if (!config.deps) return null;
+		const offline = opts.offline ?? false;
+		const registry = offline
+			? new OfflineRegistryClient()
+			: new EcosystemeClient();
+		const names = opts.ruleFilter ? [opts.ruleFilter] : RULE_NAMES;
+		const results: RuleGroupResult[] = [];
+		for (const name of names) {
+			const runner = RULE_RUNNERS[name];
+			if (!runner) {
+				throw new Error(`Unknown deps rule: ${name}`);
+			}
+			if (offline && NETWORK_RULES.has(name)) {
+				results.push({ name, results: [] });
+				continue;
+			}
+			const ruleResults = await runner(
+				config.deps,
+				cwd,
+				opts.globalExclude,
+				registry,
+			);
+			results.push({ name, results: ruleResults });
 		}
-		if (offline && NETWORK_RULES.has(name)) {
-			results.push({ name, results: [] });
-			continue;
-		}
-		const ruleResults = await runner(config, cwd, globalExclude, registry);
-		results.push({ name, results: ruleResults });
-	}
-
-	return results;
-}
+		return results;
+	},
+};

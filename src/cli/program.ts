@@ -1,21 +1,12 @@
 import { Command } from "commander";
 import { loadConfig } from "../config/loader.js";
 import {
-	type Category,
 	type OrchestratorOpts,
 	runAll,
 	runCategory,
 } from "../engine/orchestrator.js";
-import { AGENT_RULE_NAMES } from "../rules/agent/index.js";
-import { CONTENT_RULE_NAMES } from "../rules/content/index.js";
-import { DEPS_RULE_NAMES } from "../rules/deps/index.js";
-import { DOC_RULE_NAMES } from "../rules/doc/index.js";
-import { DOCKER_RULE_NAMES } from "../rules/docker/index.js";
-import { GIT_RULE_NAMES } from "../rules/git/index.js";
-import { GITHUB_RULE_NAMES } from "../rules/github/index.js";
-import { LICENSE_RULE_NAMES } from "../rules/license/index.js";
-import { RULE_NAMES as PATH_RULE_NAMES } from "../rules/path/index.js";
-import { RUNTIME_RULE_NAMES } from "../rules/runtime/index.js";
+import type { Check } from "../engine/types.js";
+import { CHECKS } from "../rules/index.js";
 import {
 	hasErrors,
 	hasErrorsInGroups,
@@ -27,20 +18,7 @@ interface CommonOpts extends OrchestratorOpts {
 	json?: boolean;
 }
 
-const RULE_NAMES_BY_CATEGORY: Record<Category, readonly string[]> = {
-	path: PATH_RULE_NAMES,
-	content: CONTENT_RULE_NAMES,
-	doc: DOC_RULE_NAMES,
-	github: GITHUB_RULE_NAMES,
-	deps: DEPS_RULE_NAMES,
-	git: GIT_RULE_NAMES,
-	agent: AGENT_RULE_NAMES,
-	runtime: RUNTIME_RULE_NAMES,
-	license: LICENSE_RULE_NAMES,
-	docker: DOCKER_RULE_NAMES,
-};
-
-async function runSingle(category: Category, opts: CommonOpts): Promise<void> {
+async function runSingle(category: string, opts: CommonOpts): Promise<void> {
 	const cwd = process.cwd();
 	const config = await loadConfig(cwd);
 	const group = await runCategory(cwd, category, config, opts);
@@ -61,22 +39,22 @@ function addDiffOptions(cmd: Command): Command {
 		.option("--json", "JSON 出力");
 }
 
-function addCategoryCommand(
-	program: Command,
-	category: Category,
-	description: string,
-	extraSetup?: (cmd: Command) => void,
-): void {
+function addCheckCommand(program: Command, check: Check): void {
 	const cmd = program
-		.command(category)
-		.description(description)
+		.command(check.category)
+		.description(check.description)
 		.option(
 			"--rule <name>",
-			`特定ルールのみ実行 (${RULE_NAMES_BY_CATEGORY[category].join(", ")})`,
+			`特定ルールのみ実行 (${check.ruleNames.join(", ")})`,
 		);
-	extraSetup?.(cmd);
+	if (check.category === "deps") {
+		cmd.option(
+			"--offline",
+			"ネットワーク通信をせず allowed / forbidden のみ実行",
+		);
+	}
 	addDiffOptions(cmd).action(async (opts: CommonOpts) =>
-		runSingle(category, opts),
+		runSingle(check.category, opts),
 	);
 }
 
@@ -109,62 +87,9 @@ export function createCli(): Command {
 		}
 	});
 
-	addCategoryCommand(
-		program,
-		"path",
-		"パスチェック: ファイル・ディレクトリの存在、命名、深度、数を検証",
-	);
-	addCategoryCommand(
-		program,
-		"content",
-		"コンテンツチェック: ファイル内容の禁止・必須パターン・行数を検証",
-	);
-	addCategoryCommand(
-		program,
-		"doc",
-		"ドキュメントチェック: 参照整合性・リンク切れを検証",
-	);
-	addCategoryCommand(
-		program,
-		"github",
-		"GitHub チェック: workflows と CODEOWNERS の構造を検証",
-	);
-	addCategoryCommand(
-		program,
-		"deps",
-		"依存チェック: マニフェストの依存名をレジストリで検証（実在・鮮度・人気度・類似性）",
-		(cmd) => {
-			cmd.option(
-				"--offline",
-				"ネットワーク通信をせず allowed / forbidden のみ実行",
-			);
-		},
-	);
-	addCategoryCommand(
-		program,
-		"git",
-		"Git チェック: コミットメッセージ・trailer・Issue 参照・変更粒度・ignore すり抜けを検証",
-	);
-	addCategoryCommand(
-		program,
-		"agent",
-		"エージェントチェック: AGENTS.md / .mcp.json / AI ignore ファイルの構造を検証",
-	);
-	addCategoryCommand(
-		program,
-		"runtime",
-		"ランタイムチェック: 複数ファイルに散らばるランタイムバージョン指定の整合を検証",
-	);
-	addCategoryCommand(
-		program,
-		"license",
-		"ライセンスチェック: LICENSE ファイル・ソースヘッダの SPDX 識別子を検証",
-	);
-	addCategoryCommand(
-		program,
-		"docker",
-		"Docker チェック: Dockerfile の FROM ピン留め・USER・HEALTHCHECK・禁止命令を検証",
-	);
+	for (const check of CHECKS) {
+		addCheckCommand(program, check);
+	}
 
 	return program;
 }

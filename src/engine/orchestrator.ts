@@ -1,41 +1,15 @@
-import type { CategoryGroup, CategoryRuleResult } from "../cli/reporter.js";
-import { runAgentRules } from "../rules/agent/index.js";
-import { runContentRules } from "../rules/content/index.js";
-import { runDepsRules } from "../rules/deps/index.js";
-import { runDocRules } from "../rules/doc/index.js";
-import { runDockerRules } from "../rules/docker/index.js";
-import { runGitRules } from "../rules/git/index.js";
-import { runGithubRules } from "../rules/github/index.js";
-import { runLicenseRules } from "../rules/license/index.js";
-import { runPathRules } from "../rules/path/index.js";
-import { runRuntimeRules } from "../rules/runtime/index.js";
+import { CHECKS } from "../rules/index.js";
 import { applyDiffFilter, computeDiffScope } from "./diff.js";
-import type { DiffGranularity, DiffScope, MonbanConfig } from "./types.js";
+import type {
+	CategoryGroup,
+	CheckRunOptions,
+	DiffGranularity,
+	DiffScope,
+	MonbanConfig,
+	RuleGroupResult,
+} from "./types.js";
 
-export type Category =
-	| "path"
-	| "content"
-	| "doc"
-	| "github"
-	| "deps"
-	| "git"
-	| "agent"
-	| "runtime"
-	| "license"
-	| "docker";
-
-export const ALL_CATEGORIES: Category[] = [
-	"path",
-	"content",
-	"doc",
-	"github",
-	"deps",
-	"git",
-	"agent",
-	"runtime",
-	"license",
-	"docker",
-];
+export type { CategoryGroup };
 
 export interface OrchestratorOpts {
 	diff?: string | boolean;
@@ -44,15 +18,26 @@ export interface OrchestratorOpts {
 	offline?: boolean;
 }
 
+export const ALL_CATEGORIES: readonly string[] = CHECKS.map((c) => c.category);
+
 export async function runCategory(
 	cwd: string,
-	category: Category,
+	category: string,
 	config: MonbanConfig,
 	opts: OrchestratorOpts,
 ): Promise<CategoryGroup | null> {
-	const globalExclude = config.exclude ?? [];
-	const scope = category === "git" ? null : resolveDiffScope(cwd, opts);
-	const results = await execute(cwd, category, config, globalExclude, opts);
+	const check = CHECKS.find((c) => c.category === category);
+	if (!check) {
+		throw new Error(`Unknown category: ${category}`);
+	}
+	const scope = check.category === "git" ? null : resolveDiffScope(cwd, opts);
+	const runOpts: CheckRunOptions = {
+		globalExclude: config.exclude ?? [],
+		ruleFilter: opts.rule,
+		diff: opts.diff,
+		offline: opts.offline,
+	};
+	const results = await check.run(config, cwd, runOpts);
 	if (results === null) return null;
 	return { category, results: filter(results, scope) };
 }
@@ -64,54 +49,11 @@ export async function runAll(
 ): Promise<CategoryGroup[]> {
 	const baseOpts: OrchestratorOpts = { ...opts, rule: undefined };
 	const groups: CategoryGroup[] = [];
-	for (const category of ALL_CATEGORIES) {
-		const group = await runCategory(cwd, category, config, baseOpts);
+	for (const check of CHECKS) {
+		const group = await runCategory(cwd, check.category, config, baseOpts);
 		if (group) groups.push(group);
 	}
 	return groups;
-}
-
-async function execute(
-	cwd: string,
-	category: Category,
-	config: MonbanConfig,
-	globalExclude: string[],
-	opts: OrchestratorOpts,
-): Promise<CategoryRuleResult[] | null> {
-	switch (category) {
-		case "path":
-			if (!config.path) return null;
-			return runPathRules(config.path, cwd, globalExclude, opts.rule);
-		case "content":
-			if (!config.content) return null;
-			return runContentRules(config.content, cwd, globalExclude, opts.rule);
-		case "doc":
-			if (!config.doc) return null;
-			return runDocRules(config.doc, cwd, globalExclude, opts.rule);
-		case "github":
-			if (!config.github) return null;
-			return runGithubRules(config.github, cwd, globalExclude, opts.rule);
-		case "deps":
-			if (!config.deps) return null;
-			return runDepsRules(config.deps, cwd, globalExclude, opts.rule, {
-				offline: opts.offline,
-			});
-		case "git":
-			if (!config.git) return null;
-			return runGitRules(config.git, cwd, opts.rule, { diff: opts.diff });
-		case "agent":
-			if (!config.agent) return null;
-			return runAgentRules(config.agent, cwd, globalExclude, opts.rule);
-		case "runtime":
-			if (!config.runtime) return null;
-			return runRuntimeRules(config.runtime, cwd, globalExclude, opts.rule);
-		case "license":
-			if (!config.license) return null;
-			return runLicenseRules(config.license, cwd, globalExclude, opts.rule);
-		case "docker":
-			if (!config.docker) return null;
-			return runDockerRules(config.docker, cwd, globalExclude, opts.rule);
-	}
 }
 
 function resolveDiffScope(
@@ -136,12 +78,13 @@ function normalizeGranularity(raw: string | undefined): DiffGranularity {
 	return "file";
 }
 
-function filter<T extends CategoryRuleResult>(
-	results: T[],
+function filter(
+	results: RuleGroupResult[],
 	scope: DiffScope | null,
-): T[] {
+): RuleGroupResult[] {
 	if (!scope) return results;
-	return results.map(
-		(r) => ({ ...r, results: applyDiffFilter(r.results, scope) }) as T,
-	);
+	return results.map((r) => ({
+		...r,
+		results: applyDiffFilter(r.results, scope),
+	}));
 }

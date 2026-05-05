@@ -119,7 +119,7 @@ deps:
 
 ## 1. allowed
 
-<!-- monban:ref ../src/rules/deps/allowed.ts sha256:de748622e19a5c802e31626fcf8a0308debdeb42ba61b051b4d5d9022fb9c14d -->
+<!-- monban:ref ../src/rules/deps/allowed.ts sha256:d42ee062576b12f896cc8f2c36c8d460ebe1be0573bc19e83349c7e4dbef2636 -->
 
 An allowlist. Only the listed names are permitted; everything else violates. Used for an organization's approved-package workflow.
 
@@ -155,7 +155,7 @@ ERROR [allowed] package.json:6 some-random-lib
 
 ## 2. forbidden
 
-<!-- monban:ref ../src/rules/deps/forbidden.ts sha256:6e8bd9e84b35b08896d0c2eb4a70939b9fe8262cc7b1cf40d2a3cc4a251d8108 -->
+<!-- monban:ref ../src/rules/deps/forbidden.ts sha256:98ef9810b75cb14bc05ac7513a36662e0303b1457b21dd12b2479e6d247ab05c -->
 
 A denylist. Forbids the listed names. Use it for previously compromised packages or internally replaced dependencies.
 
@@ -191,7 +191,7 @@ ERROR [forbidden] package.json:9 event-stream
 
 ## 3. existence
 
-<!-- monban:ref ../src/rules/deps/existence.ts sha256:570784eaf4fb6d88eb7b06963ab455f2f909d78e31eb8159cdc66640e4617865 -->
+<!-- monban:ref ../src/rules/deps/existence.ts sha256:bc0d14ed966f7e6dc5ab3f8703fd2c73d9d3626cffd22fb9938c77b729a76a28 -->
 
 Verifies that a dependency name actually exists in the registry. The core rule of `monban deps`.
 
@@ -237,7 +237,7 @@ ERROR [existence] package.json:4 reqeusts
 
 ## 4. cross_ecosystem
 
-<!-- monban:ref ../src/rules/deps/cross-ecosystem.ts sha256:51478ead16a06c5fdb9812afa333093e6dff54779b30bb0d5103c2ef02597a16 -->
+<!-- monban:ref ../src/rules/deps/cross-ecosystem.ts sha256:a4bf49f1c88c78c0bd6c203c8cab51d3d1265f4c617380a75ad6eec5719c4da4 -->
 
 Detects cases like "npm project requesting a name that only exists in PyPI". A classic indicator that an AI agent got the language wrong.
 
@@ -269,7 +269,7 @@ WARN  [cross_ecosystem] package.json:4 requests
 
 ## 5. typosquat
 
-<!-- monban:ref ../src/rules/deps/typosquat.ts sha256:7af033128bba55bcf0dd24c7c91428140713071fea262e2d7ec3ec9e335215f7 -->
+<!-- monban:ref ../src/rules/deps/typosquat.ts sha256:58db85de47dc4ae00e16fa110c634567e9b5909b3533564fbffaaa47cf1dc6d0 -->
 
 Warns when a dependency name is close in Levenshtein distance to a popular package.
 
@@ -302,7 +302,7 @@ WARN  [typosquat] package.json:7 lodahs
 
 ## 6. freshness
 
-<!-- monban:ref ../src/rules/deps/freshness.ts sha256:8b8729afa649ef9a67584b632b729671f9ae480ba0affdcb378183dd3f2d6c08 -->
+<!-- monban:ref ../src/rules/deps/freshness.ts sha256:34899298b8689980c384c7735fdf26b495020beec11d7cd5e99bdc0a3a0a5e6d -->
 
 Warns about packages published within a recent window. Brand-new packages are a frequent slopsquat target.
 
@@ -335,7 +335,7 @@ WARN  [freshness] package.json:5 brand-new-logger
 
 ## 7. popularity
 
-<!-- monban:ref ../src/rules/deps/popularity.ts sha256:82f4dd9ee83106901e01b4c68dd043a502b29cd9091ffa6571abe8437ae4710c -->
+<!-- monban:ref ../src/rules/deps/popularity.ts sha256:0d7fb7ed18ed0808bd955a06b4111ed043c6e5a1654310fe16fcfde2612b8b41 -->
 
 Warns about packages whose weekly download count is below a threshold.
 
@@ -368,7 +368,7 @@ WARN  [popularity] package.json:5 brand-new-logger
 
 ## 8. install_scripts
 
-<!-- monban:ref ../src/rules/deps/install-scripts.ts sha256:9e36d0616c49632b6de87fb265f2b18df6df560e64edfa94682176226a667115 -->
+<!-- monban:ref ../src/rules/deps/install-scripts.ts sha256:b41f3cbe6ba63e54245ef6d0fc6788c1f6c2dba13cc0214392ddf066a8d234f9 -->
 
 Detects npm lifecycle hooks (`preinstall` / `install` / `postinstall` / `prepare`) declared under `scripts:`. These are an arbitrary-code-execution attack surface — 72% of npm attacks in 2025 exploit this path (Shai-Hulud and others).
 
@@ -414,7 +414,7 @@ Currently **npm only** (`scripts.{preinstall,install,postinstall,prepare}` in pa
 
 ## 9. git_dependency
 
-<!-- monban:ref ../src/rules/deps/git-dependency.ts sha256:645e8d629e1fb4a5b528506480f4478a028783a8a967cf66191592baaaabaacc -->
+<!-- monban:ref ../src/rules/deps/git-dependency.ts sha256:721a0157b838a4caa3717a36bc016a2299c377ac5f30902f693510b5bdf728b1 -->
 
 Detects dependencies fetched from non-registry sources (git URL, local path, direct HTTP tarball). Classic pattern for `slopsquat` / PhantomRaven (Remote Dynamic Dependencies); not subject to registry auditing, hence watched.
 
@@ -458,7 +458,7 @@ npm / PyPI (pyproject.toml) / Cargo / RubyGems. Go modules and GitHub Actions us
 
 ## 10. floating_version
 
-<!-- monban:ref ../src/rules/deps/floating-version.ts sha256:bb77f0bd0844efdb2a56ae5ae8eb6e33853b09d53398e8269d35d474d3713927 -->
+<!-- monban:ref ../src/rules/deps/floating-version.ts sha256:4a8bb75b4870ff752a2e9fc76891776616abc602473b2a1a38f64962eea65f20 -->
 
 Detects version constraints without an upper bound. Where `freshness` looks for "a brand-new published version", this rule checks the **configuration itself that allows any future version**.
 

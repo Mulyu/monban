@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../engine/types.js";
+import type { Check, RuleGroupResult, RuleResult } from "../../engine/types.js";
 import { checkGitBranchName } from "./branch-name.js";
 import { checkGitCommitMessage } from "./commit-message.js";
 import { checkGitCommitReferences } from "./commit-references.js";
@@ -6,19 +6,11 @@ import { checkGitCommitTrailers } from "./commit-trailers.js";
 import { checkGitDiffIgnored } from "./diff-ignored.js";
 import { checkGitDiffSize } from "./diff-size.js";
 import { resolveGitRange } from "./range.js";
+import { validateGitConfig } from "./schema.js";
 import { checkGitTagName } from "./tag-name.js";
 import type { GitConfig } from "./types.js";
 
-export interface GitRuleResult {
-	name: string;
-	results: RuleResult[];
-}
-
-export interface GitRuleOpts {
-	diff?: string | boolean;
-}
-
-export const GIT_RULE_NAMES = [
+const RULE_NAMES = [
 	"commit.message",
 	"commit.trailers",
 	"commit.references",
@@ -28,26 +20,27 @@ export const GIT_RULE_NAMES = [
 	"tag_name",
 ];
 
-export async function runGitRules(
-	config: GitConfig,
-	cwd: string,
-	ruleFilter: string | undefined,
-	opts: GitRuleOpts,
-): Promise<GitRuleResult[]> {
-	const range = resolveGitRange(cwd, { diff: opts.diff });
-	const names = ruleFilter ? [ruleFilter] : GIT_RULE_NAMES;
-	const results: GitRuleResult[] = [];
-
-	for (const name of names) {
-		if (!GIT_RULE_NAMES.includes(name)) {
-			throw new Error(`Unknown git rule: ${name}`);
+export const gitCheck: Check = {
+	category: "git",
+	description:
+		"Git チェック: コミットメッセージ・trailer・Issue 参照・変更粒度・ignore すり抜けを検証",
+	ruleNames: RULE_NAMES,
+	validate: validateGitConfig,
+	run: async (config, cwd, opts) => {
+		if (!config.git) return null;
+		const range = resolveGitRange(cwd, { diff: opts.diff });
+		const names = opts.ruleFilter ? [opts.ruleFilter] : RULE_NAMES;
+		const results: RuleGroupResult[] = [];
+		for (const name of names) {
+			if (!RULE_NAMES.includes(name)) {
+				throw new Error(`Unknown git rule: ${name}`);
+			}
+			const ruleResults = runSingleRule(name, config.git, cwd, range);
+			results.push({ name, results: ruleResults });
 		}
-		const ruleResults = runSingleRule(name, config, cwd, range);
-		results.push({ name, results: ruleResults });
-	}
-
-	return results;
-}
+		return results;
+	},
+};
 
 function runSingleRule(
 	name: string,

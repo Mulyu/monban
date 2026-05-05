@@ -1,12 +1,8 @@
-import type { RuleResult } from "../../engine/types.js";
+import type { Check, RuleGroupResult, RuleResult } from "../../engine/types.js";
 import { checkDocLink } from "./link.js";
 import { checkDocRef } from "./ref.js";
+import { validateDocConfig } from "./schema.js";
 import type { DocConfig } from "./types.js";
-
-export interface DocRuleResult {
-	name: string;
-	results: RuleResult[];
-}
 
 const RULE_RUNNERS: Record<
 	string,
@@ -20,25 +16,25 @@ const RULE_RUNNERS: Record<
 	link: (c, cwd, ex) => checkDocLink(c.link ?? [], cwd, ex),
 };
 
-export const DOC_RULE_NAMES = Object.keys(RULE_RUNNERS);
+const RULE_NAMES = Object.keys(RULE_RUNNERS);
 
-export async function runDocRules(
-	config: DocConfig,
-	cwd: string,
-	globalExclude: string[],
-	ruleFilter?: string,
-): Promise<DocRuleResult[]> {
-	const names = ruleFilter ? [ruleFilter] : DOC_RULE_NAMES;
-	const results: DocRuleResult[] = [];
-
-	for (const name of names) {
-		const runner = RULE_RUNNERS[name];
-		if (!runner) {
-			throw new Error(`Unknown doc rule: ${name}`);
+export const docCheck: Check = {
+	category: "doc",
+	description: "ドキュメントチェック: 参照整合性・リンク切れを検証",
+	ruleNames: RULE_NAMES,
+	validate: validateDocConfig,
+	run: async (config, cwd, opts) => {
+		if (!config.doc) return null;
+		const names = opts.ruleFilter ? [opts.ruleFilter] : RULE_NAMES;
+		const results: RuleGroupResult[] = [];
+		for (const name of names) {
+			const runner = RULE_RUNNERS[name];
+			if (!runner) {
+				throw new Error(`Unknown doc rule: ${name}`);
+			}
+			const ruleResults = await runner(config.doc, cwd, opts.globalExclude);
+			results.push({ name, results: ruleResults });
 		}
-		const ruleResults = await runner(config, cwd, globalExclude);
-		results.push({ name, results: ruleResults });
-	}
-
-	return results;
-}
+		return results;
+	},
+};

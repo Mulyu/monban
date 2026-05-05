@@ -1,13 +1,9 @@
-import type { RuleResult } from "../../engine/types.js";
+import type { Check, RuleGroupResult, RuleResult } from "../../engine/types.js";
 import { checkContentForbidden } from "./forbidden.js";
 import { checkContentRequired } from "./required.js";
+import { validateContentConfig } from "./schema.js";
 import { checkContentSize } from "./size.js";
 import type { ContentConfig } from "./types.js";
-
-export interface ContentRuleResult {
-	name: string;
-	results: RuleResult[];
-}
 
 const RULE_RUNNERS: Record<
 	string,
@@ -22,25 +18,26 @@ const RULE_RUNNERS: Record<
 	size: (c, cwd, ex) => checkContentSize(c.size ?? [], cwd, ex),
 };
 
-export const CONTENT_RULE_NAMES = Object.keys(RULE_RUNNERS);
+const RULE_NAMES = Object.keys(RULE_RUNNERS);
 
-export async function runContentRules(
-	config: ContentConfig,
-	cwd: string,
-	globalExclude: string[],
-	ruleFilter?: string,
-): Promise<ContentRuleResult[]> {
-	const names = ruleFilter ? [ruleFilter] : CONTENT_RULE_NAMES;
-	const results: ContentRuleResult[] = [];
-
-	for (const name of names) {
-		const runner = RULE_RUNNERS[name];
-		if (!runner) {
-			throw new Error(`Unknown content rule: ${name}`);
+export const contentCheck: Check = {
+	category: "content",
+	description:
+		"コンテンツチェック: ファイル内容の禁止・必須パターン・行数を検証",
+	ruleNames: RULE_NAMES,
+	validate: validateContentConfig,
+	run: async (config, cwd, opts) => {
+		if (!config.content) return null;
+		const names = opts.ruleFilter ? [opts.ruleFilter] : RULE_NAMES;
+		const results: RuleGroupResult[] = [];
+		for (const name of names) {
+			const runner = RULE_RUNNERS[name];
+			if (!runner) {
+				throw new Error(`Unknown content rule: ${name}`);
+			}
+			const ruleResults = await runner(config.content, cwd, opts.globalExclude);
+			results.push({ name, results: ruleResults });
 		}
-		const ruleResults = await runner(config, cwd, globalExclude);
-		results.push({ name, results: ruleResults });
-	}
-
-	return results;
-}
+		return results;
+	},
+};
