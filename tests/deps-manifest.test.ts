@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { loadManifest } from "../src/manifest/index.js";
+import { loadManifest } from "../src/rules/deps/manifest/index.js";
 
 const cwd = resolve(import.meta.dirname, "fixtures/deps");
 

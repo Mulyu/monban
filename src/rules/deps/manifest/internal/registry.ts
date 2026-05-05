@@ -1,4 +1,4 @@
-import type { DepsEcosystem } from "../../rules/deps/types.js";
+import type { DepsEcosystem } from "../../types.js";
 import { parseCargoToml } from "../cargo.js";
 import { parseWorkflow } from "../github-actions.js";
 import { parseGoMod } from "../go.js";

@@ -1,8 +1,3 @@
-import {
-	EcosystemeClient,
-	OfflineRegistryClient,
-	type RegistryClient,
-} from "../../registry/index.js";
 import type { RuleResult } from "../../types.js";
 import { checkDepsAllowed } from "./allowed.js";
 import { checkDepsCrossEcosystem } from "./cross-ecosystem.js";
@@ -13,6 +8,11 @@ import { checkDepsFreshness } from "./freshness.js";
 import { checkDepsGitDependency } from "./git-dependency.js";
 import { checkDepsInstallScripts } from "./install-scripts.js";
 import { checkDepsPopularity } from "./popularity.js";
+import {
+	EcosystemeClient,
+	OfflineRegistryClient,
+	type RegistryClient,
+} from "./registry/index.js";
 import type { DepsConfig } from "./types.js";
 import { checkDepsTyposquat } from "./typosquat.js";
 

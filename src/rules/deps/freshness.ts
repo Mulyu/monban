@@ -1,8 +1,8 @@
 import { networkWarning } from "../../errors.js";
-import type { RegistryClient } from "../../registry/index.js";
-import { RegistryLookupError } from "../../registry/index.js";
 import type { RuleResult } from "../../types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
+import type { RegistryClient } from "./registry/index.js";
+import { RegistryLookupError } from "./registry/index.js";
 import type { DepsFreshnessRule } from "./types.js";
 
 const DEFAULT_MAX_AGE_HOURS = 24;

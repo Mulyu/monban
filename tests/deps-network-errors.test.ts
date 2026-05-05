@@ -1,14 +1,14 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-	type PackageInfo,
-	type RegistryClient,
-	RegistryLookupError,
-} from "../src/registry/index.js";
 import { checkDepsCrossEcosystem } from "../src/rules/deps/cross-ecosystem.js";
 import { checkDepsExistence } from "../src/rules/deps/existence.js";
 import { checkDepsFreshness } from "../src/rules/deps/freshness.js";
 import { checkDepsPopularity } from "../src/rules/deps/popularity.js";
+import {
+	type PackageInfo,
+	type RegistryClient,
+	RegistryLookupError,
+} from "../src/rules/deps/registry/index.js";
 import type { DepsEcosystem } from "../src/rules/deps/types.js";
 
 const cwd = resolve(import.meta.dirname, "fixtures/deps");

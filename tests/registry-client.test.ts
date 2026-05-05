@@ -9,7 +9,7 @@ import {
 	EcosystemeClient,
 	OfflineRegistryClient,
 	RegistryLookupError,
-} from "../src/registry/index.js";
+} from "../src/rules/deps/registry/index.js";
 
 class StubHttpPort implements HttpPort {
 	public calls: string[] = [];
@@ -67,7 +67,9 @@ describe("EcosystemeClient", () => {
 
 	it("respects injected TtlCache with custom TTL", async () => {
 		let now = 0;
-		const cache = new TtlCache<import("../src/registry/index.js").PackageInfo>({
+		const cache = new TtlCache<
+			import("../src/rules/deps/registry/index.js").PackageInfo
+		>({
 			ttlMs: 100,
 			now: () => now,
 		});

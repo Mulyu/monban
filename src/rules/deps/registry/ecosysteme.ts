@@ -1,6 +1,10 @@
-import { TtlCache } from "../ports/cache.js";
-import { FetchHttpPort, type HttpPort, HttpPortError } from "../ports/http.js";
-import type { DepsEcosystem } from "../rules/deps/types.js";
+import { TtlCache } from "../../../ports/cache.js";
+import {
+	FetchHttpPort,
+	type HttpPort,
+	HttpPortError,
+} from "../../../ports/http.js";
+import type { DepsEcosystem } from "../types.js";
 import {
 	type PackageInfo,
 	type RegistryClient,

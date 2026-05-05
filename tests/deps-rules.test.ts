@@ -1,6 +1,5 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import type { PackageInfo, RegistryClient } from "../src/registry/index.js";
 import { checkDepsAllowed } from "../src/rules/deps/allowed.js";
 import { checkDepsCrossEcosystem } from "../src/rules/deps/cross-ecosystem.js";
 import { checkDepsExistence } from "../src/rules/deps/existence.js";
@@ -10,6 +9,10 @@ import { checkDepsFreshness } from "../src/rules/deps/freshness.js";
 import { checkDepsGitDependency } from "../src/rules/deps/git-dependency.js";
 import { checkDepsInstallScripts } from "../src/rules/deps/install-scripts.js";
 import { checkDepsPopularity } from "../src/rules/deps/popularity.js";
+import type {
+	PackageInfo,
+	RegistryClient,
+} from "../src/rules/deps/registry/index.js";
 import type { DepsEcosystem } from "../src/rules/deps/types.js";
 import { checkDepsTyposquat } from "../src/rules/deps/typosquat.js";
 

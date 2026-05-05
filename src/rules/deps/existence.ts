@@ -1,9 +1,9 @@
 import { networkWarning } from "../../errors.js";
-import type { RegistryClient } from "../../registry/index.js";
-import { RegistryLookupError } from "../../registry/index.js";
 import type { RuleResult } from "../../types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
 import { matchAny } from "./match.js";
+import type { RegistryClient } from "./registry/index.js";
+import { RegistryLookupError } from "./registry/index.js";
 import type { DepsExistenceRule } from "./types.js";
 
 export async function checkDepsExistence(
