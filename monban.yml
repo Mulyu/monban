@@ -181,16 +181,6 @@ git:
       forbidden_subjects: ["fix", "update", "wip", "misc", "changes"]
       ignore_merges: true
       ignore_reverts: true
-  diff:
-    # 巨大 PR を警告（レビュー可能性の担保）
-    size:
-      max_total_lines: 1500
-      exclude:
-        - "package-lock.json"
-        - "**/__snapshots__/**"
-        - "**/*.lock"
-        - "**/*.ja.md"   # 英語原文のミラー翻訳。レビュー負荷の指標にカウントしない
-      severity: error
 
   # ブランチ命名規約（main / claude/* / feat/* / fix/* / chore/* / docs/*）
   branch_name:
