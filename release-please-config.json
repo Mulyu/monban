@@ -2,8 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "release-type": "node",
   "include-v-in-tag": true,
+  "include-component-in-tag": false,
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
+  "last-release-sha": "6f708a8f47fd006367ab604ecd478c9903cf2769",
   "packages": {
     ".": {
       "package-name": "@mulyu/monban",
