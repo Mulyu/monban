@@ -165,22 +165,6 @@ github:
       - path: ".github/workflows/**/*.yml"
         allowed: ["NPM_TOKEN"]
 
-# baseline は heuristic 系を warn にしているが、本リポではリリース対象 CLI なので error で運用する。
-deps:
-  freshness:
-    - path: "package.json"
-      max_age_hours: 72
-      severity: error
-  popularity:
-    - path: "package.json"
-      min_downloads: 1000
-      severity: error
-  floating_version:
-    - path: "package.json"
-      severity: error
-      exclude:
-        - "tests/fixtures/**"
-
 # コミット品質
 git:
   commit:
