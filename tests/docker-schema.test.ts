@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateDockerConfig } from "../src/config/schema/docker.js";
+import { validateDockerConfig } from "../src/rules/docker/schema.js";
 
 describe("config/schema/docker", () => {
 	it("rejects non-object input", () => {

@@ -1,10 +1,3 @@
-import type {
-	AgentConfig,
-	AgentIgnoreRule,
-	AgentInstructionsRule,
-	AgentMcpRule,
-	AgentSettingsRule,
-} from "../../rules/agent/types.js";
 import {
 	assertObject,
 	optionalString,
@@ -13,7 +6,14 @@ import {
 	validateArray,
 	validatePositiveInteger,
 	validateSeverity,
-} from "./common.js";
+} from "../../config/schema/common.js";
+import type {
+	AgentConfig,
+	AgentIgnoreRule,
+	AgentInstructionsRule,
+	AgentMcpRule,
+	AgentSettingsRule,
+} from "../../rules/agent/types.js";
 
 export function validateAgentConfig(raw: unknown): AgentConfig {
 	if (typeof raw !== "object" || raw === null) {

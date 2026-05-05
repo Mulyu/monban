@@ -1,14 +1,14 @@
-import type {
-	DocConfig,
-	DocLinkRule,
-	DocRefRule,
-} from "../../rules/doc/types.js";
 import {
 	assertObject,
 	requireString,
 	validateArray,
 	validateSeverity,
-} from "./common.js";
+} from "../../config/schema/common.js";
+import type {
+	DocConfig,
+	DocLinkRule,
+	DocRefRule,
+} from "../../rules/doc/types.js";
 
 export function validateDocConfig(raw: unknown): DocConfig {
 	if (typeof raw !== "object" || raw === null) {

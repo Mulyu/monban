@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { validateContentConfig } from "../src/config/schema/content.js";
-import { validateDepsConfig } from "../src/config/schema/deps.js";
-import { validateDocConfig } from "../src/config/schema/doc.js";
-import { validateGitConfig } from "../src/config/schema/git.js";
-import { validateGithubConfig } from "../src/config/schema/github/index.js";
 import { validateConfig } from "../src/config/schema/index.js";
-import { validatePathConfig } from "../src/config/schema/path.js";
+import { validateContentConfig } from "../src/rules/content/schema.js";
+import { validateDepsConfig } from "../src/rules/deps/schema.js";
+import { validateDocConfig } from "../src/rules/doc/schema.js";
+import { validateGitConfig } from "../src/rules/git/schema.js";
+import { validateGithubConfig } from "../src/rules/github/schema/index.js";
+import { validatePathConfig } from "../src/rules/path/schema.js";
 
 describe("config/schema top-level", () => {
 	it("returns empty config for null/undefined", () => {

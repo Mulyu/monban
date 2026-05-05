@@ -1,3 +1,12 @@
+import {
+	assertObject,
+	optionalString,
+	optionalStringArray,
+	requireString,
+	validateArray,
+	validatePositiveInteger,
+	validateSeverity,
+} from "../../config/schema/common.js";
 import type {
 	GitBranchNameRule,
 	GitCommitConfig,
@@ -16,15 +25,6 @@ import type {
 	GitTrailerForbiddenEntry,
 	GitTrailerRequiredEntry,
 } from "../../rules/git/types.js";
-import {
-	assertObject,
-	optionalString,
-	optionalStringArray,
-	requireString,
-	validateArray,
-	validatePositiveInteger,
-	validateSeverity,
-} from "./common.js";
 
 const PRESETS: GitCommitMessagePreset[] = ["conventional"];
 const IGNORED_SCOPES: GitDiffIgnoredScope[] = ["diff", "all"];

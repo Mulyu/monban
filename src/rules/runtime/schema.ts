@@ -1,4 +1,11 @@
 import {
+	assertObject,
+	optionalString,
+	requireString,
+	validateArray,
+	validateSeverity,
+} from "../../config/schema/common.js";
+import {
 	RUNTIME_PRESET_NAMES,
 	RUNTIME_PRESETS,
 } from "../../rules/runtime/presets.js";
@@ -7,13 +14,6 @@ import type {
 	RuntimeConsistencyRule,
 	RuntimeConsistencySource,
 } from "../../rules/runtime/types.js";
-import {
-	assertObject,
-	optionalString,
-	requireString,
-	validateArray,
-	validateSeverity,
-} from "./common.js";
 
 export function validateRuntimeConfig(raw: unknown): RuntimeConfig {
 	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {

@@ -1,8 +1,3 @@
-import type {
-	LicenseConfig,
-	LicenseFileRule,
-	LicenseHeaderRule,
-} from "../../rules/license/types.js";
 import {
 	assertObject,
 	optionalString,
@@ -11,7 +6,12 @@ import {
 	validateArray,
 	validatePositiveInteger,
 	validateSeverity,
-} from "./common.js";
+} from "../../config/schema/common.js";
+import type {
+	LicenseConfig,
+	LicenseFileRule,
+	LicenseHeaderRule,
+} from "../../rules/license/types.js";
 
 export function validateLicenseConfig(raw: unknown): LicenseConfig {
 	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {

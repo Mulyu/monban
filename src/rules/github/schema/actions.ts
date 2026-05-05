@@ -1,3 +1,12 @@
+import {
+	assertObject,
+	optionalString,
+	optionalStringArray,
+	PINNED_TARGETS,
+	requireString,
+	validateArray,
+	validateSeverity,
+} from "../../../config/schema/common.js";
 import type {
 	GithubActionsConfig,
 	GithubActionsDangerRule,
@@ -13,16 +22,7 @@ import type {
 	GithubSecretsRule,
 	GithubTimeoutRule,
 	GithubTriggersRule,
-} from "../../../rules/github/types.js";
-import {
-	assertObject,
-	optionalString,
-	optionalStringArray,
-	PINNED_TARGETS,
-	requireString,
-	validateArray,
-	validateSeverity,
-} from "../common.js";
+} from "../types.js";
 
 export function validateGithubActionsConfig(raw: unknown): GithubActionsConfig {
 	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {

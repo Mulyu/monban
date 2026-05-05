@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { validateRuntimeConfig } from "../src/config/schema/runtime.js";
 import { checkRuntimeConsistency } from "../src/rules/runtime/consistency.js";
+import { validateRuntimeConfig } from "../src/rules/runtime/schema.js";
 
 const okCwd = resolve(import.meta.dirname, "fixtures/runtime");
 const mismatchCwd = resolve(import.meta.dirname, "fixtures/runtime-mismatch");

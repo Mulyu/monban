@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { validateRuntimeConfig } from "../src/config/schema/runtime.js";
 import { RUNTIME_PRESETS } from "../src/rules/runtime/presets.js";
+import { validateRuntimeConfig } from "../src/rules/runtime/schema.js";
 
 describe("config/schema/runtime", () => {
 	it("rejects non-object input", () => {

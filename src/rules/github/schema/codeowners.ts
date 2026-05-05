@@ -1,14 +1,11 @@
-import type {
-	GithubCodeownersConfig,
-	GithubCodeownersRule,
-} from "../../../rules/github/types.js";
 import {
 	assertObject,
 	optionalString,
 	optionalStringArray,
 	requireString,
 	validateArray,
-} from "../common.js";
+} from "../../../config/schema/common.js";
+import type { GithubCodeownersConfig, GithubCodeownersRule } from "../types.js";
 
 export function validateGithubCodeownersConfig(
 	raw: unknown,

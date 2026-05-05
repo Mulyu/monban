@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateLicenseConfig } from "../src/config/schema/license.js";
+import { validateLicenseConfig } from "../src/rules/license/schema.js";
 
 describe("config/schema/license", () => {
 	it("rejects non-object input", () => {

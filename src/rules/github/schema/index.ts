@@ -1,4 +1,4 @@
-import type { GithubConfig } from "../../../rules/github/types.js";
+import type { GithubConfig } from "../types.js";
 import { validateGithubActionsConfig } from "./actions.js";
 import { validateGithubCodeownersConfig } from "./codeowners.js";
 

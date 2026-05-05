@@ -1,3 +1,13 @@
+import {
+	assertObject,
+	NAMING_STYLES,
+	optionalString,
+	optionalStringArray,
+	requireString,
+	validateArray,
+	validatePositiveInteger,
+	validateSeverity,
+} from "../../config/schema/common.js";
 import type {
 	CompanionDef,
 	CountRule,
@@ -12,16 +22,6 @@ import type {
 	PathSizeRule,
 	RequiredRule,
 } from "../../rules/path/types.js";
-import {
-	assertObject,
-	NAMING_STYLES,
-	optionalString,
-	optionalStringArray,
-	requireString,
-	validateArray,
-	validatePositiveInteger,
-	validateSeverity,
-} from "./common.js";
 
 const PATH_ENTRY_TYPES: PathEntryType[] = ["file", "directory", "symlink"];
 

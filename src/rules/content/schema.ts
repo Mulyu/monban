@@ -1,10 +1,3 @@
-import type {
-	ContentConfig,
-	ContentForbiddenRule,
-	ContentRequiredRule,
-	ContentRequiredScope,
-	ContentSizeRule,
-} from "../../rules/content/types.js";
 import {
 	assertObject,
 	CONTENT_REQUIRED_SCOPES,
@@ -14,7 +7,14 @@ import {
 	validateArray,
 	validatePositiveInteger,
 	validateSeverity,
-} from "./common.js";
+} from "../../config/schema/common.js";
+import type {
+	ContentConfig,
+	ContentForbiddenRule,
+	ContentRequiredRule,
+	ContentRequiredScope,
+	ContentSizeRule,
+} from "../../rules/content/types.js";
 
 export function validateContentConfig(raw: unknown): ContentConfig {
 	if (typeof raw !== "object" || raw === null) {

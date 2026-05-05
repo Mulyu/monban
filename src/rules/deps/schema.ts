@@ -1,3 +1,13 @@
+import {
+	assertObject,
+	optionalString,
+	optionalStringArray,
+	requireString,
+	validateArray,
+	validatePositiveInteger,
+	validatePositiveNumber,
+	validateSeverity,
+} from "../../config/schema/common.js";
 import type {
 	DepsAllowedRule,
 	DepsConfig,
@@ -11,16 +21,6 @@ import type {
 	DepsPopularityRule,
 	DepsTyposquatRule,
 } from "../../rules/deps/types.js";
-import {
-	assertObject,
-	optionalString,
-	optionalStringArray,
-	requireString,
-	validateArray,
-	validatePositiveInteger,
-	validatePositiveNumber,
-	validateSeverity,
-} from "./common.js";
 
 export function validateDepsConfig(raw: unknown): DepsConfig {
 	if (typeof raw !== "object" || raw === null) {

@@ -1,3 +1,11 @@
+import {
+	assertObject,
+	optionalString,
+	optionalStringArray,
+	requireString,
+	validateArray,
+	validateSeverity,
+} from "../../config/schema/common.js";
 import type {
 	DockerConfig,
 	DockerForbiddenInstruction,
@@ -6,14 +14,6 @@ import type {
 	DockerPinnedRule,
 	DockerUserRule,
 } from "../../rules/docker/types.js";
-import {
-	assertObject,
-	optionalString,
-	optionalStringArray,
-	requireString,
-	validateArray,
-	validateSeverity,
-} from "./common.js";
 
 export function validateDockerConfig(raw: unknown): DockerConfig {
 	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
