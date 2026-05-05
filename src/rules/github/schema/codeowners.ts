@@ -4,7 +4,7 @@ import {
 	optionalStringArray,
 	requireString,
 	validateArray,
-} from "../../../config/schema/common.js";
+} from "../../../config/common.js";
 import type { GithubCodeownersConfig, GithubCodeownersRule } from "../types.js";
 
 export function validateGithubCodeownersConfig(

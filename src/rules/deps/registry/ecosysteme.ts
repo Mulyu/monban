@@ -1,9 +1,9 @@
-import { TtlCache } from "../../../ports/cache.js";
+import { TtlCache } from "../../../shared/cache.js";
 import {
 	FetchHttpPort,
 	type HttpPort,
 	HttpPortError,
-} from "../../../ports/http.js";
+} from "../../../shared/http.js";
 import type { DepsEcosystem } from "../types.js";
 import {
 	type PackageInfo,

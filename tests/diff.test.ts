@@ -4,8 +4,8 @@ import {
 	applyDiffFilter,
 	computeDiffScope,
 	resolveDiffBase,
-} from "../src/diff.js";
-import type { DiffScope, RuleResult } from "../src/types.js";
+} from "../src/engine/diff.js";
+import type { DiffScope, RuleResult } from "../src/engine/types.js";
 import { commit, createGitRepo, git, writeAndAdd } from "./git/helpers.js";
 
 function makeScope(

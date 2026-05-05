@@ -1,17 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { CategoryGroup, CategoryRuleResult } from "../src/reporter.js";
 import {
 	hasErrors,
 	hasErrorsInGroups,
 	reportAllResults,
 	reportCategory,
-} from "../src/reporter.js";
+} from "../src/cli/reporter.js";
+import type { CategoryGroup, RuleGroupResult } from "../src/engine/types.js";
 
-function passing(name: string): CategoryRuleResult {
+function passing(name: string): RuleGroupResult {
 	return { name, results: [] };
 }
 
-function withErrors(name: string, count = 1): CategoryRuleResult {
+function withErrors(name: string, count = 1): RuleGroupResult {
 	return {
 		name,
 		results: Array.from({ length: count }, (_, i) => ({
@@ -23,7 +23,7 @@ function withErrors(name: string, count = 1): CategoryRuleResult {
 	};
 }
 
-function withWarnings(name: string, count = 1): CategoryRuleResult {
+function withWarnings(name: string, count = 1): RuleGroupResult {
 	return {
 		name,
 		results: Array.from({ length: count }, (_, i) => ({

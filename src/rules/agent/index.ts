@@ -1,14 +1,10 @@
-import type { RuleResult } from "../../types.js";
+import type { Check, RuleGroupResult, RuleResult } from "../../engine/types.js";
 import { checkAgentIgnore } from "./ignore.js";
 import { checkAgentInstructions } from "./instructions.js";
 import { checkAgentMcp } from "./mcp.js";
+import { validateAgentConfig } from "./schema.js";
 import { checkAgentSettings } from "./settings.js";
 import type { AgentConfig } from "./types.js";
-
-export interface AgentRuleResult {
-	name: string;
-	results: RuleResult[];
-}
 
 const RULE_RUNNERS: Record<
 	string,
@@ -25,25 +21,26 @@ const RULE_RUNNERS: Record<
 	ignore: (c, cwd, ex) => checkAgentIgnore(c.ignore ?? [], cwd, ex),
 };
 
-export const AGENT_RULE_NAMES = Object.keys(RULE_RUNNERS);
+const RULE_NAMES = Object.keys(RULE_RUNNERS);
 
-export async function runAgentRules(
-	config: AgentConfig,
-	cwd: string,
-	globalExclude: string[],
-	ruleFilter?: string,
-): Promise<AgentRuleResult[]> {
-	const names = ruleFilter ? [ruleFilter] : AGENT_RULE_NAMES;
-	const results: AgentRuleResult[] = [];
-
-	for (const name of names) {
-		const runner = RULE_RUNNERS[name];
-		if (!runner) {
-			throw new Error(`Unknown agent rule: ${name}`);
+export const agentCheck: Check = {
+	category: "agent",
+	description:
+		"エージェントチェック: AGENTS.md / .mcp.json / AI ignore ファイルの構造を検証",
+	ruleNames: RULE_NAMES,
+	validate: validateAgentConfig,
+	run: async (config, cwd, opts) => {
+		if (!config.agent) return null;
+		const names = opts.ruleFilter ? [opts.ruleFilter] : RULE_NAMES;
+		const results: RuleGroupResult[] = [];
+		for (const name of names) {
+			const runner = RULE_RUNNERS[name];
+			if (!runner) {
+				throw new Error(`Unknown agent rule: ${name}`);
+			}
+			const ruleResults = await runner(config.agent, cwd, opts.globalExclude);
+			results.push({ name, results: ruleResults });
 		}
-		const ruleResults = await runner(config, cwd, globalExclude);
-		results.push({ name, results: ruleResults });
-	}
-
-	return results;
-}
+		return results;
+	},
+};

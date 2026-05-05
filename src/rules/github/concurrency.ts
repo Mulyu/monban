@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { loadWorkflows } from "./internal/workflow.js";
 import type { GithubConcurrencyRule } from "./types.js";
 

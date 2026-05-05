@@ -1,5 +1,5 @@
-import { networkWarning } from "../../errors.js";
-import type { RuleResult } from "../../types.js";
+import { networkWarning } from "../../engine/errors.js";
+import type { RuleResult } from "../../engine/types.js";
 import { formatLocation, loadManifests } from "./manifest-loader.js";
 import type { RegistryClient } from "./registry/index.js";
 import { RegistryLookupError } from "./registry/index.js";

@@ -1,4 +1,4 @@
-import type { RuleResult } from "../../types.js";
+import type { Check, RuleGroupResult, RuleResult } from "../../engine/types.js";
 import { checkGithubCodeowners } from "./codeowners.js";
 import { checkGithubConcurrency } from "./concurrency.js";
 import { checkGithubConsistency } from "./consistency.js";
@@ -9,15 +9,11 @@ import { checkGithubPermissions } from "./permissions.js";
 import { checkGithubPinned } from "./pinned.js";
 import { checkGithubRequired } from "./required.js";
 import { checkGithubRunner } from "./runner.js";
+import { validateGithubConfig } from "./schema/index.js";
 import { checkGithubSecrets } from "./secrets.js";
 import { checkGithubTimeout } from "./timeout.js";
 import { checkGithubTriggers } from "./triggers.js";
 import type { GithubConfig } from "./types.js";
-
-export interface GithubRuleResult {
-	name: string;
-	results: RuleResult[];
-}
 
 const RULE_RUNNERS: Record<
 	string,
@@ -55,25 +51,25 @@ const RULE_RUNNERS: Record<
 		checkGithubCodeowners(c.codeowners?.ownership ?? [], cwd, ex),
 };
 
-export const GITHUB_RULE_NAMES = Object.keys(RULE_RUNNERS);
+const RULE_NAMES = Object.keys(RULE_RUNNERS);
 
-export async function runGithubRules(
-	config: GithubConfig,
-	cwd: string,
-	globalExclude: string[],
-	ruleFilter?: string,
-): Promise<GithubRuleResult[]> {
-	const names = ruleFilter ? [ruleFilter] : GITHUB_RULE_NAMES;
-	const results: GithubRuleResult[] = [];
-
-	for (const name of names) {
-		const runner = RULE_RUNNERS[name];
-		if (!runner) {
-			throw new Error(`Unknown github rule: ${name}`);
+export const githubCheck: Check = {
+	category: "github",
+	description: "GitHub チェック: workflows と CODEOWNERS の構造を検証",
+	ruleNames: RULE_NAMES,
+	validate: validateGithubConfig,
+	run: async (config, cwd, opts) => {
+		if (!config.github) return null;
+		const names = opts.ruleFilter ? [opts.ruleFilter] : RULE_NAMES;
+		const results: RuleGroupResult[] = [];
+		for (const name of names) {
+			const runner = RULE_RUNNERS[name];
+			if (!runner) {
+				throw new Error(`Unknown github rule: ${name}`);
+			}
+			const ruleResults = await runner(config.github, cwd, opts.globalExclude);
+			results.push({ name, results: ruleResults });
 		}
-		const ruleResults = await runner(config, cwd, globalExclude);
-		results.push({ name, results: ruleResults });
-	}
-
-	return results;
-}
+		return results;
+	},
+};

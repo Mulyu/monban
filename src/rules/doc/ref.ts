@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import fg from "fast-glob";
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import type { DocRefRule } from "./types.js";
 
 const REF_MARKER = /<!--\s*monban:ref\s+(\S+)\s+(\w+):(\w+)\s*-->/g;

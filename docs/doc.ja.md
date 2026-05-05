@@ -43,7 +43,7 @@ doc:
 
 ## 1. ref
 
-<!-- monban:ref ../src/rules/doc/ref.ts sha256:2ec0612e7e34ae41ba76a6ce0ccd8ba992621fe33a637c101638c31ffd887821 -->
+<!-- monban:ref ../src/rules/doc/ref.ts sha256:d4b035a5d2a311f8b1fd40aa5be6c016e874933ee60a413f2b1b61ce54ec72dd -->
 
 ドキュメント内の `monban:ref` マーカーで参照されたファイルのハッシュが実際のファイルと一致するかを検証する。
 
@@ -91,7 +91,7 @@ ERROR [ref] docs/api.md:8
 
 ## 2. link
 
-<!-- monban:ref ../src/rules/doc/link.ts sha256:9a29ca42bbe2ab49a36e8152dc305ccbb0485e66397806f65b4ef63d7c144ecc -->
+<!-- monban:ref ../src/rules/doc/link.ts sha256:db6861f3a4794892093a97c06c46cedfe35869de2d438f45cf7d538ea95ff18a -->
 
 Markdown 内の相対リンクが実在するファイルを指しているかを検証する。
 

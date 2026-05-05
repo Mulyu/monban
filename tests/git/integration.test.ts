@@ -1,9 +1,25 @@
 import { rm } from "node:fs/promises";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { GIT_RULE_NAMES, runGitRules } from "../../src/rules/git/index.js";
+import { gitCheck } from "../../src/rules/git/index.js";
+import type { GitConfig } from "../../src/rules/git/types.js";
 import { commit, createGitRepo, writeAndAdd } from "./helpers.js";
 
-describe("git/runGitRules", () => {
+async function run(
+	cwd: string,
+	config: GitConfig,
+	ruleFilter: string | undefined,
+	diff: string | boolean,
+) {
+	const results = await gitCheck.run({ git: config }, cwd, {
+		globalExclude: [],
+		ruleFilter,
+		diff,
+	});
+	if (results === null) throw new Error("git check returned null");
+	return results;
+}
+
+describe("git/gitCheck", () => {
 	let repo: string;
 
 	beforeEach(async () => {
@@ -18,7 +34,7 @@ describe("git/runGitRules", () => {
 	});
 
 	it("exposes expected rule names", () => {
-		expect(GIT_RULE_NAMES).toEqual([
+		expect(gitCheck.ruleNames).toEqual([
 			"commit.message",
 			"commit.trailers",
 			"commit.references",
@@ -32,7 +48,8 @@ describe("git/runGitRules", () => {
 	it("runs all rules and collects violations", async () => {
 		await writeAndAdd(repo, ".env.local", "SECRET=1\n");
 		commit(repo, "bad subject here");
-		const results = await runGitRules(
+		const results = await run(
+			repo,
 			{
 				commit: {
 					message: { preset: "conventional" },
@@ -43,9 +60,8 @@ describe("git/runGitRules", () => {
 					ignored: {},
 				},
 			},
-			repo,
 			undefined,
-			{ diff: "HEAD~1" },
+			"HEAD~1",
 		);
 
 		const ruleNames = results.map((r) => r.name).sort();
@@ -67,19 +83,19 @@ describe("git/runGitRules", () => {
 
 	it("supports --rule filter", async () => {
 		commit(repo, "bad subject");
-		const results = await runGitRules(
-			{ commit: { message: { preset: "conventional" } } },
+		const results = await run(
 			repo,
+			{ commit: { message: { preset: "conventional" } } },
 			"commit.message",
-			{ diff: "HEAD~1" },
+			"HEAD~1",
 		);
 		expect(results).toHaveLength(1);
 		expect(results[0].name).toBe("commit.message");
 	});
 
 	it("throws on unknown rule filter", async () => {
-		await expect(
-			runGitRules({}, repo, "nonexistent", { diff: "HEAD~1" }),
-		).rejects.toThrow(/Unknown git rule/);
+		await expect(run(repo, {}, "nonexistent", "HEAD~1")).rejects.toThrow(
+			/Unknown git rule/,
+		);
 	});
 });

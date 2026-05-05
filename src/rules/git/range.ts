@@ -1,4 +1,4 @@
-import { resolveDiffBase } from "../../diff.js";
+import { resolveDiffBase } from "../../engine/diff.js";
 import { tryRunGit } from "./git-exec.js";
 
 export interface GitRange {

@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { parseJson } from "../../ports/parse-json.js";
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
+import { parseJson } from "../../shared/parse-json.js";
 import { listAgentFiles } from "./internal/file-list.js";
 import { isUnpinnedNpxArg, NPX_IN_COMMAND } from "./internal/npx.js";
 import type { AgentSettingsRule } from "./types.js";

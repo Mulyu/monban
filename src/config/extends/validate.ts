@@ -2,13 +2,13 @@ import type {
 	ExtendsGitHub,
 	ExtendsLocal,
 	ExtendsSource,
-} from "../../types.js";
+} from "../../engine/types.js";
 import {
 	assertObject,
 	optionalString,
 	requireString,
 	validateArray,
-} from "./common.js";
+} from "../common.js";
 
 export function validateExtends(raw: unknown): ExtendsSource[] {
 	if (typeof raw !== "object" || raw === null) return [];

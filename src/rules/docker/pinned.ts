@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import type { RuleResult } from "../../types.js";
+import type { RuleResult } from "../../engine/types.js";
 import { parseDockerfile, parseFromArgs } from "./internal/dockerfile.js";
 import type { DockerPinnedRule } from "./types.js";
 

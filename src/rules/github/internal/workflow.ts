@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import fg from "fast-glob";
-import { parseYaml } from "../../../ports/parse-yaml.js";
+import { parseYaml } from "../../../shared/parse-yaml.js";
 
 export interface WorkflowFile {
 	file: string;

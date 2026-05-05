@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 import { resolveExtends } from "../src/config/extends/index.js";
-import { validateConfig } from "../src/config/schema/index.js";
+import { validateConfig } from "../src/config/schema.js";
 
 const fixtureDir = resolve(import.meta.dirname, "fixtures/extends");
 

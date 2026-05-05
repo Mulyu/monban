@@ -1,12 +1,8 @@
-import type { RuleResult } from "../../types.js";
+import type { Check, RuleGroupResult, RuleResult } from "../../engine/types.js";
 import { checkLicenseFile } from "./file.js";
 import { checkLicenseHeader } from "./header.js";
+import { validateLicenseConfig } from "./schema.js";
 import type { LicenseConfig } from "./types.js";
-
-export interface LicenseRuleResult {
-	name: string;
-	results: RuleResult[];
-}
 
 const RULE_RUNNERS: Record<
 	string,
@@ -20,25 +16,26 @@ const RULE_RUNNERS: Record<
 	header: (c, cwd, ex) => checkLicenseHeader(c.header ?? [], cwd, ex),
 };
 
-export const LICENSE_RULE_NAMES = Object.keys(RULE_RUNNERS);
+const RULE_NAMES = Object.keys(RULE_RUNNERS);
 
-export async function runLicenseRules(
-	config: LicenseConfig,
-	cwd: string,
-	globalExclude: string[],
-	ruleFilter?: string,
-): Promise<LicenseRuleResult[]> {
-	const names = ruleFilter ? [ruleFilter] : LICENSE_RULE_NAMES;
-	const results: LicenseRuleResult[] = [];
-
-	for (const name of names) {
-		const runner = RULE_RUNNERS[name];
-		if (!runner) {
-			throw new Error(`Unknown license rule: ${name}`);
+export const licenseCheck: Check = {
+	category: "license",
+	description:
+		"ライセンスチェック: LICENSE ファイル・ソースヘッダの SPDX 識別子を検証",
+	ruleNames: RULE_NAMES,
+	validate: validateLicenseConfig,
+	run: async (config, cwd, opts) => {
+		if (!config.license) return null;
+		const names = opts.ruleFilter ? [opts.ruleFilter] : RULE_NAMES;
+		const results: RuleGroupResult[] = [];
+		for (const name of names) {
+			const runner = RULE_RUNNERS[name];
+			if (!runner) {
+				throw new Error(`Unknown license rule: ${name}`);
+			}
+			const ruleResults = await runner(config.license, cwd, opts.globalExclude);
+			results.push({ name, results: ruleResults });
 		}
-		const ruleResults = await runner(config, cwd, globalExclude);
-		results.push({ name, results: ruleResults });
-	}
-
-	return results;
-}
+		return results;
+	},
+};

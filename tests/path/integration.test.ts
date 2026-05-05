@@ -1,9 +1,18 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { runPathRules } from "../../src/rules/path/index.js";
+import { pathCheck } from "../../src/rules/path/index.js";
 import type { PathConfig } from "../../src/rules/path/types.js";
 
 const cwd = resolve(import.meta.dirname, "../fixtures/project");
+
+async function run(config: PathConfig, ruleFilter?: string) {
+	const results = await pathCheck.run({ path: config }, cwd, {
+		globalExclude: [],
+		ruleFilter,
+	});
+	if (results === null) throw new Error("path check returned null");
+	return results;
+}
 
 describe("path command integration", () => {
 	it("runs all rules and aggregates results", async () => {
@@ -24,7 +33,7 @@ describe("path command integration", () => {
 			depth: [{ path: "src", max: 3 }],
 		};
 
-		const results = await runPathRules(config, cwd, []);
+		const results = await run(config);
 		expect(results).toHaveLength(8); // forbidden / required / naming / depth / count / hash / size / case_conflict
 
 		const forbidden = results.find((r) => r.name === "forbidden");
@@ -49,7 +58,7 @@ describe("path command integration", () => {
 			naming: [{ path: "src/components/**/*.tsx", style: "pascal" }],
 		};
 
-		const results = await runPathRules(config, cwd, [], "forbidden");
+		const results = await run(config, "forbidden");
 		expect(results).toHaveLength(1);
 		expect(results[0].name).toBe("forbidden");
 	});
@@ -59,7 +68,7 @@ describe("path command integration", () => {
 			forbidden: [{ path: "**/nonexistent/**" }],
 		};
 
-		const results = await runPathRules(config, cwd, []);
+		const results = await run(config);
 		const allViolations = results.flatMap((r) => r.results);
 		expect(allViolations).toHaveLength(0);
 	});

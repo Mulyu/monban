@@ -1,25 +1,31 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { runContentRules } from "../../src/rules/content/index.js";
+import { contentCheck } from "../../src/rules/content/index.js";
+import type { ContentConfig } from "../../src/rules/content/types.js";
 
 const cwd = resolve(import.meta.dirname, "../fixtures/content");
 
+async function run(config: ContentConfig, ruleFilter?: string) {
+	const results = await contentCheck.run({ content: config }, cwd, {
+		globalExclude: [],
+		ruleFilter,
+	});
+	if (results === null) throw new Error("content check returned null");
+	return results;
+}
+
 describe("content integration", () => {
 	it("runs all rules and returns results", async () => {
-		const results = await runContentRules(
-			{
-				forbidden: [{ path: "**/*.ts", pattern: "process\\.env" }],
-				required: [
-					{
-						path: "**/*.ts",
-						pattern: "^// Copyright \\d{4}",
-						scope: "first_line",
-					},
-				],
-			},
-			cwd,
-			[],
-		);
+		const results = await run({
+			forbidden: [{ path: "**/*.ts", pattern: "process\\.env" }],
+			required: [
+				{
+					path: "**/*.ts",
+					pattern: "^// Copyright \\d{4}",
+					scope: "first_line",
+				},
+			],
+		});
 
 		expect(results).toHaveLength(3);
 		expect(results[0].name).toBe("forbidden");
@@ -28,13 +34,11 @@ describe("content integration", () => {
 	});
 
 	it("filters by rule name", async () => {
-		const results = await runContentRules(
+		const results = await run(
 			{
 				forbidden: [{ path: "**/*.ts", pattern: "process\\.env" }],
 				required: [{ path: "**/*.ts", pattern: "Copyright" }],
 			},
-			cwd,
-			[],
 			"forbidden",
 		);
 
@@ -43,7 +47,7 @@ describe("content integration", () => {
 	});
 
 	it("throws on unknown rule name", async () => {
-		await expect(runContentRules({}, cwd, [], "nonexistent")).rejects.toThrow(
+		await expect(run({}, "nonexistent")).rejects.toThrow(
 			"Unknown content rule: nonexistent",
 		);
 	});

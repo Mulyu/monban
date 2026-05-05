@@ -5,7 +5,7 @@ import {
 	requireString,
 	validateArray,
 	validateSeverity,
-} from "../../config/schema/common.js";
+} from "../../config/common.js";
 import type {
 	DockerConfig,
 	DockerForbiddenInstruction,

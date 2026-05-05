@@ -1,7 +1,7 @@
-import type { ContentRequiredScope } from "../../rules/content/types.js";
-import type { GithubPinnedTarget } from "../../rules/github/types.js";
-import type { NamingStyle } from "../../rules/path/types.js";
-import type { Severity } from "../../types.js";
+import type { Severity } from "../engine/types.js";
+import type { ContentRequiredScope } from "../rules/content/types.js";
+import type { GithubPinnedTarget } from "../rules/github/types.js";
+import type { NamingStyle } from "../rules/path/types.js";
 
 export const NAMING_STYLES: NamingStyle[] = [
 	"pascal",

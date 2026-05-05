@@ -1,5 +1,5 @@
-import { createCli } from "./cli.js";
-import { ConfigError } from "./errors.js";
+import { ConfigError } from "../engine/errors.js";
+import { createCli } from "./program.js";
 
 const program = createCli();
 program.parseAsync().catch((err: unknown) => {
