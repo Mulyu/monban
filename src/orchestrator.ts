@@ -4,8 +4,10 @@ import { runAgentRules } from "./rules/agent/index.js";
 import { runContentRules } from "./rules/content/index.js";
 import { runDepsRules } from "./rules/deps/index.js";
 import { runDocRules } from "./rules/doc/index.js";
+import { runDockerRules } from "./rules/docker/index.js";
 import { runGitRules } from "./rules/git/index.js";
 import { runGithubRules } from "./rules/github/index.js";
+import { runLicenseRules } from "./rules/license/index.js";
 import { runPathRules } from "./rules/path/index.js";
 import { runRuntimeRules } from "./rules/runtime/index.js";
 import type { DiffGranularity, DiffScope, MonbanConfig } from "./types.js";
@@ -18,7 +20,9 @@ export type Category =
 	| "deps"
 	| "git"
 	| "agent"
-	| "runtime";
+	| "runtime"
+	| "license"
+	| "docker";
 
 export const ALL_CATEGORIES: Category[] = [
 	"path",
@@ -29,6 +33,8 @@ export const ALL_CATEGORIES: Category[] = [
 	"git",
 	"agent",
 	"runtime",
+	"license",
+	"docker",
 ];
 
 export interface OrchestratorOpts {
@@ -99,6 +105,12 @@ async function execute(
 		case "runtime":
 			if (!config.runtime) return null;
 			return runRuntimeRules(config.runtime, cwd, globalExclude, opts.rule);
+		case "license":
+			if (!config.license) return null;
+			return runLicenseRules(config.license, cwd, globalExclude, opts.rule);
+		case "docker":
+			if (!config.docker) return null;
+			return runDockerRules(config.docker, cwd, globalExclude, opts.rule);
 	}
 }
 

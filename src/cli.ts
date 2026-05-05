@@ -16,8 +16,10 @@ import { AGENT_RULE_NAMES } from "./rules/agent/index.js";
 import { CONTENT_RULE_NAMES } from "./rules/content/index.js";
 import { DEPS_RULE_NAMES } from "./rules/deps/index.js";
 import { DOC_RULE_NAMES } from "./rules/doc/index.js";
+import { DOCKER_RULE_NAMES } from "./rules/docker/index.js";
 import { GIT_RULE_NAMES } from "./rules/git/index.js";
 import { GITHUB_RULE_NAMES } from "./rules/github/index.js";
+import { LICENSE_RULE_NAMES } from "./rules/license/index.js";
 import { RULE_NAMES as PATH_RULE_NAMES } from "./rules/path/index.js";
 import { RUNTIME_RULE_NAMES } from "./rules/runtime/index.js";
 
@@ -34,6 +36,8 @@ const RULE_NAMES_BY_CATEGORY: Record<Category, readonly string[]> = {
 	git: GIT_RULE_NAMES,
 	agent: AGENT_RULE_NAMES,
 	runtime: RUNTIME_RULE_NAMES,
+	license: LICENSE_RULE_NAMES,
+	docker: DOCKER_RULE_NAMES,
 };
 
 async function runSingle(category: Category, opts: CommonOpts): Promise<void> {
@@ -150,6 +154,16 @@ export function createCli(): Command {
 		program,
 		"runtime",
 		"ランタイムチェック: 複数ファイルに散らばるランタイムバージョン指定の整合を検証",
+	);
+	addCategoryCommand(
+		program,
+		"license",
+		"ライセンスチェック: LICENSE ファイル・ソースヘッダの SPDX 識別子を検証",
+	);
+	addCategoryCommand(
+		program,
+		"docker",
+		"Docker チェック: Dockerfile の FROM ピン留め・USER・HEALTHCHECK・禁止命令を検証",
 	);
 
 	return program;

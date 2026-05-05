@@ -23,6 +23,8 @@
 | `monban deps` | マニフェストの依存名をレジストリで実在・鮮度・人気度・類似性で検証 | [docs/deps.ja.md](docs/deps.ja.md) |
 | `monban git` | コミットメッセージ・trailer・Issue 参照・変更粒度・ignore すり抜けの検査 | [docs/git.ja.md](docs/git.ja.md) |
 | `monban runtime` | ランタイムバージョン指定（`.nvmrc` / `engines` / `Dockerfile FROM` / GitHub Actions マトリクス）の複数ファイル整合 | [docs/runtime.ja.md](docs/runtime.ja.md) |
+| `monban license` | LICENSE ファイルのライセンス判別（SPDX タグ / テンプレート）とソースヘッダの SPDX 識別子検査 | [docs/license.ja.md](docs/license.ja.md) |
+| `monban docker` | Dockerfile のチェック: タグピン留め、USER、HEALTHCHECK、禁止命令 | [docs/docker.ja.md](docs/docker.ja.md) |
 
 PR 差分にスコープを絞る `--diff` フラグは全コマンド共通で使えます（[docs/diff.ja.md](docs/diff.ja.md)）。組織共通ルールの再利用は [docs/extends.ja.md](docs/extends.ja.md) を参照してください。
 
@@ -58,6 +60,8 @@ monban github
 monban deps
 monban git
 monban runtime
+monban license
+monban docker
 
 # 特定ルールのみ実行
 monban path --rule forbidden
@@ -92,6 +96,8 @@ github:  { ... }   # docs/github.ja.md
 deps:    { ... }   # docs/deps.ja.md
 git:     { ... }   # docs/git.ja.md
 runtime: { ... }   # docs/runtime.ja.md
+license: { ... }   # docs/license.ja.md
+docker:  { ... }   # docs/docker.ja.md
 ```
 
 ---

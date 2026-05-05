@@ -4,9 +4,11 @@ import { optionalStringArray } from "./common.js";
 import { validateContentConfig } from "./content.js";
 import { validateDepsConfig } from "./deps.js";
 import { validateDocConfig } from "./doc.js";
+import { validateDockerConfig } from "./docker.js";
 import { validateExtends } from "./extends.js";
 import { validateGitConfig } from "./git.js";
 import { validateGithubConfig } from "./github/index.js";
+import { validateLicenseConfig } from "./license.js";
 import { validatePathConfig } from "./path.js";
 import { validateRuntimeConfig } from "./runtime.js";
 
@@ -59,6 +61,14 @@ export function validateConfig(raw: unknown): MonbanConfig {
 
 	if (obj.runtime !== undefined) {
 		config.runtime = validateRuntimeConfig(obj.runtime);
+	}
+
+	if (obj.license !== undefined) {
+		config.license = validateLicenseConfig(obj.license);
+	}
+
+	if (obj.docker !== undefined) {
+		config.docker = validateDockerConfig(obj.docker);
 	}
 
 	return config;
