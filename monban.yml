@@ -22,6 +22,9 @@ path:
       message: "helpers/ は使用禁止。"
     - path: "src/**/*.js"
       message: "src/ 内に .js は配置できません。TypeScript を使用してください。"
+    - path: "src/*.ts"
+      type: file
+      message: "src/ 直下に .ts を置かない。cli/ engine/ rules/ など意味のあるディレクトリ配下に置く。"
     - path: "src/**/utils.ts"
       message: "utils.ts は曖昧な命名。具体的な責務を表すファイル名にしてください (例: manifest-loader.ts, workflow.ts)。"
     - path: "src/**/helpers.ts"
