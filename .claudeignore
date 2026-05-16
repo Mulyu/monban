@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.*
+.env*
+*.pem
+id_rsa
+id_rsa.*
+**/secrets/**
+package-lock.json
+CHANGELOG.md
