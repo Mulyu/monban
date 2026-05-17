@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo ok",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

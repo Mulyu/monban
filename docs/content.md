@@ -22,8 +22,8 @@ monban content --json              # JSON output
 | # | Rule | Summary |
 |---|--------|------|
 | 1 | `required` | Detect missing required text patterns in a file (limitable to the first N lines with `within_lines`) |
-| 2 | `forbidden` | Detect forbidden text patterns, BOM, invisible characters, secrets, prompt injection, or merge-conflict markers |
-| 3 | `size` | Verify that the file's line count stays under a limit |
+| 2 | `forbidden` | Detect forbidden text patterns, BOM, invisible characters, secrets, prompt injection, merge-conflict markers, or CRLF line endings |
+| 3 | `size` | Verify that a file's line count stays within a range (floor / ceiling) |
 
 ---
 
@@ -225,10 +225,11 @@ content:
 | `secret` | boolean | No* | — | `true` to forbid known secret formats |
 | `injection` | boolean | No* | — | `true` to detect prompt-injection indicators |
 | `conflict` | boolean | No* | — | `true` to detect merge-conflict markers |
+| `crlf` | boolean | No* | — | `true` to detect CRLF line endings (mix of `\r\n` and `\n`, or pure CRLF files) |
 | `message` | string | No | — | Error message |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
 
-\* At least one of `pattern`, `json_key`, `bom`, `invisible`, `secret`, `injection`, `conflict` is required. `json_key` cannot be combined with byte-level flags (`bom` / `invisible` / `secret` / `injection` / `conflict`).
+\* At least one of `pattern`, `json_key`, `bom`, `invisible`, `secret`, `injection`, `conflict`, `crlf` is required. `json_key` cannot be combined with byte-level flags (`bom` / `invisible` / `secret` / `injection` / `conflict` / `crlf`).
 
 ### pattern algorithm
 
@@ -315,6 +316,10 @@ Line-leading match for the three Git merge-conflict markers:
 | `=======` | A line that is exactly 7 `=` characters (mid-line equals separators are not matched) |
 | `>>>>>>>` | 7 `>` characters at the start of a line |
 
+### crlf algorithm
+
+Reports any line that ends with `\r` (after splitting on `\n`). Useful for catching shell scripts, Dockerfiles, or YAML files that picked up Windows-style endings via an editor or a copy/paste. monban only detects; conversion is left to your editor or `dos2unix`.
+
 ### Example output
 
 ```
@@ -349,7 +354,7 @@ ERROR [forbidden] src/legacy/module.ts:12
 
 <!-- monban:ref ../src/rules/content/size.ts sha256:24e187a74ed0d2afa59e371ee11ea1254d1cda00504d38b91e990fe4ad507589 -->
 
-Verify that a file's line count stays under a threshold. Coding agents tend to cram functionality into one file; this rule surfaces bloat from a readability and responsibility-split perspective.
+Verify that a file's line count stays within a range. Coding agents tend to cram functionality into one file (use `max_lines`), and they also tend to leave generated placeholders or empty stubs behind (use `min_lines` to catch those).
 
 ### Configuration
 
@@ -364,6 +369,11 @@ content:
     - path: "src/rules/**/*.ts"
       max_lines: 150   # keep per-rule files small
       severity: warn
+
+    # Floor — catches placeholders / empty stubs.
+    - path: "docs/**/*.md"
+      min_lines: 5
+      message: "Documentation file is too short to be useful."
 ```
 
 ### Fields
@@ -372,15 +382,19 @@ content:
 |-----------|-----|------|-----------|------|
 | `path` | string | Yes | — | Glob pattern for target files |
 | `exclude` | string[] | No | `[]` | Glob patterns to exclude from targets |
-| `max_lines` | integer | Yes | — | Maximum allowed line count (exceeding reports a violation) |
+| `max_lines` | integer | No\* | — | Maximum allowed line count (exceeding reports a violation) |
+| `min_lines` | integer | No\* | — | Minimum required line count (going below reports a violation) |
 | `message` | string | No | — | Error message |
 | `severity` | `"error"` \| `"warn"` | No | `"error"` | Severity |
+
+\* At least one of `max_lines` or `min_lines` is required. When both are set, `min_lines` must not exceed `max_lines`.
 
 ### Algorithm
 
 1. Read the target file
 2. Count lines (trailing blank lines excluded)
-3. If it exceeds `max_lines`, report
+3. If `max_lines` is set and the count exceeds it, report
+4. If `min_lines` is set and the count is below it, report
 
 ### Example output
 

@@ -28,6 +28,7 @@ const DEFAULT_FORBIDDEN_HOOK_COMMANDS = [
 interface HookCommandEntry {
 	event: string;
 	command: string;
+	hasTimeout: boolean;
 }
 
 export async function checkAgentSettings(
@@ -49,6 +50,7 @@ export async function checkAgentSettings(
 			rule.forbidden_hook_commands ?? DEFAULT_FORBIDDEN_HOOK_COMMANDS,
 		);
 		const checkUnpinnedNpx = rule.unpinned_npx ?? true;
+		const checkHookTimeout = rule.hook_timeout ?? false;
 
 		const files = await listAgentFiles(rule, cwd, globalExclude);
 
@@ -125,6 +127,17 @@ export async function checkAgentSettings(
 						}
 					}
 				}
+
+				if (checkHookTimeout && !hook.hasTimeout) {
+					results.push({
+						rule: "settings",
+						path: `${file}:hooks.${hook.event}`,
+						message:
+							rule.message ??
+							`hook に timeout が設定されていません (暴走時の自動停止経路が無い)`,
+						severity,
+					});
+				}
 			}
 		}
 	}
@@ -159,9 +172,14 @@ function extractHookCommands(doc: unknown): HookCommandEntry[] {
 			if (!Array.isArray(inner)) continue;
 			for (const h of inner) {
 				if (!h || typeof h !== "object") continue;
-				const cmd = (h as Record<string, unknown>).command;
+				const entry = h as Record<string, unknown>;
+				const cmd = entry.command;
 				if (typeof cmd === "string") {
-					out.push({ event, command: cmd });
+					out.push({
+						event,
+						command: cmd,
+						hasTimeout: typeof entry.timeout === "number",
+					});
 				}
 			}
 		}

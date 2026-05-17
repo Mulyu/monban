@@ -13,6 +13,8 @@ import type {
 	AgentInstructionsRule,
 	AgentMcpRule,
 	AgentSettingsRule,
+	AgentSkillsRule,
+	AgentSubagentsRule,
 } from "../../rules/agent/types.js";
 
 export function validateAgentConfig(raw: unknown): AgentConfig {
@@ -47,8 +49,90 @@ export function validateAgentConfig(raw: unknown): AgentConfig {
 			validateIgnoreRule,
 		);
 	}
+	if (obj.subagents !== undefined) {
+		config.subagents = validateArray(
+			obj.subagents,
+			"agent.subagents",
+			validateSubagentsRule,
+		);
+	}
+	if (obj.skills !== undefined) {
+		config.skills = validateArray(
+			obj.skills,
+			"agent.skills",
+			validateSkillsRule,
+		);
+	}
 
 	return config;
+}
+
+function validateSubagentsRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): AgentSubagentsRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: AgentSubagentsRule = {
+		path: requireString(raw, "path", label),
+	};
+	const exclude = optionalStringArray(raw, "exclude", label);
+	if (exclude !== undefined) rule.exclude = exclude;
+	const requiredKeys = optionalStringArray(
+		raw,
+		"required_frontmatter_keys",
+		label,
+	);
+	if (requiredKeys !== undefined) rule.required_frontmatter_keys = requiredKeys;
+	const allowedKeys = optionalStringArray(
+		raw,
+		"allowed_frontmatter_keys",
+		label,
+	);
+	if (allowedKeys !== undefined) rule.allowed_frontmatter_keys = allowedKeys;
+	const allowedModels = optionalStringArray(raw, "allowed_models", label);
+	if (allowedModels !== undefined) rule.allowed_models = allowedModels;
+	const message = optionalString(raw, "message", label);
+	if (message !== undefined) rule.message = message;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
+}
+
+function validateSkillsRule(
+	raw: unknown,
+	index: number,
+	field: string,
+): AgentSkillsRule {
+	const label = `${field}[${index}]`;
+	assertObject(raw, label);
+
+	const rule: AgentSkillsRule = {
+		path: requireString(raw, "path", label),
+	};
+	const exclude = optionalStringArray(raw, "exclude", label);
+	if (exclude !== undefined) rule.exclude = exclude;
+	const requiredKeys = optionalStringArray(
+		raw,
+		"required_frontmatter_keys",
+		label,
+	);
+	if (requiredKeys !== undefined) rule.required_frontmatter_keys = requiredKeys;
+	const allowedKeys = optionalStringArray(
+		raw,
+		"allowed_frontmatter_keys",
+		label,
+	);
+	if (allowedKeys !== undefined) rule.allowed_frontmatter_keys = allowedKeys;
+	const maxDesc = validatePositiveInteger(raw, "max_description_length", label);
+	if (maxDesc !== undefined) rule.max_description_length = maxDesc;
+	const message = optionalString(raw, "message", label);
+	if (message !== undefined) rule.message = message;
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+	return rule;
 }
 
 function validateInstructionsRule(
@@ -150,6 +234,12 @@ function validateSettingsRule(
 			throw new Error(`${label}.unpinned_npx must be a boolean`);
 		}
 		rule.unpinned_npx = raw.unpinned_npx;
+	}
+	if (raw.hook_timeout !== undefined) {
+		if (typeof raw.hook_timeout !== "boolean") {
+			throw new Error(`${label}.hook_timeout must be a boolean`);
+		}
+		rule.hook_timeout = raw.hook_timeout;
 	}
 	const message = optionalString(raw, "message", label);
 	if (message !== undefined) rule.message = message;

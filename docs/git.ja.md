@@ -26,10 +26,11 @@ monban git --json                   # JSON 出力
 | 1 | `commit.message` | コミットメッセージの形式・長さ・禁止語を検査する |
 | 2 | `commit.trailers` | trailer（`Co-authored-by` 等）の禁止・必須・許可ポリシーを強制する |
 | 3 | `commit.references` | Issue / チケット番号の参照を必須化する |
-| 4 | `diff.size` | PR 変更粒度の上限（ファイル数・行数）を検査する |
-| 5 | `diff.ignored` | `.gitignore` 対象なのに追跡されているファイルを検出する |
-| 6 | `branch_name` | 現在のブランチ名が規約 regex を満たすか検査する |
-| 7 | `tag_name` | リポジトリのタグ名が規約 regex（SemVer 等）を満たすか検査する |
+| 4 | `commit.author` | コミットの author email を regex で allowlist / forbidden する（noreply 必須、社内ドメイン縛り、退役アドレスの遮断） |
+| 5 | `diff.size` | PR 変更粒度の上限（ファイル数・行数）を検査する |
+| 6 | `diff.ignored` | `.gitignore` 対象なのに追跡されているファイルを検出する |
+| 7 | `branch_name` | 現在のブランチ名が規約 regex を満たすか検査する |
+| 8 | `tag_name` | リポジトリのタグ名が規約 regex（SemVer 等）を満たすか検査する |
 
 ---
 
@@ -316,7 +317,58 @@ ERROR [commit.references]
 
 ---
 
-## 4. diff.size
+## 4. commit.author
+
+差分範囲のコミットの **author email** を regex で allowlist / forbidden する。noreply アドレスの徹底、社内ドメインの縛り、退役済みアカウントの遮断などに使う。
+
+### 設定
+
+```yaml
+git:
+  commit:
+    author:
+      allowed:
+        - "@example\\.com$"
+        - "^\\d+\\+[a-z0-9-]+@users\\.noreply\\.github\\.com$"
+      forbidden:
+        - "@personal\\.test$"
+      ignore_merges: true
+      severity: error
+```
+
+### フィールド
+
+| フィールド | 型 | デフォルト | 説明 |
+|---|---|---|---|
+| `allowed` | string[] | — | allowlist の regex。いずれにも一致しない email を違反として報告 |
+| `forbidden` | string[] | — | denylist の regex。いずれかに一致する email を違反として報告 |
+| `ignore_merges` | boolean | `true` | マージコミットをスキップ |
+| `message` | string | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | `"error"` | 重大度 |
+
+`allowed` / `forbidden` のいずれか 1 つ以上が必須。両方を併用すると「`allowed` に一致しつつ `forbidden` に **一致しない**」必要がある。
+
+### 判定方法
+
+1. `git log --format=...%ae...` でコミット範囲を取得（subject/body と一緒に author email を抽出）
+2. `ignore_merges` が true ならマージコミットをスキップ
+3. 各コミットについて:
+   - `allowed` 指定時、email がいずれの regex にも一致しなければ違反
+   - `forbidden` 指定時、email がいずれかの regex に一致すれば違反
+
+### 出力例
+
+```
+ERROR [commit.author] a1b2c3d
+  author email が allowlist に一致しません: outsider@example.org
+
+ERROR [commit.author] d4e5f6g
+  author email が forbidden パターンに一致: leaver@personal.test (@personal\.test$)
+```
+
+---
+
+## 5. diff.size
 
 <!-- monban:ref ../src/rules/git/diff-size.ts sha256:1833fd4e0ee590e0c92d1112a13b21f4ed776141c0ba09135a0c1155480b7c2c -->
 
@@ -369,7 +421,7 @@ WARN [diff.size]
 
 ---
 
-## 5. diff.ignored
+## 6. diff.ignored
 
 <!-- monban:ref ../src/rules/git/diff-ignored.ts sha256:1589634aa802737e14ac43840daa3d169a99d6ab932d10e7eb14df7e7838aff2 -->
 
@@ -416,7 +468,7 @@ WARN [diff.ignored]
 
 ---
 
-## 6. branch_name
+## 7. branch_name
 
 <!-- monban:ref ../src/rules/git/branch-name.ts sha256:98f139ae02c292c17cb9ea8c950d1b8ab8a67e75f538d9617e3a44f8221495dd -->
 
@@ -457,7 +509,7 @@ ERROR [branch_name] WIP_branch
 
 ---
 
-## 7. tag_name
+## 8. tag_name
 
 <!-- monban:ref ../src/rules/git/tag-name.ts sha256:28235ffe355860213adddc9ab39ff9a38d4b59f6b17cec51a225f7266a045db1 -->
 

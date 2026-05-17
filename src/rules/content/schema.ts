@@ -102,6 +102,13 @@ function validateContentForbiddenRule(
 		rule.conflict = raw.conflict;
 	}
 
+	if (raw.crlf !== undefined) {
+		if (typeof raw.crlf !== "boolean") {
+			throw new Error(`${label}.crlf must be a boolean`);
+		}
+		rule.crlf = raw.crlf;
+	}
+
 	if (
 		!rule.pattern &&
 		!rule.json_key &&
@@ -109,10 +116,11 @@ function validateContentForbiddenRule(
 		!rule.invisible &&
 		!rule.secret &&
 		!rule.injection &&
-		!rule.conflict
+		!rule.conflict &&
+		!rule.crlf
 	) {
 		throw new Error(
-			`${label} must have at least one of: pattern, json_key, bom, invisible, secret, injection, conflict`,
+			`${label} must have at least one of: pattern, json_key, bom, invisible, secret, injection, conflict, crlf`,
 		);
 	}
 
@@ -122,10 +130,11 @@ function validateContentForbiddenRule(
 			rule.invisible ||
 			rule.secret ||
 			rule.injection ||
-			rule.conflict)
+			rule.conflict ||
+			rule.crlf)
 	) {
 		throw new Error(
-			`${label}.json_key cannot be combined with bom/invisible/secret/injection/conflict (byte-level checks)`,
+			`${label}.json_key cannot be combined with bom/invisible/secret/injection/conflict/crlf (byte-level checks)`,
 		);
 	}
 
@@ -197,14 +206,21 @@ function validateContentSizeRule(
 	assertObject(raw, label);
 
 	const maxLines = validatePositiveInteger(raw, "max_lines", label);
-	if (maxLines === undefined) {
-		throw new Error(`${label}.max_lines is required`);
+	const minLines = validatePositiveInteger(raw, "min_lines", label);
+	if (maxLines === undefined && minLines === undefined) {
+		throw new Error(
+			`${label} must have at least one of "max_lines" or "min_lines"`,
+		);
+	}
+	if (maxLines !== undefined && minLines !== undefined && minLines > maxLines) {
+		throw new Error(`${label}.min_lines must not exceed max_lines`);
 	}
 
 	const rule: ContentSizeRule = {
 		path: requireString(raw, "path", label),
-		max_lines: maxLines,
 	};
+	if (maxLines !== undefined) rule.max_lines = maxLines;
+	if (minLines !== undefined) rule.min_lines = minLines;
 	rule.exclude = optionalStringArray(raw, "exclude", label);
 	rule.message = optionalString(raw, "message", label);
 

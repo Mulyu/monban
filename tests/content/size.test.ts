@@ -79,4 +79,35 @@ describe("content/size", () => {
 		);
 		expect(results).toHaveLength(0);
 	});
+
+	it("flags files below the line floor", async () => {
+		await writeFile(join(tempDir, "src/empty.ts"), "");
+		const results = await checkContentSize(
+			[{ path: "src/empty.ts", min_lines: 5 }],
+			tempDir,
+			[],
+		);
+		expect(results).toHaveLength(1);
+		expect(results[0].message).toContain("下限");
+	});
+
+	it("passes files meeting the line floor", async () => {
+		const results = await checkContentSize(
+			[{ path: "src/small.ts", min_lines: 5 }],
+			tempDir,
+			[],
+		);
+		expect(results).toHaveLength(0);
+	});
+
+	it("can enforce both floor and ceiling", async () => {
+		const results = await checkContentSize(
+			[{ path: "src/**/*.ts", min_lines: 15, max_lines: 40 }],
+			tempDir,
+			[],
+		);
+		const paths = results.map((r) => r.path);
+		expect(paths).toContain("src/small.ts");
+		expect(paths).toContain("src/big.ts");
+	});
 });

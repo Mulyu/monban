@@ -9,6 +9,7 @@ import {
 } from "../../config/common.js";
 import type {
 	GitBranchNameRule,
+	GitCommitAuthorRule,
 	GitCommitConfig,
 	GitCommitMessagePreset,
 	GitCommitMessageRule,
@@ -125,8 +126,41 @@ function validateGitCommitConfig(raw: unknown): GitCommitConfig {
 	if (raw.references !== undefined) {
 		config.references = validateCommitReferencesRule(raw.references);
 	}
+	if (raw.author !== undefined) {
+		config.author = validateCommitAuthorRule(raw.author);
+	}
 
 	return config;
+}
+
+function validateCommitAuthorRule(raw: unknown): GitCommitAuthorRule {
+	const label = "git.commit.author";
+	assertObject(raw, label);
+
+	const rule: GitCommitAuthorRule = {};
+
+	const allowed = optionalStringArray(raw, "allowed", label);
+	if (allowed !== undefined) rule.allowed = allowed;
+
+	const forbidden = optionalStringArray(raw, "forbidden", label);
+	if (forbidden !== undefined) rule.forbidden = forbidden;
+
+	if (!rule.allowed && !rule.forbidden) {
+		throw new Error(
+			`${label} must have at least one of "allowed" or "forbidden"`,
+		);
+	}
+
+	const ignoreMerges = optionalBoolean(raw, "ignore_merges", label);
+	if (ignoreMerges !== undefined) rule.ignore_merges = ignoreMerges;
+
+	const message = optionalString(raw, "message", label);
+	if (message !== undefined) rule.message = message;
+
+	const severity = validateSeverity(raw, label);
+	if (severity !== undefined) rule.severity = severity;
+
+	return rule;
 }
 
 function validateGitDiffConfig(raw: unknown): GitDiffConfig {

@@ -26,10 +26,11 @@ monban git --json                   # JSON output
 | 1 | `commit.message` | Check commit message format, length, and forbidden words |
 | 2 | `commit.trailers` | Enforce forbidden/required/allowed trailers (e.g. `Co-authored-by`) |
 | 3 | `commit.references` | Require an issue / ticket number reference |
-| 4 | `diff.size` | Check the PR change-granularity limit (file and line counts) |
-| 5 | `diff.ignored` | Detect files that match `.gitignore` but are tracked |
-| 6 | `branch_name` | Check that the current branch name matches a convention regex |
-| 7 | `tag_name` | Check that repository tag names match a convention regex (SemVer, etc.) |
+| 4 | `commit.author` | Allow / forbid commit author emails by regex (noreply-required, in-house domain, retired addresses) |
+| 5 | `diff.size` | Check the PR change-granularity limit (file and line counts) |
+| 6 | `diff.ignored` | Detect files that match `.gitignore` but are tracked |
+| 7 | `branch_name` | Check that the current branch name matches a convention regex |
+| 8 | `tag_name` | Check that repository tag names match a convention regex (SemVer, etc.) |
 
 ---
 
@@ -316,7 +317,58 @@ ERROR [commit.references]
 
 ---
 
-## 4. diff.size
+## 4. commit.author
+
+Restrict the **author email** of commits in the diff range to an allowlist or away from a forbidden list. Useful for enforcing a no-reply address policy, an in-house domain, or banning legacy accounts that should no longer be committing.
+
+### Configuration
+
+```yaml
+git:
+  commit:
+    author:
+      allowed:
+        - "@example\\.com$"
+        - "^\\d+\\+[a-z0-9-]+@users\\.noreply\\.github\\.com$"
+      forbidden:
+        - "@personal\\.test$"
+      ignore_merges: true
+      severity: error
+```
+
+### Fields
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `allowed` | string[] | — | Allowlist of regexes; an email matching none of them is reported |
+| `forbidden` | string[] | — | Denylist of regexes; an email matching any of them is reported |
+| `ignore_merges` | boolean | `true` | Skip merge commits |
+| `message` | string | — | Custom message |
+| `severity` | `"error"` \| `"warn"` | `"error"` | Severity |
+
+At least one of `allowed` or `forbidden` is required. They can be combined (an email must match `allowed` **and** must not match any `forbidden`).
+
+### Algorithm
+
+1. Fetch the commit range with `git log --format=...%ae...` (extracting author email along with subject/body)
+2. Skip merge commits when `ignore_merges` is true
+3. For each commit:
+   - If `allowed` is set and the email matches none of its regexes, report
+   - If `forbidden` is set and the email matches any of its regexes, report
+
+### Example output
+
+```
+ERROR [commit.author] a1b2c3d
+  author email is not in the allowlist: outsider@example.org
+
+ERROR [commit.author] d4e5f6g
+  author email matches forbidden pattern: leaver@personal.test (@personal\.test$)
+```
+
+---
+
+## 5. diff.size
 
 <!-- monban:ref ../src/rules/git/diff-size.ts sha256:1833fd4e0ee590e0c92d1112a13b21f4ed776141c0ba09135a0c1155480b7c2c -->
 
@@ -369,7 +421,7 @@ WARN [diff.size]
 
 ---
 
-## 5. diff.ignored
+## 6. diff.ignored
 
 <!-- monban:ref ../src/rules/git/diff-ignored.ts sha256:1589634aa802737e14ac43840daa3d169a99d6ab932d10e7eb14df7e7838aff2 -->
 
@@ -416,7 +468,7 @@ WARN [diff.ignored]
 
 ---
 
-## 6. branch_name
+## 7. branch_name
 
 <!-- monban:ref ../src/rules/git/branch-name.ts sha256:98f139ae02c292c17cb9ea8c950d1b8ab8a67e75f538d9617e3a44f8221495dd -->
 
@@ -457,7 +509,7 @@ ERROR [branch_name] WIP_branch
 
 ---
 
-## 7. tag_name
+## 8. tag_name
 
 <!-- monban:ref ../src/rules/git/tag-name.ts sha256:28235ffe355860213adddc9ab39ff9a38d4b59f6b17cec51a225f7266a045db1 -->
 

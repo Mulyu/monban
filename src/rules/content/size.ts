@@ -23,13 +23,23 @@ export async function checkContentSize(
 			const abs = join(cwd, file);
 			const content = await readFile(abs, "utf-8");
 			const lines = countLines(content);
-			if (lines > rule.max_lines) {
+			if (rule.max_lines !== undefined && lines > rule.max_lines) {
 				results.push({
 					rule: "size",
 					path: file,
 					message:
 						rule.message ??
 						`行数 ${lines} が上限 ${rule.max_lines} を超えています。`,
+					severity: rule.severity ?? "error",
+				});
+			}
+			if (rule.min_lines !== undefined && lines < rule.min_lines) {
+				results.push({
+					rule: "size",
+					path: file,
+					message:
+						rule.message ??
+						`行数 ${lines} が下限 ${rule.min_lines} を下回っています。`,
 					severity: rule.severity ?? "error",
 				});
 			}

@@ -77,6 +77,10 @@ Each preset only includes locations whose values are bare version strings (e.g. 
 | `ruby` | `.ruby-version` · `**/Dockerfile` (`FROM ruby:...`) · `.github/workflows/*.yml` (`with.ruby-version`) |
 | `go` | `go.mod` (`go ...`) · `**/Dockerfile` (`FROM golang:...`) · `.github/workflows/*.yml` (`with.go-version`) |
 | `rust` | `rust-toolchain.toml` (`channel = "..."`) · `rust-toolchain` · `.github/workflows/*.yml` (`with.toolchain`) |
+| `java` | `.java-version` · `**/Dockerfile` (`FROM eclipse-temurin:...` / `openjdk:...` / `amazoncorretto:...`) · `.github/workflows/*.yml` (`with.java-version`) |
+| `dotnet` | `global.json` (`sdk.version`) · `**/Dockerfile` (`FROM mcr.microsoft.com/dotnet/*:...`) · `.github/workflows/*.yml` (`with.dotnet-version`) |
+| `php` | `.php-version` · `**/Dockerfile` (`FROM php:...`) · `.github/workflows/*.yml` (`with.php-version`) |
+| `kotlin` | `.kotlin-version` · `**/Dockerfile` (`FROM gradle:...` / `kotlin:...`) |
 
 ---
 
@@ -114,7 +118,7 @@ runtime:
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `preset` | string | No\* | Built-in preset name (`node` / `python` / `ruby` / `go` / `rust`). When set, expands into the preset's bundled `sources` |
+| `preset` | string | No\* | Built-in preset name (`node` / `python` / `ruby` / `go` / `rust` / `java` / `dotnet` / `php` / `kotlin`). When set, expands into the preset's bundled `sources` |
 | `name` | string | No\* | Human label used in messages. Defaults to the preset name when `preset` is set |
 | `sources` | object[] | No\* | Sources to extract values from. Appended to the preset's sources when both are set |
 | `message` | string | No | Custom message in place of the default |

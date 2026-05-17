@@ -107,6 +107,21 @@ describe("config/schema/runtime", () => {
 			expect(config.consistency?.[0].severity).toBe("warn");
 			expect(config.consistency?.[0].message).toBe("mismatch");
 		});
+
+		it.each([
+			"java",
+			"dotnet",
+			"php",
+			"kotlin",
+		] as const)("expands the %s preset", (name) => {
+			const config = validateRuntimeConfig({
+				consistency: [{ preset: name }],
+			});
+			const rule = config.consistency?.[0];
+			expect(rule?.name).toBe(name);
+			expect(rule?.sources).toEqual(RUNTIME_PRESETS[name]);
+			expect(rule?.sources.length).toBeGreaterThan(0);
+		});
 	});
 
 	it("accepts a fully specified rule", () => {
