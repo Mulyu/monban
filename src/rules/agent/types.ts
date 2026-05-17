@@ -37,6 +37,27 @@ export interface AgentSettingsRule {
 	forbidden_permissions?: string[];
 	forbidden_hook_commands?: string[];
 	unpinned_npx?: boolean;
+	hook_timeout?: boolean;
+	message?: string;
+	severity?: Severity;
+}
+
+export interface AgentSubagentsRule {
+	path: string;
+	exclude?: string[];
+	required_frontmatter_keys?: string[];
+	allowed_frontmatter_keys?: string[];
+	allowed_models?: string[];
+	message?: string;
+	severity?: Severity;
+}
+
+export interface AgentSkillsRule {
+	path: string;
+	exclude?: string[];
+	required_frontmatter_keys?: string[];
+	allowed_frontmatter_keys?: string[];
+	max_description_length?: number;
 	message?: string;
 	severity?: Severity;
 }
@@ -46,4 +67,6 @@ export interface AgentConfig {
 	mcp?: AgentMcpRule[];
 	ignore?: AgentIgnoreRule[];
 	settings?: AgentSettingsRule[];
+	subagents?: AgentSubagentsRule[];
+	skills?: AgentSkillsRule[];
 }

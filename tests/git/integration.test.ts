@@ -38,6 +38,7 @@ describe("git/gitCheck", () => {
 			"commit.message",
 			"commit.trailers",
 			"commit.references",
+			"commit.author",
 			"diff.size",
 			"diff.ignored",
 			"branch_name",
@@ -67,6 +68,7 @@ describe("git/gitCheck", () => {
 		const ruleNames = results.map((r) => r.name).sort();
 		expect(ruleNames).toEqual([
 			"branch_name",
+			"commit.author",
 			"commit.message",
 			"commit.references",
 			"commit.trailers",

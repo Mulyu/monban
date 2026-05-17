@@ -10,6 +10,7 @@ export interface ContentForbiddenRule {
 	secret?: boolean;
 	injection?: boolean;
 	conflict?: boolean;
+	crlf?: boolean;
 	message?: string;
 	severity?: Severity;
 }
@@ -29,7 +30,8 @@ export interface ContentRequiredRule {
 export interface ContentSizeRule {
 	path: string;
 	exclude?: string[];
-	max_lines: number;
+	max_lines?: number;
+	min_lines?: number;
 	message?: string;
 	severity?: Severity;
 }

@@ -77,6 +77,10 @@ runtime:
 | `ruby` | `.ruby-version` · `**/Dockerfile` (`FROM ruby:...`) · `.github/workflows/*.yml` (`with.ruby-version`) |
 | `go` | `go.mod` (`go ...`) · `**/Dockerfile` (`FROM golang:...`) · `.github/workflows/*.yml` (`with.go-version`) |
 | `rust` | `rust-toolchain.toml` (`channel = "..."`) · `rust-toolchain` · `.github/workflows/*.yml` (`with.toolchain`) |
+| `java` | `.java-version` · `**/Dockerfile` (`FROM eclipse-temurin:...` / `openjdk:...` / `amazoncorretto:...`) · `.github/workflows/*.yml` (`with.java-version`) |
+| `dotnet` | `global.json` (`sdk.version`) · `**/Dockerfile` (`FROM mcr.microsoft.com/dotnet/*:...`) · `.github/workflows/*.yml` (`with.dotnet-version`) |
+| `php` | `.php-version` · `**/Dockerfile` (`FROM php:...`) · `.github/workflows/*.yml` (`with.php-version`) |
+| `kotlin` | `.kotlin-version` · `**/Dockerfile` (`FROM gradle:...` / `kotlin:...`) |
 
 ---
 
@@ -114,7 +118,7 @@ runtime:
 
 | フィールド | 型 | 必須 | 説明 |
 |---|---|---|---|
-| `preset` | string | いいえ\* | 組み込み preset 名（`node` / `python` / `ruby` / `go` / `rust`）。指定すると preset の sources を展開 |
+| `preset` | string | いいえ\* | 組み込み preset 名（`node` / `python` / `ruby` / `go` / `rust` / `java` / `dotnet` / `php` / `kotlin`）。指定すると preset の sources を展開 |
 | `name` | string | いいえ\* | エラーメッセージに使うラベル。`preset` 指定時は preset 名がデフォルト |
 | `sources` | object[] | いいえ\* | 値を抽出する source。`preset` と併用すると preset の sources に **連結** される |
 | `message` | string | いいえ | デフォルトメッセージを上書き |

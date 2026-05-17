@@ -1,5 +1,7 @@
-import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { checkContentForbidden } from "../../src/rules/content/forbidden.js";
 
 const cwd = resolve(import.meta.dirname, "../fixtures/content");
@@ -247,6 +249,37 @@ describe("content/forbidden", () => {
 					},
 				],
 				cwd,
+				[],
+			);
+			expect(results).toHaveLength(0);
+		});
+	});
+
+	describe("crlf", () => {
+		let tempDir: string;
+		beforeEach(async () => {
+			tempDir = await mkdtemp(join(tmpdir(), "monban-crlf-"));
+		});
+		afterEach(async () => {
+			await rm(tempDir, { recursive: true });
+		});
+
+		it("detects CRLF line endings", async () => {
+			await writeFile(join(tempDir, "crlf.txt"), "a\r\nb\r\nc\n");
+			const results = await checkContentForbidden(
+				[{ path: "*.txt", crlf: true }],
+				tempDir,
+				[],
+			);
+			expect(results.length).toBe(2);
+			expect(results[0].message).toContain("CRLF");
+		});
+
+		it("passes pure LF files", async () => {
+			await writeFile(join(tempDir, "lf.txt"), "a\nb\nc\n");
+			const results = await checkContentForbidden(
+				[{ path: "*.txt", crlf: true }],
+				tempDir,
 				[],
 			);
 			expect(results).toHaveLength(0);

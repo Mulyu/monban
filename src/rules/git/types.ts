@@ -65,10 +65,19 @@ export interface GitCommitReferencesRule {
 	severity?: Severity;
 }
 
+export interface GitCommitAuthorRule {
+	allowed?: string[];
+	forbidden?: string[];
+	ignore_merges?: boolean;
+	message?: string;
+	severity?: Severity;
+}
+
 export interface GitCommitConfig {
 	message?: GitCommitMessageRule;
 	trailers?: GitCommitTrailersRule;
 	references?: GitCommitReferencesRule;
+	author?: GitCommitAuthorRule;
 }
 
 export interface GitDiffConfig {

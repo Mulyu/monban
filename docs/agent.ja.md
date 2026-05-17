@@ -24,6 +24,8 @@ monban agent --json                 # JSON 出力
 | 2 | `mcp` | `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` | `mcpServers` の allowed/forbidden、生シェル禁止、`npx @latest` 禁止、env の直値 secret 検出 |
 | 3 | `settings` | `.claude/settings.json` / `.claude/settings.local.json` | ハーネス本体の `permissions.allow` の広域許可・`hooks.*.command` の危険シェル・`npx @latest` を検出 |
 | 4 | `ignore` | `.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore` | `.env*` / `*.pem` / `id_rsa` 等の必須カバレッジ |
+| 5 | `subagents` | `.claude/agents/*.md` | frontmatter の必須キー／allowlist と `model` の allowlist |
+| 6 | `skills` | `.claude/skills/*/SKILL.md` | frontmatter の必須キー／allowlist と `description` の長さ上限 |
 
 ---
 
@@ -57,13 +59,24 @@ agent:
   ignore:
     - path: ".llmignore"
       required: [".env", ".env.*", "*.pem", "id_rsa", "**/secrets/**"]
+
+  subagents:
+    - path: ".claude/agents/*.md"
+      required_frontmatter_keys: [name, description]
+      allowed_frontmatter_keys: [name, description, model, tools]
+      allowed_models: [sonnet, opus, haiku, inherit]
+
+  skills:
+    - path: ".claude/skills/*/SKILL.md"
+      required_frontmatter_keys: [name, description]
+      max_description_length: 1024
 ```
 
 ---
 
 ## 1. instructions
 
-<!-- monban:ref ../src/rules/agent/instructions.ts sha256:b52c63ccdddfa481665d7d216ab281d9a138abd4115c2a56156387a6751788ec -->
+<!-- monban:ref ../src/rules/agent/instructions.ts sha256:d5b78c13ecf04da5cd3813d23b34c35e0082e5238b867705f3b0e590618929d9 -->
 
 エージェント指示書（`AGENTS.md` / `CLAUDE.md`）の構造を検証する。
 
@@ -181,7 +194,7 @@ WARN  [mcp] .mcp.json:hardcoded-secret.env.GITHUB_TOKEN
 
 ## 3. settings
 
-<!-- monban:ref ../src/rules/agent/settings.ts sha256:8bdb4cd8280062b22d98d2a08404b483b3f36ea253794e370c8d9c3e08206bf4 -->
+<!-- monban:ref ../src/rules/agent/settings.ts sha256:d90014c1225d5537e49daf36f607ff5efbc02ecbcf4e32d7f7369bdce6b7be8c -->
 
 Claude Code のハーネス設定ファイル（`.claude/settings.json` / `.claude/settings.local.json`）の `permissions` と `hooks` を検証する。`agent.mcp` が `mcpServers` のみを対象にするのに対し、このルールはハーネス全体の許可・フックを見る。
 
@@ -218,6 +231,7 @@ agent:
 | `allowed_permissions` | string[] | No | — | 指定時、`permissions.allow` の各エントリはいずれかに一致しないと違反 |
 | `forbidden_hook_commands` | string[] | No | `[curl, wget, sh, bash, zsh, sudo]` | `hooks.*.hooks[].command` に含まれるトークンとして禁止するもの |
 | `unpinned_npx` | boolean | No | `true` | hook command 内の `npx pkg` / `npx pkg@latest` を禁止 |
+| `hook_timeout` | boolean | No | `false` | `true` にすると、各 hook エントリに数値の `timeout`（秒）が設定されているか検査する。未設定だと違反として報告（ハーネス側の `github.actions.timeout` 相当） |
 | `message` | string | No | — | カスタムメッセージ |
 | `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
 
@@ -313,6 +327,99 @@ WARN  [ignore] .llmignore
 
 WARN  [ignore] .llmignore
   必須カバレッジが欠落: *.pem が ignore リストに含まれていません。
+```
+
+---
+
+## 5. subagents
+
+Claude Code の subagent ファイル（`.claude/agents/*.md`）の YAML frontmatter を検証する。subagent は親セッションから呼び出される半自律ワーカーで、`name` の欠落や `model` の指定ミスは「読み込み失敗」「想定外モデルへの暗黙ルーティング」を招く。
+
+### 設定
+
+```yaml
+agent:
+  subagents:
+    - path: ".claude/agents/*.md"
+      required_frontmatter_keys: [name, description]
+      allowed_frontmatter_keys: [name, description, model, tools]
+      allowed_models: [sonnet, opus, haiku, inherit]
+      severity: warn
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | subagent ファイルの glob |
+| `exclude` | string[] | No | `[]` | 除外する glob |
+| `required_frontmatter_keys` | string[] | No | — | YAML frontmatter に必須のキー |
+| `allowed_frontmatter_keys` | string[] | No | — | 指定時、これに含まれないキーは違反 |
+| `allowed_models` | string[] | No | — | 指定時、frontmatter の `model:` 値はこのリストに含まれている必要がある |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
+
+### 判定方法
+
+1. 対象ファイルを glob し、YAML frontmatter（先頭の `--- ... ---` ブロック）を抽出
+2. frontmatter が無ければ違反として報告（subagent はメタデータ宣言が前提）
+3. `required_frontmatter_keys` のキーが無ければそれぞれ違反
+4. `allowed_frontmatter_keys` 指定時、許可外のキーがあれば違反
+5. `allowed_models` 指定時、`model` が文字列で存在し、かつ allowlist に無ければ違反
+
+### 出力例
+
+```
+WARN  [subagents] .claude/agents/reviewer.md
+  frontmatter に必須キーが欠落: name
+
+WARN  [subagents] .claude/agents/reviewer.md
+  model が allowlist にありません: claude-unknown-99 (許可: sonnet, opus, haiku, inherit)
+```
+
+---
+
+## 6. skills
+
+Claude Code の skill ファイル（`.claude/skills/*/SKILL.md`）の YAML frontmatter を検証する。skill は `description` を元に発火するため、`name` の欠落や `description` の長文化はエージェントの発火精度を直接下げる。
+
+### 設定
+
+```yaml
+agent:
+  skills:
+    - path: ".claude/skills/*/SKILL.md"
+      required_frontmatter_keys: [name, description]
+      allowed_frontmatter_keys: [name, description]
+      max_description_length: 1024
+      severity: warn
+```
+
+### フィールド
+
+| フィールド | 型 | 必須 | デフォルト | 説明 |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | skill ファイルの glob |
+| `exclude` | string[] | No | `[]` | 除外する glob |
+| `required_frontmatter_keys` | string[] | No | — | YAML frontmatter に必須のキー |
+| `allowed_frontmatter_keys` | string[] | No | — | 指定時、これに含まれないキーは違反 |
+| `max_description_length` | integer | No | — | `description` 値の上限（コードポイント数） |
+| `message` | string | No | — | カスタムメッセージ |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | 重大度 |
+
+### 判定方法
+
+1. 対象ファイルを glob し、YAML frontmatter を抽出
+2. frontmatter が無ければ違反として報告
+3. `required_frontmatter_keys` のキーが無ければそれぞれ違反
+4. `allowed_frontmatter_keys` 指定時、許可外のキーがあれば違反
+5. `max_description_length` 指定時、`description` が文字列で存在し、かつコードポイント長が上限を超えたら違反
+
+### 出力例
+
+```
+WARN  [skills] .claude/skills/reviewer/SKILL.md
+  description の長さ 1280 が上限 1024 を超えています (skill 発火に description が長いと精度が落ちる)。
 ```
 
 ---

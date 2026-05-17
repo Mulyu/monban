@@ -3,6 +3,7 @@ import { tryRunGit } from "./git-exec.js";
 export interface GitCommit {
 	sha: string;
 	shortSha: string;
+	authorEmail: string;
 	subject: string;
 	body: string;
 	trailers: GitTrailer[];
@@ -21,7 +22,7 @@ const FIELD_SEP = "\x1f";
 export function getCommits(cwd: string, range: string): GitCommit[] {
 	const out = tryRunGit(cwd, [
 		"log",
-		`--format=${RECORD_SEP}%H${FIELD_SEP}%P${FIELD_SEP}%B`,
+		`--format=${RECORD_SEP}%H${FIELD_SEP}%P${FIELD_SEP}%ae${FIELD_SEP}%B`,
 		range,
 	]);
 	if (out === null) return [];
@@ -29,7 +30,7 @@ export function getCommits(cwd: string, range: string): GitCommit[] {
 	const commits: GitCommit[] = [];
 	const records = out.split(RECORD_SEP).filter((r) => r.length > 0);
 	for (const record of records) {
-		const [sha, parents, rest] = record.split(FIELD_SEP);
+		const [sha, parents, authorEmail, rest] = record.split(FIELD_SEP);
 		if (!sha || rest === undefined) continue;
 		const trimmed = rest.replace(/\n+$/, "");
 		const newlineIdx = trimmed.indexOf("\n");
@@ -42,6 +43,7 @@ export function getCommits(cwd: string, range: string): GitCommit[] {
 		commits.push({
 			sha,
 			shortSha: sha.slice(0, 7),
+			authorEmail: authorEmail ?? "",
 			subject,
 			body,
 			trailers: parseTrailers(body),

@@ -46,6 +46,47 @@ export const RUNTIME_PRESETS: Record<string, RuntimeConsistencySource[]> = {
 			yaml_key: "jobs.*.steps.*.with.toolchain",
 		},
 	],
+
+	java: [
+		{ path: ".java-version" },
+		{
+			path: "**/Dockerfile",
+			pattern: "^FROM\\s+(?:eclipse-temurin|openjdk|amazoncorretto):([\\d.]+)",
+		},
+		{
+			path: ".github/workflows/*.yml",
+			yaml_key: "jobs.*.steps.*.with.java-version",
+		},
+	],
+
+	dotnet: [
+		{ path: "global.json", json_key: "sdk.version" },
+		{
+			path: "**/Dockerfile",
+			pattern: "^FROM\\s+mcr\\.microsoft\\.com/dotnet/[^:\\s]+:([\\d.]+)",
+		},
+		{
+			path: ".github/workflows/*.yml",
+			yaml_key: "jobs.*.steps.*.with.dotnet-version",
+		},
+	],
+
+	php: [
+		{ path: ".php-version" },
+		{ path: "**/Dockerfile", pattern: "^FROM\\s+php:([\\d.]+)" },
+		{
+			path: ".github/workflows/*.yml",
+			yaml_key: "jobs.*.steps.*.with.php-version",
+		},
+	],
+
+	kotlin: [
+		{ path: ".kotlin-version" },
+		{
+			path: "**/Dockerfile",
+			pattern: "^FROM\\s+(?:gradle|kotlin):([\\d.]+)",
+		},
+	],
 };
 
 export const RUNTIME_PRESET_NAMES = Object.keys(RUNTIME_PRESETS);

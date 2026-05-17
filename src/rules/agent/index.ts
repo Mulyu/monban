@@ -4,6 +4,8 @@ import { checkAgentInstructions } from "./instructions.js";
 import { checkAgentMcp } from "./mcp.js";
 import { validateAgentConfig } from "./schema.js";
 import { checkAgentSettings } from "./settings.js";
+import { checkAgentSkills } from "./skills.js";
+import { checkAgentSubagents } from "./subagents.js";
 import type { AgentConfig } from "./types.js";
 
 const RULE_RUNNERS: Record<
@@ -19,6 +21,8 @@ const RULE_RUNNERS: Record<
 	mcp: (c, cwd, ex) => checkAgentMcp(c.mcp ?? [], cwd, ex),
 	settings: (c, cwd, ex) => checkAgentSettings(c.settings ?? [], cwd, ex),
 	ignore: (c, cwd, ex) => checkAgentIgnore(c.ignore ?? [], cwd, ex),
+	subagents: (c, cwd, ex) => checkAgentSubagents(c.subagents ?? [], cwd, ex),
+	skills: (c, cwd, ex) => checkAgentSkills(c.skills ?? [], cwd, ex),
 };
 
 const RULE_NAMES = Object.keys(RULE_RUNNERS);

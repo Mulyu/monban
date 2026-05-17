@@ -24,6 +24,8 @@ monban agent --json                 # JSON output
 | 2 | `mcp` | `.mcp.json` / `.claude/settings.json` / `.cursor/mcp.json` | allowed/forbidden under `mcpServers`, raw-shell ban, `npx @latest` ban, raw-value secret detection in env |
 | 3 | `settings` | `.claude/settings.json` / `.claude/settings.local.json` | Detects broad `permissions.allow` grants, dangerous shell in `hooks.*.command`, and unpinned `npx @latest` on the harness itself |
 | 4 | `ignore` | `.llmignore` / `.aiexclude` / `.claudeignore` / `.cursorignore` | Required coverage of `.env*` / `*.pem` / `id_rsa` etc. |
+| 5 | `subagents` | `.claude/agents/*.md` | Required / allowed frontmatter keys, `model` allowlist |
+| 6 | `skills` | `.claude/skills/*/SKILL.md` | Required / allowed frontmatter keys, `description` max length |
 
 ---
 
@@ -57,13 +59,24 @@ agent:
   ignore:
     - path: ".llmignore"
       required: [".env", ".env.*", "*.pem", "id_rsa", "**/secrets/**"]
+
+  subagents:
+    - path: ".claude/agents/*.md"
+      required_frontmatter_keys: [name, description]
+      allowed_frontmatter_keys: [name, description, model, tools]
+      allowed_models: [sonnet, opus, haiku, inherit]
+
+  skills:
+    - path: ".claude/skills/*/SKILL.md"
+      required_frontmatter_keys: [name, description]
+      max_description_length: 1024
 ```
 
 ---
 
 ## 1. instructions
 
-<!-- monban:ref ../src/rules/agent/instructions.ts sha256:b52c63ccdddfa481665d7d216ab281d9a138abd4115c2a56156387a6751788ec -->
+<!-- monban:ref ../src/rules/agent/instructions.ts sha256:d5b78c13ecf04da5cd3813d23b34c35e0082e5238b867705f3b0e590618929d9 -->
 
 Validates the structure of agent instruction files (`AGENTS.md` / `CLAUDE.md`).
 
@@ -181,7 +194,7 @@ Many of these make the configuration file itself an attack surface. This rule ai
 
 ## 3. settings
 
-<!-- monban:ref ../src/rules/agent/settings.ts sha256:8bdb4cd8280062b22d98d2a08404b483b3f36ea253794e370c8d9c3e08206bf4 -->
+<!-- monban:ref ../src/rules/agent/settings.ts sha256:d90014c1225d5537e49daf36f607ff5efbc02ecbcf4e32d7f7369bdce6b7be8c -->
 
 Validates the `permissions` and `hooks` blocks of Claude Code harness settings (`.claude/settings.json` / `.claude/settings.local.json`). While `agent.mcp` targets only `mcpServers`, this rule inspects the harness itself — the permission grants and the event-driven hooks.
 
@@ -218,6 +231,7 @@ agent:
 | `allowed_permissions` | string[] | No | — | When set, each `permissions.allow` entry that matches none is a violation |
 | `forbidden_hook_commands` | string[] | No | `[curl, wget, sh, bash, zsh, sudo]` | Tokens forbidden inside `hooks.*.hooks[].command` |
 | `unpinned_npx` | boolean | No | `true` | Forbid `npx pkg` / `npx pkg@latest` inside hook commands |
+| `hook_timeout` | boolean | No | `false` | When `true`, every hook entry must declare a numeric `timeout` (in seconds). A missing `timeout` is reported as a violation, mirroring `github.actions.timeout` for the harness side |
 | `message` | string | No | — | Custom message |
 | `severity` | `"error"` \| `"warn"` | No | `"warn"` | Severity |
 
@@ -313,6 +327,99 @@ WARN  [ignore] .llmignore
 
 WARN  [ignore] .llmignore
   missing required coverage: *.pem is not listed in the ignore file.
+```
+
+---
+
+## 5. subagents
+
+Validates the YAML frontmatter of Claude Code subagent files (`.claude/agents/*.md`). Subagents act as semi-autonomous workers invoked from the parent session, and a missing `name` / wrong `model` causes the subagent to either fail to load or silently route to an unintended model.
+
+### Configuration
+
+```yaml
+agent:
+  subagents:
+    - path: ".claude/agents/*.md"
+      required_frontmatter_keys: [name, description]
+      allowed_frontmatter_keys: [name, description, model, tools]
+      allowed_models: [sonnet, opus, haiku, inherit]
+      severity: warn
+```
+
+### Fields
+
+| Field | Type | Required | Default | Description |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | Glob for subagent files |
+| `exclude` | string[] | No | `[]` | Exclude glob |
+| `required_frontmatter_keys` | string[] | No | — | Keys that must exist in the YAML frontmatter |
+| `allowed_frontmatter_keys` | string[] | No | — | When set, any frontmatter key outside this list is reported |
+| `allowed_models` | string[] | No | — | When set and the frontmatter has a `model:` value, the value must be listed here |
+| `message` | string | No | — | Custom message |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | Severity |
+
+### Algorithm
+
+1. Glob the target files and extract their YAML frontmatter (`--- ... ---` block at the top)
+2. If no frontmatter exists, report (subagent definitions must declare metadata)
+3. For each `required_frontmatter_keys` entry, report if missing
+4. If `allowed_frontmatter_keys` is set, report any key not in the list
+5. If `allowed_models` is set and `model` is present and string, report if it's not in the allowlist
+
+### Example output
+
+```
+WARN  [subagents] .claude/agents/reviewer.md
+  required key missing in frontmatter: name
+
+WARN  [subagents] .claude/agents/reviewer.md
+  model is not in the allowlist: claude-unknown-99 (allowed: sonnet, opus, haiku, inherit)
+```
+
+---
+
+## 6. skills
+
+Validates the YAML frontmatter of Claude Code skill files (`.claude/skills/*/SKILL.md`). Skills are loaded based on their `description`, so a missing `name` / overly long `description` directly hurts agent dispatch accuracy.
+
+### Configuration
+
+```yaml
+agent:
+  skills:
+    - path: ".claude/skills/*/SKILL.md"
+      required_frontmatter_keys: [name, description]
+      allowed_frontmatter_keys: [name, description]
+      max_description_length: 1024
+      severity: warn
+```
+
+### Fields
+
+| Field | Type | Required | Default | Description |
+|-----------|-----|------|-----------|------|
+| `path` | string | Yes | — | Glob for skill files |
+| `exclude` | string[] | No | `[]` | Exclude glob |
+| `required_frontmatter_keys` | string[] | No | — | Keys that must exist in the YAML frontmatter |
+| `allowed_frontmatter_keys` | string[] | No | — | When set, any frontmatter key outside this list is reported |
+| `max_description_length` | integer | No | — | Upper bound (in code points) for the `description` value |
+| `message` | string | No | — | Custom message |
+| `severity` | `"error"` \| `"warn"` | No | `"warn"` | Severity |
+
+### Algorithm
+
+1. Glob the target files and extract their YAML frontmatter
+2. If no frontmatter exists, report
+3. For each `required_frontmatter_keys` entry, report if missing
+4. If `allowed_frontmatter_keys` is set, report any key not in the list
+5. If `max_description_length` is set and `description` is present and string, report when its code-point length exceeds the bound
+
+### Example output
+
+```
+WARN  [skills] .claude/skills/reviewer/SKILL.md
+  description length 1280 exceeds limit 1024 (skill dispatch accuracy degrades with long descriptions).
 ```
 
 ---

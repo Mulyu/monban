@@ -91,7 +91,8 @@ export async function checkContentForbidden(
 				rule.invisible ||
 				rule.secret ||
 				rule.injection ||
-				rule.conflict
+				rule.conflict ||
+				rule.crlf
 			) {
 				const content = await readFile(abs, "utf-8");
 				const lines = content.split("\n");
@@ -201,6 +202,15 @@ export async function checkContentForbidden(
 								break;
 							}
 						}
+					}
+
+					if (rule.crlf && line.endsWith("\r")) {
+						results.push({
+							rule: "forbidden",
+							path: `${file}:${lineNum}`,
+							message: rule.message ?? "CRLF 改行コードが検出されました。",
+							severity: rule.severity ?? "error",
+						});
 					}
 				}
 			}

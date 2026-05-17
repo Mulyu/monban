@@ -107,4 +107,41 @@ describe("agent/settings", () => {
 		);
 		expect(results.every((r) => r.severity === "error")).toBe(true);
 	});
+
+	describe("hook_timeout", () => {
+		it("does not check timeout by default", async () => {
+			const results = await checkAgentSettings(
+				[{ path: "settings.json" }],
+				okCwd,
+				[],
+			);
+			expect(results.filter((r) => r.message.includes("timeout"))).toHaveLength(
+				0,
+			);
+		});
+
+		it("flags hooks without timeout when hook_timeout is true", async () => {
+			const results = await checkAgentSettings(
+				[{ path: "settings.json", hook_timeout: true }],
+				okCwd,
+				[],
+			);
+			const timeoutResults = results.filter((r) =>
+				r.message.includes("timeout"),
+			);
+			expect(timeoutResults.length).toBeGreaterThan(0);
+			expect(timeoutResults[0].path).toContain("hooks.SessionStart");
+		});
+
+		it("passes hooks that have a numeric timeout", async () => {
+			const results = await checkAgentSettings(
+				[{ path: "settings-timeout.json", hook_timeout: true }],
+				okCwd,
+				[],
+			);
+			expect(results.filter((r) => r.message.includes("timeout"))).toHaveLength(
+				0,
+			);
+		});
+	});
 });

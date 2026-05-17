@@ -1,5 +1,6 @@
 import type { Check, RuleGroupResult, RuleResult } from "../../engine/types.js";
 import { checkGitBranchName } from "./branch-name.js";
+import { checkGitCommitAuthor } from "./commit-author.js";
 import { checkGitCommitMessage } from "./commit-message.js";
 import { checkGitCommitReferences } from "./commit-references.js";
 import { checkGitCommitTrailers } from "./commit-trailers.js";
@@ -14,6 +15,7 @@ const RULE_NAMES = [
 	"commit.message",
 	"commit.trailers",
 	"commit.references",
+	"commit.author",
 	"diff.size",
 	"diff.ignored",
 	"branch_name",
@@ -67,6 +69,13 @@ function runSingleRule(
 			if (!range) return [];
 			return checkGitCommitReferences(
 				config.commit?.references,
+				cwd,
+				range.commitRange,
+			);
+		case "commit.author":
+			if (!range) return [];
+			return checkGitCommitAuthor(
+				config.commit?.author,
 				cwd,
 				range.commitRange,
 			);
