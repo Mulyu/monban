@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.2.7](https://github.com/Mulyu/monban/compare/v0.2.6...v0.2.7) (2026-05-17)
+
+
+### Features
+
+* A・B 群（PR [#90](https://github.com/Mulyu/monban/issues/90) 採用機能）を実装 ([19a1625](https://github.com/Mulyu/monban/commit/19a16255158a01d9a8af727421a86c7a6e92df2e))
+* A・B 群（PR [#90](https://github.com/Mulyu/monban/issues/90) 採用機能）を実装 ([c0d6c1a](https://github.com/Mulyu/monban/commit/c0d6c1aba50571740d8c195ddbb4f4820e78a1ae))
+
+
+### Bug Fixes
+
+* add required security entries to .claudeignore for monban ignore rule ([a7331e4](https://github.com/Mulyu/monban/commit/a7331e4d75a439ee336d9c9a6310ef39c5a0843b))
+
+
+### Documentation
+
+* **direction:** A・B 群の追加機能を decisions.md に記録 ([da538de](https://github.com/Mulyu/monban/commit/da538debb9e377c39fbe17fbe270445273bd9f53))
+* **direction:** A・B 群の追加機能を decisions.md に記録 ([53eba32](https://github.com/Mulyu/monban/commit/53eba327e4d244286e0f31ce0c06e3686200cd6a))
+
+
+### Refactoring
+
+* 5-folder src/ layout + declarative CHECK registry ([43bf417](https://github.com/Mulyu/monban/commit/43bf417fd3e77074034444cbba693e61eae629da))
+* co-locate single-category modules with their owner ([6f8ef7c](https://github.com/Mulyu/monban/commit/6f8ef7ca3325ee9288cf16968808b190a897bd94))
+* declarative CHECK registry for rules ([3372e51](https://github.com/Mulyu/monban/commit/3372e513cbae8ec8f69e490159391c67abd44b92))
+* feature-folder structure for src/ and tests/ ([10c46cf](https://github.com/Mulyu/monban/commit/10c46cfb9028e108d7e110c0ead6a3c254d03f8f))
+* flatten src/config/schema/ ([fe24039](https://github.com/Mulyu/monban/commit/fe24039f11f1d31be81b06aa7fa710d33cd11673))
+* group CLI files under src/cli/ ([e99c5fd](https://github.com/Mulyu/monban/commit/e99c5fdafd087d004171110a418393a9f36825d9))
+* group orchestrator/diff/types/errors under src/engine/ ([739e690](https://github.com/Mulyu/monban/commit/739e690ecdebcf9e2f6c74f0c6de8eac5e38b258))
+* move per-category schemas alongside their rules ([6bd5886](https://github.com/Mulyu/monban/commit/6bd5886db44d8a36d00207b52328ffc7c15cae66))
+* rename src/ports/ → src/shared/ ([424456c](https://github.com/Mulyu/monban/commit/424456c856574e4ccbd89d9984768c2634bdfdb0))
+* **tests:** mirror tests/ layout to rules layout ([bee938a](https://github.com/Mulyu/monban/commit/bee938af1714b3d5e09dffb949b709b221c856db))
+* **types:** split types.ts into per-category type files ([7ba62b5](https://github.com/Mulyu/monban/commit/7ba62b5b991bb9a0cbe98f19525ad920f7778c0e))
+
 ## [0.2.6](https://github.com/Mulyu/monban/compare/v0.2.5...v0.2.6) (2026-05-05)
 
 
