@@ -1,0 +1,34 @@
+name: Renovate
+
+on:
+  schedule:
+    - cron: "0 18 * * *" # 03:00 JST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: renovate
+  cancel-in-progress: false
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      # PR に GITHUB_TOKEN で push すると他ワークフロー(test.yml)が発火せず
+      # automerge が CI 待ちのまま止まる。RENOVATE_TOKEN (repo 権限の PAT) を
+      # secrets に登録すればそちらを使う。未登録時は GITHUB_TOKEN にフォールバック。
+      - uses: renovatebot/github-action@b50d2ba2bd928235abdcc14d06dfafc217f1c565 # v46.1.18
+        with:
+          token: "${{ secrets.RENOVATE_TOKEN || secrets.GITHUB_TOKEN }}"
+          renovate-version: "46.1.18"
+        env:
+          RENOVATE_REPOSITORIES: "${{ github.repository }}"
