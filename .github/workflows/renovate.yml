@@ -23,12 +23,14 @@ jobs:
         with:
           persist-credentials: false
 
-      # PR に GITHUB_TOKEN で push すると他ワークフロー(test.yml)が発火せず
-      # automerge が CI 待ちのまま止まる。RENOVATE_TOKEN (repo 権限の PAT) を
-      # secrets に登録すればそちらを使う。未登録時は GITHUB_TOKEN にフォールバック。
+      # monban.yml が継承する okite ポリシーで workflow の secrets 参照は GITHUB_TOKEN
+      # のみ許可されており、専用 PAT は置けない。GITHUB_TOKEN で push した commit は
+      # 他ワークフロー(test.yml)の pull_request/push を発火させない仕様のため、
+      # Renovate 自身が作る PR には test.yml が走らず、automerge は CI 結果を待てない。
+      # CI ゲートが必要になったら okite 側のポリシーを緩めて PAT/GitHub App token に切り替える。
       - uses: renovatebot/github-action@b50d2ba2bd928235abdcc14d06dfafc217f1c565 # v46.1.18
         with:
-          token: "${{ secrets.RENOVATE_TOKEN || secrets.GITHUB_TOKEN }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
           renovate-version: "46.1.18"
         env:
           RENOVATE_REPOSITORIES: "${{ github.repository }}"
