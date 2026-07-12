@@ -1,0 +1,36 @@
+name: Renovate
+
+on:
+  schedule:
+    - cron: "0 18 * * *" # 03:00 JST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: renovate
+  cancel-in-progress: false
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      # monban.yml が継承する okite ポリシーで workflow の secrets 参照は GITHUB_TOKEN
+      # のみ許可されており、専用 PAT は置けない。GITHUB_TOKEN で push した commit は
+      # 他ワークフロー(test.yml)の pull_request/push を発火させない仕様のため、
+      # Renovate 自身が作る PR には test.yml が走らず、automerge は CI 結果を待てない。
+      # CI ゲートが必要になったら okite 側のポリシーを緩めて PAT/GitHub App token に切り替える。
+      - uses: renovatebot/github-action@b50d2ba2bd928235abdcc14d06dfafc217f1c565 # v46.1.18
+        with:
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          renovate-version: "46.1.18"
+        env:
+          RENOVATE_REPOSITORIES: "${{ github.repository }}"
