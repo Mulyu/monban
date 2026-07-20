@@ -6,7 +6,6 @@
   "platformAutomerge": true,
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["every day"],
     "automerge": true
   }
 }
