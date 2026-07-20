@@ -23,17 +23,16 @@ jobs:
         with:
           persist-credentials: false
 
-      # monban.yml が継承する okite ポリシーで workflow の secrets 参照は GITHUB_TOKEN
-      # のみ許可されており、専用 PAT は置けない。GITHUB_TOKEN で push した commit は
-      # 他ワークフロー(test.yml)の pull_request/push を発火させない仕様のため、
-      # Renovate 自身が作る PR には test.yml が走らず、automerge は CI 結果を待てない。
-      # CI ゲートが必要になったら okite 側のポリシーを緩めて PAT/GitHub App token に切り替える。
+      # RENOVATE_TOKEN (PAT) を使う。GITHUB_TOKEN だと push した commit が他ワークフロー
+      # (test.yml)を発火できず(anti-recursion)、かつ PR 作成者が github-actions[bot]
+      # になるため 2026-06 の GitHub 仕様変更で workflow 実行に人間の承認が必須になる
+      # (リポジトリ側で無効化不可)。実アカウントの PAT を使えばどちらも回避できる。
       # renovate-version は renovatebot/github-action 自体のバージョン(v46.1.18)とは
       # 別採番(renovatebot/renovate 本体、Docker タグ)。ghcr.io/renovatebot/renovate に
       # 実在するタグを指定すること(独自の思い込みで action と同じ値を使わない)。
       - uses: renovatebot/github-action@b50d2ba2bd928235abdcc14d06dfafc217f1c565 # v46.1.18
         with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
+          token: "${{ secrets.RENOVATE_TOKEN }}"
           renovate-version: "43.272.4"
         env:
           RENOVATE_REPOSITORIES: "${{ github.repository }}"
