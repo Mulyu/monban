@@ -28,9 +28,12 @@ jobs:
       # 他ワークフロー(test.yml)の pull_request/push を発火させない仕様のため、
       # Renovate 自身が作る PR には test.yml が走らず、automerge は CI 結果を待てない。
       # CI ゲートが必要になったら okite 側のポリシーを緩めて PAT/GitHub App token に切り替える。
+      # renovate-version は renovatebot/github-action 自体のバージョン(v46.1.18)とは
+      # 別採番(renovatebot/renovate 本体、Docker タグ)。ghcr.io/renovatebot/renovate に
+      # 実在するタグを指定すること(独自の思い込みで action と同じ値を使わない)。
       - uses: renovatebot/github-action@b50d2ba2bd928235abdcc14d06dfafc217f1c565 # v46.1.18
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
-          renovate-version: "46.1.18"
+          renovate-version: "43.272.4"
         env:
           RENOVATE_REPOSITORIES: "${{ github.repository }}"
