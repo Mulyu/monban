@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.2.8](https://github.com/Mulyu/monban/compare/v0.2.7...v0.2.8) (2026-07-23)
+
+
+### Features
+
+* remove Renovate's default PR rate limits ([6585863](https://github.com/Mulyu/monban/commit/6585863f839efe3601e7ea4f43c8cadb9c4e8ac5))
+* remove Renovate's default PR rate limits ([bec51f6](https://github.com/Mulyu/monban/commit/bec51f67809044c3565de9705ca4108d08911975))
+
+
+### Bug Fixes
+
+* **deps:** update dependency commander to v15 ([#112](https://github.com/Mulyu/monban/issues/112)) ([620e794](https://github.com/Mulyu/monban/commit/620e7948636470ff95c7360c8b552c126a9411f3))
+* **deps:** update dependency picomatch to v4.0.5 ([75b7e6d](https://github.com/Mulyu/monban/commit/75b7e6de0589d9a5e16385de7f3e29e61c1c4d5d))
+* **deps:** update dependency picomatch to v4.0.5 ([c2e5119](https://github.com/Mulyu/monban/commit/c2e5119886da280c72867b275cf0ddb7730e1517))
+* **deps:** update dependency smol-toml to v1.7.0 ([#106](https://github.com/Mulyu/monban/issues/106)) ([f4e3040](https://github.com/Mulyu/monban/commit/f4e3040135bf444e0d5886ae1f4d7be63615a177))
+* **deps:** update dependency yaml to v2.9.0 ([fb5a411](https://github.com/Mulyu/monban/commit/fb5a41154933e746b407c3c5d44636baf814fcdb))
+* **deps:** update dependency yaml to v2.9.0 ([6404ead](https://github.com/Mulyu/monban/commit/6404ead2bcfd34b8a110350feeced5fa6e849dfb))
+* drop RENOVATE_TOKEN, use GITHUB_TOKEN only for Renovate workflow ([30547bb](https://github.com/Mulyu/monban/commit/30547bb7a4fa46d6a0fde41c6459f6658ae0738c))
+* pin renovate-version to an actual Renovate CLI release ([c75c5e6](https://github.com/Mulyu/monban/commit/c75c5e6cba838890da99bc7ca259c611c6efdbd1))
+* pin renovate-version to an actual Renovate CLI release, not the action's own tag ([c341421](https://github.com/Mulyu/monban/commit/c341421c4a9cb28916f71cc0d2db2d33af8ef862))
+* remove invalid lockFileMaintenance.schedule ([727f77f](https://github.com/Mulyu/monban/commit/727f77f454e27bb3cdfb4755d8f9fc08110c67f7))
+* remove invalid lockFileMaintenance.schedule ([762dcfc](https://github.com/Mulyu/monban/commit/762dcfcb20ee68a3feb2921670d3ad54c8880f98))
+* use RENOVATE_TOKEN instead of GITHUB_TOKEN for Renovate ([70a52ca](https://github.com/Mulyu/monban/commit/70a52caee36848a515c0a28ec0cc11c74a191154))
+* use RENOVATE_TOKEN instead of GITHUB_TOKEN for Renovate ([99f4793](https://github.com/Mulyu/monban/commit/99f4793e0fee47647f852519de59acf131f24e23))
+
 ## [0.2.7](https://github.com/Mulyu/monban/compare/v0.2.6...v0.2.7) (2026-05-17)
 
 
