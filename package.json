@@ -55,7 +55,7 @@
   "dependencies": {
     "commander": "15.0.0",
     "fast-glob": "3.3.3",
-    "picomatch": "4.0.5",
+    "picomatch": "4.0.7",
     "smol-toml": "1.8.0",
     "yaml": "2.9.0"
   }
