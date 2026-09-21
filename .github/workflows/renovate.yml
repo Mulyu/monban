@@ -30,7 +30,7 @@ jobs:
       # renovate-version は renovatebot/github-action 自体のバージョン(v46.1.18)とは
       # 別採番(renovatebot/renovate 本体、Docker タグ)。ghcr.io/renovatebot/renovate に
       # 実在するタグを指定すること(独自の思い込みで action と同じ値を使わない)。
-      - uses: renovatebot/github-action@dcfba84a42d1b5d5e49bf131b1bf53511851a123 # v46.3.1
+      - uses: renovatebot/github-action@9fea9f0fbf80401026d11d03911d62b1f70fef1f # v46.3.3
         with:
           token: "${{ secrets.RENOVATE_TOKEN }}"
           renovate-version: "43.272.4"
