@@ -45,7 +45,7 @@
     "provenance": true
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.13",
+    "@biomejs/biome": "2.5.14",
     "@types/node": "25.9.5",
     "@types/picomatch": "4.0.3",
     "tsdown": "0.23.0",
